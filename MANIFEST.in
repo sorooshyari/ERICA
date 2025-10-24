@@ -1,0 +1,10 @@
+include README.md
+include LICENSE
+include requirements.txt
+recursive-include erica *.py
+recursive-exclude tests *
+recursive-exclude docs *
+recursive-exclude examples *
+global-exclude __pycache__
+global-exclude *.py[co]
+

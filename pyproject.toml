@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "erica-clustering"
+version = "0.1.3"
+description = "ERICA - Evaluating Replicability via Iterative Clustering Assignments"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Siamak Sorooshyari", email = "siamak.sorooshyari@example.com"},
+    {name = "Shawn Shirazi", email = "shawn.shirazi@example.com"}
+]
+keywords = ["clustering", "machine-learning", "replicability", "data-analysis"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "numpy>=1.21.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "pyyaml>=6.0",
+    "plotly>=5.0.0",
+    "matplotlib>=3.5.0",
+]
+
+[project.optional-dependencies]
+gui = ["gradio>=4.0.0"]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=3.0.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+    "mypy>=0.950",
+]
+
+[project.urls]
+Homepage = "https://github.com/shawnshirazi/ERICA_PyPI"
+Documentation = "https://github.com/shawnshirazi/ERICA_PyPI/blob/main/docs/"
+Repository = "https://github.com/shawnshirazi/ERICA_PyPI"
+"Bug Tracker" = "https://github.com/shawnshirazi/ERICA_PyPI/issues"
+
+[project.scripts]
+erica = "erica.cli:main"
+erica-gui = "erica.gui:launch"
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "--cov=erica --cov-report=html --cov-report=term-missing"
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
