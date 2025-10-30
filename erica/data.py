@@ -9,7 +9,7 @@ This module handles:
 import os
 import numpy as np
 import pandas as pd
-from typing import Union, Dict, Tuple
+from typing import Union, Dict, Tuple, Optional
 
 
 def load_data(filepath: str) -> Union[np.ndarray, pd.DataFrame]:
@@ -88,7 +88,8 @@ def _load_csv(filepath: str) -> pd.DataFrame:
 
 
 def prepare_samples_array(
-    data: Union[np.ndarray, pd.DataFrame]
+    data: Union[np.ndarray, pd.DataFrame],
+    transpose: Optional[str] = 'auto'
 ) -> np.ndarray:
     """Convert data to numeric samples array suitable for clustering.
     
@@ -102,6 +103,11 @@ def prepare_samples_array(
     ----------
     data : np.ndarray or pd.DataFrame
         Input data
+    transpose : str, optional
+        How to handle transposition:
+        - 'auto': Automatically detect orientation (default)
+        - 'yes': Always transpose (features in rows, samples in columns)
+        - 'no': Never transpose (samples in rows, features in columns)
         
     Returns
     -------
@@ -171,15 +177,40 @@ def prepare_samples_array(
             f"After processing: {numeric_df.shape}"
         )
     
-    # Transpose to (samples, features) format
-    # Assumption: features are in rows, samples in columns
-    samples_array = numeric_df.values.T
+    # Determine if we should transpose
+    should_transpose = False
+    if transpose == 'yes':
+        should_transpose = True
+    elif transpose == 'no':
+        should_transpose = False
+    elif transpose == 'auto':
+        # Auto-detect: Use simple, robust heuristic
+        # Key principle: In typical datasets, we have MORE SAMPLES than FEATURES
+        # - Standard format: samples in rows, features in columns (n_samples > n_features)
+        # - Genomics format: features in rows, samples in columns (n_features > n_samples)
+        n_rows, n_cols = numeric_df.shape
+        
+        # Simple rule: if we have more columns than rows, transpose
+        # This handles the common genomics case where features >> samples
+        if n_cols > n_rows:
+            # More columns than rows -> likely features in rows, transpose
+            should_transpose = True
+        else:
+            # More rows than columns (or equal) -> likely samples in rows, don't transpose
+            should_transpose = False
+    
+    # Apply transposition
+    if should_transpose:
+        samples_array = numeric_df.values.T
+    else:
+        samples_array = numeric_df.values
     
     if samples_array.shape[0] == 0:
         raise ValueError(
-            f"Final array has 0 samples after transposition. "
+            f"Final array has 0 samples after processing. "
             f"Original DataFrame shape: {data.shape}, "
-            f"Numeric DataFrame shape: {numeric_df.shape}"
+            f"Numeric DataFrame shape: {numeric_df.shape}, "
+            f"Transposed: {should_transpose}"
         )
     
     return samples_array
@@ -314,13 +345,18 @@ def load_clam_matrix(filepath: str) -> np.ndarray:
         raise ValueError(f"Unsupported file format: {ext}")
 
 
-def get_dataset_info(data: Union[np.ndarray, pd.DataFrame]) -> Dict:
+def get_dataset_info(
+    data: Union[np.ndarray, pd.DataFrame],
+    transpose: str = 'auto'
+) -> Dict:
     """Get summary information about a dataset.
     
     Parameters
     ----------
     data : np.ndarray or pd.DataFrame
         Input data
+    transpose : str, optional
+        Data orientation: 'auto', 'yes', or 'no' (default: 'auto')
         
     Returns
     -------
@@ -334,7 +370,7 @@ def get_dataset_info(data: Union[np.ndarray, pd.DataFrame]) -> Dict:
     >>> print(info['n_samples'], info['n_features'])
     100 50
     """
-    samples_array = prepare_samples_array(data)
+    samples_array = prepare_samples_array(data, transpose=transpose)
     n_samples, n_features = samples_array.shape
     
     return {

@@ -15,6 +15,7 @@
 - 🎨 **Optional GUI**: User-friendly Gradio web interface
 - 🔬 **Reproducible**: Deterministic mode for scientific reproducibility
 - ⚡ **Optimized I/O**: Smart caching for efficient processing
+- 📁 **Flexible Data Loading**: Automatic detection of CSV orientation (samples in rows/columns)
 
 ## Quick Start
 
@@ -180,19 +181,47 @@ erica/
 
 ```python
 import pandas as pd
-from erica import ERICA, load_data
+from erica import ERICA
+from erica.data import load_data
 
-# Load gene expression data
+# Load gene expression data (CSV with samples in rows or columns)
 data = load_data('gene_expression.csv')
 
-# Run ERICA
-erica = ERICA(data=data, k_range=[2, 3, 4, 5, 6], n_iterations=200)
+# Run ERICA with automatic orientation detection
+erica = ERICA(
+    data=data, 
+    k_range=[2, 3, 4, 5, 6], 
+    n_iterations=200,
+    transpose='auto'  # Automatically detect data orientation
+)
 results = erica.run()
 
 # Find optimal k
 from erica.metrics import find_optimal_k
 optimal_k, _ = find_optimal_k(erica.get_metrics(), metric_name='TWCRI')
 print(f"Recommended number of clusters: {optimal_k}")
+```
+
+### Example 1b: Handling Different CSV Formats
+
+```python
+from erica import ERICA
+from erica.data import load_data
+
+# Case 1: Samples in rows (standard format)
+# CSV structure: each row is a sample, each column is a feature
+data = load_data('samples_in_rows.csv')
+erica = ERICA(data=data, transpose='no')  # or 'auto' will detect this
+
+# Case 2: Features in rows (genomics format)
+# CSV structure: each row is a gene/feature, each column is a sample
+data = load_data('features_in_rows.csv')
+erica = ERICA(data=data, transpose='yes')  # or 'auto' will detect this
+
+# Case 3: Let ERICA auto-detect (recommended)
+data = load_data('your_data.csv')
+erica = ERICA(data=data, transpose='auto')  # Default behavior
+results = erica.run()
 ```
 
 ### Example 2: Method Comparison

@@ -34,9 +34,37 @@ class ERICA:
         linkages: Optional[List[str]] = None,
         random_seed: int = 123,
         output_dir: str = './erica_output',
+        transpose: str = 'auto',
         verbose: bool = True
     ):
-        """Initialize ERICA analysis."""
+        """Initialize ERICA analysis.
+        
+        Parameters
+        ----------
+        data : np.ndarray or pd.DataFrame
+            Input data for clustering analysis
+        k_range : list of int, optional
+            Range of k values to test (default: [2, 3, 4, 5])
+        n_iterations : int, optional
+            Number of subsampling iterations (default: 200)
+        train_percent : float, optional
+            Percentage of data for training (default: 0.8)
+        method : str, optional
+            Clustering method: 'kmeans', 'agglomerative', or 'both' (default: 'both')
+        linkages : list of str, optional
+            Linkage methods for agglomerative clustering (default: ['single', 'ward'])
+        random_seed : int, optional
+            Random seed for reproducibility (default: 123)
+        output_dir : str, optional
+            Directory for output files (default: './erica_output')
+        transpose : str, optional
+            Data orientation: 'auto', 'yes', or 'no' (default: 'auto')
+            - 'auto': Automatically detect if samples are in rows or columns
+            - 'yes': Transpose data (features in rows, samples in columns)
+            - 'no': Don't transpose (samples in rows, features in columns)
+        verbose : bool, optional
+            Print progress messages (default: True)
+        """
         self.data = data
         self.k_range = k_range or [2, 3, 4, 5]
         self.n_iterations = n_iterations
@@ -45,13 +73,14 @@ class ERICA:
         self.linkages = linkages or ['single', 'ward']
         self.random_seed = random_seed
         self.output_dir = output_dir
+        self.transpose = transpose
         self.verbose = verbose
 
         # Deterministic reproducibility
         set_deterministic_mode(random_seed)
 
         # Prepare and validate data
-        self.samples_array = prepare_samples_array(data)
+        self.samples_array = prepare_samples_array(data, transpose=transpose)
         self.n_samples, self.n_features = self.samples_array.shape
         validate_dataset(self.samples_array, min(self.k_range), self.train_percent)
 
