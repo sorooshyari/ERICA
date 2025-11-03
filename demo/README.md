@@ -85,6 +85,9 @@ If all tests pass, you'll see:
 The demo interface is organized into 3 streamlined tabs:
 
 ### Tab 1: Load Data
+The data loading tab has two sub-tabs for flexibility:
+
+**Upload New Data:**
 - **Upload Files**: Support for CSV and NPY formats
 - **Dataset Preview**: Detailed preview showing:
   - File information and shape
@@ -94,6 +97,14 @@ The demo interface is organized into 3 streamlined tabs:
   - First 5 and last 3 rows of data
 - **Transpose Option**: Toggle between genomics format (features×samples) and ML format (samples×features)
 - **Header Detection**: Automatically identifies gene ID or feature name headers
+
+**Load Previous Run:**
+- **List Available Runs**: View up to 10 most recent ERICA runs
+- **Refresh List**: Update the list of available runs
+- **Load Previous Analysis**: Restore a completed analysis without re-running
+- **Run Directory**: Enter path to a previous run directory
+- **Automatic Summary**: See all parameters, metrics, and K* selections from the loaded run
+- **Seamless Integration**: Once loaded, view visualizations in Tab 3 as normal
 
 ### Tab 2: Configure & Run Analysis
 **Configuration Section:**
@@ -177,8 +188,10 @@ The demo interface is organized into 3 streamlined tabs:
 
 Here's a streamlined workflow for analyzing a dataset:
 
-### 1. Load Your Data
-- Navigate to **Tab 1: Load Data**
+### 1. Load Your Data (or Previous Run)
+
+**Option A: Upload New Data**
+- Navigate to **Tab 1: Load Data** → **Upload New Data** sub-tab
 - Click **"Data File"** and upload your CSV or NPY file
 - Check **"Transpose Data"** if using genomics format (features in rows)
 - Click **"Load & Preview Data"** to see:
@@ -186,6 +199,15 @@ Here's a streamlined workflow for analyzing a dataset:
   - First 5 and last 3 rows
   - Data validation results
 - Verify everything looks correct before proceeding
+
+**Option B: Load Previous Run**
+- Navigate to **Tab 1: Load Data** → **Load Previous Run** sub-tab
+- Review the list of available runs (most recent first)
+- Copy a run directory path from the list
+- Paste it into "Previous Run Directory" field
+- Click **"Load Previous Run"**
+- Review the summary showing all parameters and metrics
+- Skip to Step 4 to view visualizations
 
 ### 2. Configure & Run Analysis
 - Navigate to **Tab 2: Configure & Run Analysis**
@@ -302,6 +324,36 @@ If you encounter issues not listed here:
 3. Ensure all dependencies are installed correctly by running `python demo/test_demo.py`
 4. Check that your data format matches the expected input format
 
+## Saved Output Structure
+
+Each ERICA run automatically saves its results to a timestamped directory:
+
+```
+./erica_output/erica_run_20251103_182956/
+├── kmeans_k2/
+│   └── cluster_assignments.csv
+├── kmeans_k3/
+│   └── cluster_assignments.csv
+├── kmeans_k4/
+│   └── cluster_assignments.csv
+├── erica_instance.pkl          # NEW: Complete ERICA state for loading
+└── ... (additional K values and methods)
+```
+
+**What Gets Saved:**
+- **CSV files**: Cluster assignments for each K and method
+- **erica_instance.pkl**: Complete ERICA instance with all results, metrics, and parameters
+- **Metrics**: All CRI, WCRI, TWCRI values for each K
+- **K* selections**: Optimal K values for each metric
+- **Configuration**: All parameters used (K range, iterations, method, etc.)
+
+**Benefits of Saved State:**
+- Resume analysis without re-running
+- Share results with collaborators (just send the directory)
+- Compare multiple runs easily
+- Create new visualizations from old runs
+- Preserve long-running analyses
+
 ## File Structure
 
 ```
@@ -315,11 +367,12 @@ demo/
 ### File Descriptions
 
 - **gradio_demo.py**: Professional Gradio interface with 3 streamlined tabs:
-  - Tab 1: Data loading with detailed preview
+  - Tab 1: Data loading (new data or previous runs)
   - Tab 2: Combined configuration and execution
   - Tab 3: Results with auto-refreshing visualizations
   - Includes helper functions for data parsing, plot generation, and result management
-  - ~900 lines of clean, well-documented code
+  - Automatic state persistence for loading previous runs
+  - ~1000 lines of clean, well-documented code
 
 - **test_demo.py**: Lightweight testing script that verifies imports and basic functionality. Run this first to ensure everything is set up correctly.
 
