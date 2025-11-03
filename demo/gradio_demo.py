@@ -259,6 +259,8 @@ def run_erica_analysis(
     
     try:
         import time
+        import os
+        import pickle
         start_time = time.time()
         
         # Parse k range
@@ -285,8 +287,19 @@ def run_erica_analysis(
         )
         
         # Run analysis
-        print(f"\n🔄 Starting ERICA analysis... (K={k_range}, iterations={n_iterations})")
+        print(f"\nStarting ERICA analysis... (K={k_range}, iterations={n_iterations})")
         erica_results = erica_instance.run()
+        
+        # Save the ERICA instance for later loading
+        if erica_instance.output_folders_:
+            save_dir = erica_instance.output_folders_[0]
+            pickle_path = os.path.join(save_dir, "erica_instance.pkl")
+            try:
+                with open(pickle_path, 'wb') as f:
+                    pickle.dump(erica_instance, f)
+                print(f"Saved ERICA instance to: {pickle_path}")
+            except Exception as e:
+                print(f"Warning: Could not save ERICA instance: {e}")
         
         # Calculate elapsed time
         elapsed_time = time.time() - start_time
@@ -609,32 +622,184 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
     with gr.Tabs():
         # Tab 1: Data Loading
         with gr.Tab("1. Load Data"):
-            gr.Markdown("### Upload Your Dataset")
-            
-            with gr.Row():
-                data_file = gr.File(
-                    label="Data File",
-                    file_types=[".csv", ".npy"],
-                    type="filepath"
-                )
-                transpose_data = gr.Checkbox(
-                    label="Transpose Data",
-                    value=True,
-                    info="Transpose if features are in rows (genomics format). Uncheck if samples are in rows (standard ML format)."
-                )
-            
-            data_preview = gr.Textbox(
-                label="Dataset Preview",
-                lines=20,
-                interactive=False
-            )
-            
-            load_btn = gr.Button("Load & Preview Data", variant="primary")
-            load_btn.click(
-                fn=load_and_preview_data,
-                inputs=[data_file, transpose_data],
-                outputs=[data_preview]
-            )
+            with gr.Tabs():
+                # Sub-tab 1: Upload New Data
+                with gr.Tab("Upload New Data"):
+                    gr.Markdown("### Upload Your Dataset")
+                    
+                    with gr.Row():
+                        data_file = gr.File(
+                            label="Data File",
+                            file_types=[".csv", ".npy"],
+                            type="filepath"
+                        )
+                        transpose_data = gr.Checkbox(
+                            label="Transpose Data",
+                            value=True,
+                            info="Transpose if features are in rows (genomics format). Uncheck if samples are in rows (standard ML format)."
+                        )
+                    
+                    data_preview = gr.Textbox(
+                        label="Dataset Preview",
+                        lines=20,
+                        interactive=False
+                    )
+                    
+                    load_btn = gr.Button("Load & Preview Data", variant="primary")
+                    load_btn.click(
+                        fn=load_and_preview_data,
+                        inputs=[data_file, transpose_data],
+                        outputs=[data_preview]
+                    )
+                
+                # Sub-tab 2: Load Previous Run
+                with gr.Tab("Load Previous Run"):
+                    gr.Markdown("### Load Results from Previous Analysis")
+                    gr.Markdown("*Browse to a previous ERICA output directory to restore results.*")
+                    
+                    def list_available_runs():
+                        """List available ERICA runs in the default output directory."""
+                        import os
+                        import glob
+                        
+                        output_dir = "./erica_output"
+                        if not os.path.exists(output_dir):
+                            return "No previous runs found. Run an analysis first!"
+                        
+                        run_dirs = glob.glob(os.path.join(output_dir, "erica_run_*"))
+                        run_dirs = [d for d in run_dirs if os.path.isdir(d)]
+                        run_dirs.sort(reverse=True)  # Most recent first
+                        
+                        if not run_dirs:
+                            return "No previous runs found in ./erica_output/"
+                        
+                        lines = [
+                            "Available runs (most recent first):",
+                            ""
+                        ]
+                        for run_dir in run_dirs[:10]:  # Show last 10 runs
+                            run_name = os.path.basename(run_dir)
+                            lines.append(f"  {run_dir}")
+                        
+                        if len(run_dirs) > 10:
+                            lines.append(f"\n... and {len(run_dirs) - 10} more")
+                        
+                        return "\n".join(lines)
+                    
+                    available_runs = gr.Textbox(
+                        label="Available Runs",
+                        lines=8,
+                        interactive=False,
+                        value=list_available_runs()
+                    )
+                    
+                    refresh_runs_btn = gr.Button("Refresh List", size="sm")
+                    refresh_runs_btn.click(
+                        fn=list_available_runs,
+                        outputs=[available_runs]
+                    )
+                    
+                    prev_run_dir = gr.Textbox(
+                        label="Previous Run Directory",
+                        placeholder="./erica_output/erica_run_YYYYMMDD_HHMMSS",
+                        info="Copy a path from the list above or enter manually"
+                    )
+                    
+                    prev_run_preview = gr.Textbox(
+                        label="Previous Run Summary",
+                        lines=15,
+                        interactive=False
+                    )
+                    
+                    load_prev_btn = gr.Button("Load Previous Run", variant="secondary")
+                    
+                    def load_previous_run(run_dir):
+                        """Load a previous ERICA run from directory."""
+                        global erica_instance, erica_results
+                        
+                        if not run_dir or not run_dir.strip():
+                            return "Please enter a run directory path."
+                        
+                        import os
+                        run_dir = run_dir.strip()
+                        
+                        if not os.path.exists(run_dir):
+                            return f"Error: Directory not found: {run_dir}"
+                        
+                        if not os.path.isdir(run_dir):
+                            return f"Error: Path is not a directory: {run_dir}"
+                        
+                        try:
+                            # Try to find and load the ERICA instance pickle file
+                            pickle_file = os.path.join(run_dir, "erica_instance.pkl")
+                            
+                            if os.path.exists(pickle_file):
+                                import pickle
+                                with open(pickle_file, 'rb') as f:
+                                    erica_instance = pickle.load(f)
+                                    erica_results = erica_instance
+                            else:
+                                return (
+                                    f"Error: No saved ERICA instance found in {run_dir}\n\n"
+                                    "Note: This feature requires ERICA to save its state.\n"
+                                    "The directory should contain 'erica_instance.pkl'.\n\n"
+                                    "Alternatively, you can re-run the analysis with the same parameters."
+                                )
+                            
+                            # Generate summary
+                            summary_lines = [
+                                "=" * 80,
+                                "PREVIOUS RUN LOADED SUCCESSFULLY",
+                                "=" * 80,
+                                f"Directory: {run_dir}",
+                                f"Data shape: {erica_instance.samples_array.shape}",
+                                f"K range: {erica_instance.k_range}",
+                                f"Iterations: {erica_instance.n_iterations}",
+                                f"Method: {erica_instance.method}",
+                                "",
+                                "=" * 80,
+                                "Results Summary:",
+                                "=" * 80,
+                            ]
+                            
+                            # Add metrics summary
+                            metrics = erica_instance.get_metrics()
+                            for k in sorted(metrics.keys()):
+                                summary_lines.append(f"\nK = {k}:")
+                                for method_name, metric_dict in metrics[k].items():
+                                    summary_lines.append(f"  {method_name}:")
+                                    summary_lines.append(f"    CRI:   {metric_dict.get('CRI', 0):.6f}")
+                                    summary_lines.append(f"    WCRI:  {metric_dict.get('WCRI', 0):.6f}")
+                                    summary_lines.append(f"    TWCRI: {metric_dict.get('TWCRI', 0):.6f}")
+                            
+                            # Add K* summary
+                            if hasattr(erica_instance, 'k_star_') and erica_instance.k_star_:
+                                summary_lines.append("\n" + "=" * 80)
+                                summary_lines.append("Optimal K* Selection:")
+                                summary_lines.append("=" * 80)
+                                for metric_name in ['CRI', 'WCRI', 'TWCRI']:
+                                    if metric_name in erica_instance.k_star_:
+                                        summary_lines.append(f"\n{metric_name}:")
+                                        for method_name, k_star in erica_instance.k_star_[metric_name].items():
+                                            summary_lines.append(f"  {method_name}: K* = {k_star}")
+                            
+                            summary_lines.extend([
+                                "",
+                                "=" * 80,
+                                "Previous run loaded. You can now view metrics and visualizations in Tab 3.",
+                                "=" * 80,
+                            ])
+                            
+                            return "\n".join(summary_lines)
+                            
+                        except Exception as e:
+                            return f"Error loading previous run:\n{str(e)}\n\n{traceback.format_exc()}"
+                    
+                    load_prev_btn.click(
+                        fn=load_previous_run,
+                        inputs=[prev_run_dir],
+                        outputs=[prev_run_preview]
+                    )
         
         # Tab 2: Configuration & Run Analysis
         with gr.Tab("2. Configure & Run Analysis"):
