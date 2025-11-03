@@ -56,6 +56,10 @@ def _load_npy(filepath: str) -> Union[np.ndarray, pd.DataFrame]:
     """Load .npy file."""
     loaded = np.load(filepath, allow_pickle=True)
     
+    # Handle 0-d array containing a dict (common format)
+    if loaded.shape == () and loaded.dtype == object:
+        loaded = loaded.item()
+    
     # Handle different .npy formats
     if isinstance(loaded, dict):
         if 'all' in loaded:
@@ -89,7 +93,7 @@ def _load_csv(filepath: str) -> pd.DataFrame:
 
 def prepare_samples_array(
     data: Union[np.ndarray, pd.DataFrame],
-    transpose: Optional[str] = 'auto'
+    transpose: bool = True
 ) -> np.ndarray:
     """Convert data to numeric samples array suitable for clustering.
     
@@ -97,17 +101,16 @@ def prepare_samples_array(
     1. Detects and removes header rows
     2. Removes non-numeric first columns (gene IDs, etc.)
     3. Converts to numeric where possible
-    4. Transposes to (n_samples, n_features) format if needed
+    4. Optionally transposes data if features are in rows
     
     Parameters
     ----------
     data : np.ndarray or pd.DataFrame
         Input data
-    transpose : str, optional
-        How to handle transposition:
-        - 'auto': Automatically detect orientation (default)
-        - 'yes': Always transpose (features in rows, samples in columns)
-        - 'no': Never transpose (samples in rows, features in columns)
+    transpose : bool, optional
+        Whether to transpose the data (default: True)
+        - True: Assumes features in rows, samples in columns (genomics format - default)
+        - False: Assumes samples in rows, features in columns (standard ML format)
         
     Returns
     -------
@@ -123,13 +126,13 @@ def prepare_samples_array(
     --------
     >>> import pandas as pd
     >>> df = pd.DataFrame({
-    ...     'gene_id': ['gene1', 'gene2', 'gene3'],
-    ...     'sample1': [1.0, 2.0, 3.0],
-    ...     'sample2': [4.0, 5.0, 6.0]
+    ...     'sample_id': ['sample1', 'sample2'],
+    ...     'feature1': [1.0, 2.0],
+    ...     'feature2': [3.0, 4.0]
     ... })
-    >>> array = prepare_samples_array(df)
-    >>> print(array.shape)  # Should be (2, 3) - 2 samples, 3 features
-    (2, 3)
+    >>> array = prepare_samples_array(df, transpose=False)
+    >>> print(array.shape)  # (2, 2) - 2 samples, 2 features
+    (2, 2)
     """
     # If already numpy array, check if numeric
     if isinstance(data, np.ndarray):
@@ -177,30 +180,8 @@ def prepare_samples_array(
             f"After processing: {numeric_df.shape}"
         )
     
-    # Determine if we should transpose
-    should_transpose = False
-    if transpose == 'yes':
-        should_transpose = True
-    elif transpose == 'no':
-        should_transpose = False
-    elif transpose == 'auto':
-        # Auto-detect: Use simple, robust heuristic
-        # Key principle: In typical datasets, we have MORE SAMPLES than FEATURES
-        # - Standard format: samples in rows, features in columns (n_samples > n_features)
-        # - Genomics format: features in rows, samples in columns (n_features > n_samples)
-        n_rows, n_cols = numeric_df.shape
-        
-        # Simple rule: if we have more columns than rows, transpose
-        # This handles the common genomics case where features >> samples
-        if n_cols > n_rows:
-            # More columns than rows -> likely features in rows, transpose
-            should_transpose = True
-        else:
-            # More rows than columns (or equal) -> likely samples in rows, don't transpose
-            should_transpose = False
-    
-    # Apply transposition
-    if should_transpose:
+    # Apply transposition if requested
+    if transpose:
         samples_array = numeric_df.values.T
     else:
         samples_array = numeric_df.values
@@ -210,7 +191,7 @@ def prepare_samples_array(
             f"Final array has 0 samples after processing. "
             f"Original DataFrame shape: {data.shape}, "
             f"Numeric DataFrame shape: {numeric_df.shape}, "
-            f"Transposed: {should_transpose}"
+            f"Transposed: {transpose}"
         )
     
     return samples_array
@@ -246,16 +227,30 @@ def validate_dataset(
     
     # Check minimum samples
     if n_samples < 3:
+        hint = ""
+        if n_features > 10 and n_features > n_samples:
+            hint = (
+                f"\n\nHINT: Your data has {n_features} features but only {n_samples} samples. "
+                f"This might indicate incorrect data orientation. "
+                f"Try toggling the transpose parameter (True/False) when initializing ERICA."
+            )
         raise ValueError(
             f"Dataset has only {n_samples} samples. "
-            f"Need at least 3 samples for meaningful clustering."
+            f"Need at least 3 samples for meaningful clustering.{hint}"
         )
     
     # Check samples vs k
     if n_samples < min_k:
+        hint = ""
+        if n_features > n_samples and n_features >= min_k:
+            hint = (
+                f"\n\nHINT: Your data has {n_samples} samples but {n_features} features. "
+                f"This might indicate incorrect data orientation. "
+                f"Try toggling the transpose parameter (True/False) when initializing ERICA."
+            )
         raise ValueError(
             f"Dataset has {n_samples} samples but k={min_k} clusters requested. "
-            f"Need at least k samples."
+            f"Need at least k samples.{hint}"
         )
     
     # Check training subset size
@@ -347,7 +342,7 @@ def load_clam_matrix(filepath: str) -> np.ndarray:
 
 def get_dataset_info(
     data: Union[np.ndarray, pd.DataFrame],
-    transpose: str = 'auto'
+    transpose: bool = True
 ) -> Dict:
     """Get summary information about a dataset.
     
@@ -355,8 +350,8 @@ def get_dataset_info(
     ----------
     data : np.ndarray or pd.DataFrame
         Input data
-    transpose : str, optional
-        Data orientation: 'auto', 'yes', or 'no' (default: 'auto')
+    transpose : bool, optional
+        Whether to transpose the data (default: True)
         
     Returns
     -------

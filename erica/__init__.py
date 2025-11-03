@@ -54,6 +54,8 @@ from erica.metrics import (
     compute_wcri,
     compute_twcri,
     compute_metrics_for_clam,
+    select_optimal_k,
+    select_optimal_k_by_method,
 )
 
 # Import plotting functions (if available)
@@ -62,6 +64,8 @@ try:
         plot_metrics,
         plot_optimal_k,
         create_metrics_plots,
+        plot_k_star_selection,
+        plot_k_star_by_method,
     )
 except ImportError:
     # Plotting dependencies not installed
@@ -94,11 +98,15 @@ __all__ = [
     'compute_wcri',
     'compute_twcri',
     'compute_metrics_for_clam',
+    'select_optimal_k',
+    'select_optimal_k_by_method',
     
     # Plotting (conditional)
     'plot_metrics',
     'plot_optimal_k',
     'create_metrics_plots',
+    'plot_k_star_selection',
+    'plot_k_star_by_method',
     
     # Data utilities
     'load_data',

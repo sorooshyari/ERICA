@@ -10,6 +10,7 @@
 
 - 🎯 **Multiple Clustering Methods**: Support for K-Means and Agglomerative (Hierarchical) Clustering
 - 📊 **Replicability Metrics**: Compute CRI, WCRI, and TWCRI metrics for stability assessment
+- ⭐ **Optimal K Selection**: Automatic K\* selection using Algorithm 2 for principled cluster number determination
 - 🔄 **Iterative Analysis**: Monte Carlo subsampling for robust evaluation
 - 📈 **Interactive Visualization**: Create beautiful plots with Plotly
 - 🎨 **Optional GUI**: User-friendly Gradio web interface
@@ -58,6 +59,10 @@ results = erica.run()
 clam_matrix = erica.get_clam_matrix(k=3)
 metrics = erica.get_metrics()
 
+# Get optimal K* (automatically computed)
+k_star = erica.get_k_star('TWCRI')
+print(f"Optimal K* = {k_star['kmeans']}")
+
 print(f"CRI: {metrics[3]['kmeans']['CRI']:.3f}")
 print(f"WCRI: {metrics[3]['kmeans']['WCRI']:.3f}")
 print(f"TWCRI: {metrics[3]['kmeans']['TWCRI']:.3f}")
@@ -66,6 +71,36 @@ print(f"TWCRI: {metrics[3]['kmeans']['TWCRI']:.3f}")
 fig1, fig2 = erica.plot_metrics()
 fig1.show()
 ```
+
+### Data Orientation
+
+ERICA expects data in **(n_samples, n_features)** format. The `transpose` parameter controls how your input data is interpreted:
+
+**Default (Genomics Format):**
+```python
+from erica import ERICA
+from erica.data import load_data
+
+# For genomics data: features in rows, samples in columns
+# Example: 22,283 genes × 200 samples
+data = load_data('gene_expression.npy')
+erica = ERICA(data=data)  # transpose=True by default
+# Result: 200 samples × 22,283 features ✓
+```
+
+**Standard ML Format:**
+```python
+# For standard ML data: samples in rows, features in columns
+# Example: 344 samples × 3 features
+data = load_data('samples.csv')
+erica = ERICA(data=data, transpose=False)
+# Result: 344 samples × 3 features ✓
+```
+
+**Important Notes:**
+- `.npy` files: If your array is already numeric, it's used as-is (no transposition)
+- CSV files: Automatically removes ID columns and converts to numeric
+- If you get an error about insufficient samples, try toggling `transpose=True/False`
 
 ## What is ERICA?
 
@@ -177,22 +212,21 @@ erica/
 
 ## Examples
 
-### Example 1: Gene Expression Analysis
+### Example 1: Gene Expression Analysis (.npy files)
 
 ```python
-import pandas as pd
 from erica import ERICA
 from erica.data import load_data
 
-# Load gene expression data (CSV with samples in rows or columns)
-data = load_data('gene_expression.csv')
+# Load genomics data (features in rows, samples in columns)
+# Example: mainz_dict.npy contains 22,283 genes × 200 samples
+data = load_data('mainz_dict.npy')
 
-# Run ERICA with automatic orientation detection
+# Run ERICA (default transpose=True handles genomics format)
 erica = ERICA(
     data=data, 
     k_range=[2, 3, 4, 5, 6], 
-    n_iterations=200,
-    transpose='auto'  # Automatically detect data orientation
+    n_iterations=200
 )
 results = erica.run()
 
@@ -202,27 +236,30 @@ optimal_k, _ = find_optimal_k(erica.get_metrics(), metric_name='TWCRI')
 print(f"Recommended number of clusters: {optimal_k}")
 ```
 
-### Example 1b: Handling Different CSV Formats
+### Example 1b: CSV Files with Different Orientations
 
 ```python
 from erica import ERICA
 from erica.data import load_data
 
-# Case 1: Samples in rows (standard format)
-# CSV structure: each row is a sample, each column is a feature
-data = load_data('samples_in_rows.csv')
-erica = ERICA(data=data, transpose='no')  # or 'auto' will detect this
-
-# Case 2: Features in rows (genomics format)
-# CSV structure: each row is a gene/feature, each column is a sample
-data = load_data('features_in_rows.csv')
-erica = ERICA(data=data, transpose='yes')  # or 'auto' will detect this
-
-# Case 3: Let ERICA auto-detect (recommended)
-data = load_data('your_data.csv')
-erica = ERICA(data=data, transpose='auto')  # Default behavior
+# Case 1: Genomics CSV (features in rows, samples in columns)
+# File structure: each row = gene, each column = sample
+# Example: 22,283 rows × 201 columns (1 ID + 200 samples)
+data = load_data('gene_expression.csv')
+erica = ERICA(data=data, transpose=True)  # Default
 results = erica.run()
+# Result: 200 samples × 22,283 features
+
+# Case 2: Standard ML CSV (samples in rows, features in columns)
+# File structure: each row = sample, each column = feature
+# Example: VDX_3_SV.csv with 344 rows × 4 columns (1 ID + 3 genes)
+data = load_data('VDX_3_SV.csv')
+erica = ERICA(data=data, transpose=False)  # Must specify!
+results = erica.run()
+# Result: 344 samples × 3 features
 ```
+
+**Troubleshooting:** If you get an error like "Dataset has 3 samples but k=4 clusters requested", your data orientation is likely incorrect. Try toggling `transpose=True/False`.
 
 ### Example 2: Method Comparison
 

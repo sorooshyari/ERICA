@@ -393,3 +393,158 @@ def summarize_metrics(
     }
 
 
+def select_optimal_k(
+    metric_dict: Dict[int, float],
+    k_max: Optional[int] = None
+) -> int:
+    """Select optimal K using ERICA Algorithm 2 (non-decreasing metric selection).
+    
+    This algorithm implements the K_star selection procedure from ERICA:
+    1. Initialize K_star = 2
+    2. For K = 3 to K_max:
+        a. If M[K] is not NaN:
+            i. If M[K] >= M[K-1], set K_star = K
+    3. Return K_star
+    
+    The algorithm prefers the largest K where the metric is non-decreasing,
+    ensuring we select the most granular clustering that maintains stability.
+    
+    Parameters
+    ----------
+    metric_dict : dict
+        Dictionary mapping K values to metric scores (e.g., {2: 0.71, 3: 0.75, ...})
+        NaN values are skipped
+    k_max : int, optional
+        Maximum K to consider. If None, uses max(metric_dict.keys())
+        
+    Returns
+    -------
+    int
+        Optimal K value (K_star)
+        
+    Examples
+    --------
+    >>> M = {2: 0.71, 3: 0.75, 4: 0.74, 5: float('nan'), 6: 0.78}
+    >>> k_star = select_optimal_k(M)
+    >>> print(k_star)
+    6
+    
+    >>> M = {2: 0.85, 3: 0.90, 4: 0.88, 5: 0.87}
+    >>> k_star = select_optimal_k(M)
+    >>> print(k_star)
+    3
+    
+    Notes
+    -----
+    This algorithm differs from simply selecting the maximum metric value.
+    It prefers larger K values when metrics are non-decreasing, which helps
+    identify the most detailed stable clustering structure.
+    
+    The algorithm handles NaN values gracefully by skipping them, which is
+    important when clustering fails for certain K values.
+    """
+    import math
+    
+    if not metric_dict:
+        raise ValueError("metric_dict cannot be empty")
+    
+    # Get sorted K values
+    k_values = sorted(metric_dict.keys())
+    
+    if len(k_values) == 0:
+        raise ValueError("No valid K values in metric_dict")
+    
+    # Set k_max if not provided
+    if k_max is None:
+        k_max = max(k_values)
+    
+    # Initialize K_star to minimum K (typically 2)
+    k_star = min(k_values)
+    
+    # Track the most recent valid K and its metric value
+    last_valid_k = k_star
+    last_valid_metric = metric_dict.get(k_star, float('nan'))
+    
+    # Skip if the first K itself is NaN
+    if math.isnan(last_valid_metric):
+        # Find first valid K
+        for k in k_values:
+            val = metric_dict.get(k, float('nan'))
+            if not math.isnan(val):
+                k_star = k
+                last_valid_k = k
+                last_valid_metric = val
+                break
+    
+    # Iterate through remaining K values
+    for k in k_values:
+        if k <= last_valid_k:
+            continue
+        if k > k_max:
+            break
+            
+        # Check if current metric is valid (not NaN)
+        current_metric = metric_dict.get(k, float('nan'))
+        if math.isnan(current_metric):
+            continue
+        
+        # Compare with the most recent valid metric
+        if current_metric >= last_valid_metric:
+            k_star = k
+        
+        # Update last valid K and metric
+        last_valid_k = k
+        last_valid_metric = current_metric
+    
+    return k_star
+
+
+def select_optimal_k_by_method(
+    metrics_by_k: Dict[int, Dict[str, Dict]],
+    metric_name: str = 'TWCRI'
+) -> Dict[str, int]:
+    """Select optimal K for each clustering method using Algorithm 2.
+    
+    Parameters
+    ----------
+    metrics_by_k : dict
+        Nested dictionary: {k: {method: metrics_dict}}
+    metric_name : str, optional
+        Metric to use for selection ('CRI', 'WCRI', or 'TWCRI'), default 'TWCRI'
+        
+    Returns
+    -------
+    dict
+        Dictionary mapping method names to their optimal K values
+        
+    Examples
+    --------
+    >>> metrics = {
+    ...     2: {'kmeans': {'TWCRI': 0.71}},
+    ...     3: {'kmeans': {'TWCRI': 0.75}},
+    ...     4: {'kmeans': {'TWCRI': 0.74}}
+    ... }
+    >>> optimal_k = select_optimal_k_by_method(metrics, 'TWCRI')
+    >>> print(optimal_k)
+    {'kmeans': 3}
+    """
+    if metric_name not in ['CRI', 'WCRI', 'TWCRI']:
+        raise ValueError(f"Invalid metric_name: {metric_name}. Must be 'CRI', 'WCRI', or 'TWCRI'")
+    
+    # Organize metrics by method
+    methods_metrics = {}
+    for k, methods_dict in metrics_by_k.items():
+        for method, metrics in methods_dict.items():
+            if method not in methods_metrics:
+                methods_metrics[method] = {}
+            if metric_name in metrics:
+                methods_metrics[method][k] = metrics[metric_name]
+    
+    # Select optimal K for each method
+    optimal_k_by_method = {}
+    for method, metric_dict in methods_metrics.items():
+        optimal_k_by_method[method] = select_optimal_k(metric_dict)
+    
+    return optimal_k_by_method
+
+

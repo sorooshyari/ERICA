@@ -405,3 +405,178 @@ def plot_stability_comparison(
     return fig
 
 
+def plot_k_star_selection(
+    metric_dict: Dict[int, float],
+    k_star: int,
+    metric_name: str = 'TWCRI',
+    method_name: Optional[str] = None,
+    title: Optional[str] = None
+) -> 'go.Figure':
+    """Visualize K_star selection with metric values across K.
+    
+    This function creates a plot showing how the replicability metric changes
+    with K, and highlights the selected K_star value according to Algorithm 2.
+    
+    Parameters
+    ----------
+    metric_dict : dict
+        Dictionary mapping K values to metric scores
+    k_star : int
+        Selected optimal K value
+    metric_name : str, optional
+        Name of the metric being plotted, default 'TWCRI'
+    method_name : str, optional
+        Name of clustering method, default None
+    title : str, optional
+        Custom plot title, default None
+        
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        Interactive plotly figure
+        
+    Examples
+    --------
+    >>> M = {2: 0.71, 3: 0.75, 4: 0.74, 5: 0.78}
+    >>> k_star = 5
+    >>> fig = plot_k_star_selection(M, k_star, 'TWCRI', 'kmeans')
+    >>> fig.show()  # doctest: +SKIP
+    """
+    _check_plotly()
+    
+    # Sort K values
+    k_values = sorted(metric_dict.keys())
+    metric_values = [metric_dict[k] for k in k_values]
+    
+    # Create title
+    if title is None:
+        if method_name:
+            title = f"K* Selection: {metric_name} for {method_name} (K* = {k_star})"
+        else:
+            title = f"K* Selection: {metric_name} (K* = {k_star})"
+    
+    # Create figure
+    fig = go.Figure()
+    
+    # Add main line plot
+    fig.add_trace(go.Scatter(
+        x=k_values,
+        y=metric_values,
+        mode='lines+markers',
+        name=metric_name,
+        line=dict(color='blue', width=2),
+        marker=dict(size=10, color='blue'),
+        hovertemplate='K=%{x}<br>' + metric_name + '=%{y:.4f}<extra></extra>'
+    ))
+    
+    # Highlight K_star with a larger marker
+    if k_star in metric_dict:
+        fig.add_trace(go.Scatter(
+            x=[k_star],
+            y=[metric_dict[k_star]],
+            mode='markers',
+            name=f'K* = {k_star}',
+            marker=dict(
+                size=20,
+                color='red',
+                symbol='star',
+                line=dict(color='darkred', width=2)
+            ),
+            hovertemplate=f'K* = {k_star}<br>' + metric_name + f'={metric_dict[k_star]:.4f}<extra></extra>'
+        ))
+    
+    # Add vertical line at K_star
+    fig.add_vline(
+        x=k_star,
+        line_dash="dash",
+        line_color="red",
+        opacity=0.5,
+        annotation_text=f"K* = {k_star}",
+        annotation_position="top"
+    )
+    
+    fig.update_layout(
+        title=title,
+        xaxis_title="Number of Clusters (K)",
+        yaxis_title=f"{metric_name} Value",
+        hovermode='closest',
+        showlegend=True,
+        height=500,
+        template='plotly_white',
+        xaxis=dict(
+            tickmode='linear',
+            tick0=min(k_values),
+            dtick=1
+        )
+    )
+    
+    return fig
+
+
+def plot_k_star_by_method(
+    k_star_by_method: Dict[str, int],
+    metric_name: str = 'TWCRI',
+    title: Optional[str] = None
+) -> 'go.Figure':
+    """Create bar plot showing K_star for each clustering method.
+    
+    Parameters
+    ----------
+    k_star_by_method : dict
+        Dictionary mapping method names to their K_star values
+    metric_name : str, optional
+        Name of metric used for selection, default 'TWCRI'
+    title : str, optional
+        Custom plot title, default None
+        
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        Interactive plotly figure
+        
+    Examples
+    --------
+    >>> k_star = {'kmeans': 3, 'agglomerative_ward': 4}
+    >>> fig = plot_k_star_by_method(k_star, 'TWCRI')
+    >>> fig.show()  # doctest: +SKIP
+    """
+    _check_plotly()
+    
+    if title is None:
+        title = f"Optimal K* Selection by Method (using {metric_name})"
+    
+    methods = list(k_star_by_method.keys())
+    k_values = list(k_star_by_method.values())
+    
+    # Create color scheme
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
+    bar_colors = [colors[i % len(colors)] for i in range(len(methods))]
+    
+    fig = go.Figure(data=[
+        go.Bar(
+            x=methods,
+            y=k_values,
+            marker_color=bar_colors,
+            text=k_values,
+            textposition='auto',
+            hovertemplate='%{x}<br>K* = %{y}<extra></extra>'
+        )
+    ])
+    
+    fig.update_layout(
+        title=title,
+        xaxis_title="Clustering Method",
+        yaxis_title="Optimal K* Value",
+        showlegend=False,
+        height=400,
+        template='plotly_white',
+        yaxis=dict(
+            tickmode='linear',
+            tick0=0,
+            dtick=1
+        )
+    )
+    
+    return fig
+
+

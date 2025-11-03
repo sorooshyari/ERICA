@@ -16,7 +16,7 @@ from erica.clustering import (
     agglomerative_clustering,
     iterative_clustering_subsampling,
 )
-from erica.metrics import compute_metrics_for_clam
+from erica.metrics import compute_metrics_for_clam, select_optimal_k_by_method
 from erica.data import prepare_samples_array, validate_dataset
 from erica.utils import set_deterministic_mode, compute_config_hash
 
@@ -34,7 +34,7 @@ class ERICA:
         linkages: Optional[List[str]] = None,
         random_seed: int = 123,
         output_dir: str = './erica_output',
-        transpose: str = 'auto',
+        transpose: bool = True,
         verbose: bool = True
     ):
         """Initialize ERICA analysis.
@@ -57,11 +57,10 @@ class ERICA:
             Random seed for reproducibility (default: 123)
         output_dir : str, optional
             Directory for output files (default: './erica_output')
-        transpose : str, optional
-            Data orientation: 'auto', 'yes', or 'no' (default: 'auto')
-            - 'auto': Automatically detect if samples are in rows or columns
-            - 'yes': Transpose data (features in rows, samples in columns)
-            - 'no': Don't transpose (samples in rows, features in columns)
+        transpose : bool, optional
+            Whether to transpose the data (default: True)
+            - True: Assumes features in rows, samples in columns (genomics format - default)
+            - False: Assumes samples in rows, features in columns (standard ML format)
         verbose : bool, optional
             Print progress messages (default: True)
         """
@@ -88,6 +87,7 @@ class ERICA:
         self.results_ = {}
         self.clam_matrices_ = {}
         self.metrics_ = {}
+        self.k_star_ = {}  # Store optimal K for each method and metric
         self.output_folders_ = []
 
         os.makedirs(output_dir, exist_ok=True)
@@ -166,6 +166,11 @@ class ERICA:
             print(f"\n[3/3] Computing metrics...")
         self.metrics_ = self._compute_all_metrics()
 
+        # Step 4: Select optimal K using Algorithm 2
+        if self.verbose:
+            print(f"\n[4/4] Selecting optimal K* using Algorithm 2...")
+        self.k_star_ = self._select_optimal_k()
+
         # Store output folder
         self.output_folders_.append(run_dir)
 
@@ -173,6 +178,7 @@ class ERICA:
             print(f"\nERICA analysis complete!")
             print(f"Results saved to: {run_dir}")
             print(f"Total configurations analyzed: {len(self.results_)}")
+            self._print_k_star_summary()
 
         return self.get_results()
 
@@ -188,12 +194,49 @@ class ERICA:
             metrics_by_k[k][method_name] = metrics
         return metrics_by_k
 
+    def _select_optimal_k(self) -> Dict:
+        """Select optimal K* for each method and metric using Algorithm 2."""
+        k_star_results = {}
+        
+        # Select K* for each metric type
+        for metric_name in ['CRI', 'WCRI', 'TWCRI']:
+            k_star_by_method = select_optimal_k_by_method(
+                self.metrics_,
+                metric_name=metric_name
+            )
+            k_star_results[metric_name] = k_star_by_method
+        
+        return k_star_results
+
+    def _print_k_star_summary(self):
+        """Print summary of K* selections."""
+        if not self.k_star_:
+            return
+        
+        print("\n" + "="*60)
+        print("K* SELECTION SUMMARY (Algorithm 2)")
+        print("="*60)
+        
+        for metric_name in ['CRI', 'WCRI', 'TWCRI']:
+            if metric_name in self.k_star_:
+                print(f"\n{metric_name}:")
+                for method, k_star in self.k_star_[metric_name].items():
+                    # Get the metric value at K*
+                    if k_star in self.metrics_ and method in self.metrics_[k_star]:
+                        metric_value = self.metrics_[k_star][method].get(metric_name, 0.0)
+                        print(f"  {method:25s} -> K* = {k_star}  ({metric_name} = {metric_value:.6f})")
+                    else:
+                        print(f"  {method:25s} -> K* = {k_star}")
+        
+        print("="*60 + "\n")
+
 
     def get_results(self) -> Dict:
         """Get all analysis results."""
         return {
             'clam_matrices': self.clam_matrices_,
             'metrics': self.metrics_,
+            'k_star': self.k_star_,
             'config': self._get_config_dict(),
             'output_folders': self.output_folders_,
             'results': self.results_
@@ -208,6 +251,31 @@ class ERICA:
         if k is not None:
             return self.metrics_.get(k, {})
         return self.metrics_
+
+    def get_k_star(self, metric: str = 'TWCRI') -> Dict[str, int]:
+        """Get optimal K* values for each method.
+        
+        Parameters
+        ----------
+        metric : str, optional
+            Metric to use ('CRI', 'WCRI', or 'TWCRI'), default 'TWCRI'
+            
+        Returns
+        -------
+        dict
+            Dictionary mapping method names to their K* values
+            
+        Examples
+        --------
+        >>> erica = ERICA(data, k_range=[2, 3, 4])
+        >>> erica.run()
+        >>> k_star = erica.get_k_star('TWCRI')
+        >>> print(k_star)
+        {'kmeans': 3}
+        """
+        if metric not in self.k_star_:
+            raise ValueError(f"No K* computed for metric '{metric}'")
+        return self.k_star_[metric]
 
     def _get_config_dict(self) -> Dict:
         """Return ERICA configuration as dictionary."""

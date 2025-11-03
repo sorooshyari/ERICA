@@ -8,6 +8,13 @@ ERICA (Evaluating Replicability via Iterative Clustering Assignments) is a robus
 
 ## The ERICA Process
 
+ERICA consists of four main steps:
+1. Iterative Clustering Subsampling (Monte Carlo)
+2. Cluster Identity Alignment
+3. CLAM Matrix Generation
+4. Metrics Computation (CRI, WCRI, TWCRI)
+5. **Optimal K Selection (K\*) using Algorithm 2**
+
 ### 1. Iterative Clustering Subsampling
 
 For each iteration *b* = 1, 2, ..., *B*:
@@ -107,7 +114,51 @@ TWCRI is particularly useful for selecting optimal *k* as it balances:
 
 ERICA provides multiple approaches for selecting the optimal number of clusters:
 
-### Method 1: Maximum TWCRI
+### Method 1: Algorithm 2 - K\* Selection (Recommended)
+
+**Algorithm 2** implements a principled approach to selecting the optimal number of clusters by preferring larger K values when replicability is maintained or improved:
+
+```
+Algorithm 2: ERICA Cluster Number Selection
+
+Input: M = {k → metric_value} for k = 2, 3, ..., K_max
+Output: K* (optimal number of clusters)
+
+1. Initialize K* = 2
+2. For k = 3 to K_max:
+    a. If M[k] is not NaN:
+        i. If M[k] >= M[k-1], set K* = k
+3. Return K*
+```
+
+**Key Properties:**
+- Prefers larger K when metrics are non-decreasing
+- Identifies the most granular stable clustering
+- Handles NaN values (failed clustering) gracefully
+- Different from simply selecting maximum metric value
+
+**Example:**
+```python
+M = {2: 0.71, 3: 0.75, 4: 0.74, 5: NaN, 6: 0.78}
+# K* = 6 (last non-decreasing value)
+```
+
+**Usage:**
+```python
+from erica import ERICA
+
+erica = ERICA(data, k_range=[2, 3, 4, 5, 6])
+results = erica.run()
+
+# K* is automatically computed for all metrics
+k_star_twcri = erica.get_k_star('TWCRI')
+k_star_cri = erica.get_k_star('CRI')
+k_star_wcri = erica.get_k_star('WCRI')
+```
+
+**Rationale**: This algorithm identifies the point where increasing cluster granularity no longer compromises replicability, which is often more scientifically meaningful than the global maximum.
+
+### Method 2: Maximum TWCRI
 
 Choose *k* that maximizes TWCRI:
 
@@ -117,11 +168,11 @@ k_optimal = argmax_k TWCRI(k)
 
 **Rationale**: Balances cluster stability and size distribution.
 
-### Method 2: Elbow Method on CRI
+### Method 3: Elbow Method on CRI
 
 Plot CRI vs *k* and look for an "elbow point" where the rate of improvement decreases.
 
-### Method 3: Stability Threshold
+### Method 4: Stability Threshold
 
 Choose the smallest *k* where CRI > threshold (e.g., 0.75):
 
@@ -129,7 +180,7 @@ Choose the smallest *k* where CRI > threshold (e.g., 0.75):
 k_optimal = min{k : CRI(k) > 0.75}
 ```
 
-### Method 4: Domain Knowledge Integration
+### Method 5: Domain Knowledge Integration
 
 Combine ERICA metrics with:
 - Biological/scientific interpretability

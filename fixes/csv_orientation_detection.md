@@ -1,48 +1,53 @@
-# CSV Orientation Detection Fix
+# CSV Transpose Parameter Fix
 
 ## Problem
-ERICA was failing to work with CSV files, particularly with the VDX_3_SV.csv file. The issue was related to how the library detected whether samples were in rows or columns.
+ERICA was failing to work with CSV files that had samples in rows (standard ML format), like VDX_3_SV.csv. The library was always transposing data to match the genomics format used in `.npy` files.
 
 ## Root Cause
-The `prepare_samples_array()` function was always transposing data, assuming features were in rows and samples in columns (genomics format). However, many CSV files have samples in rows and features in columns (standard ML format).
+The `prepare_samples_array()` function was always transposing data without user control. While this worked for `.npy` files (which bypass this logic), CSV files needed explicit control over orientation.
 
 ## Solution
-Added automatic orientation detection with a `transpose` parameter:
+Added explicit `transpose` parameter with helpful error messages instead of auto-detection:
 
 ### Changes Made
 
 1. **Updated `prepare_samples_array()` in `erica/data.py`**:
-   - Added `transpose` parameter with options: `'auto'`, `'yes'`, `'no'`
-   - Implemented simple heuristic: if `n_cols > n_rows`, transpose (features in rows)
-   - Otherwise, don't transpose (samples in rows)
+   - Added `transpose` boolean parameter (default: `True` to match existing `.npy` workflow)
+   - `True`: Features in rows, samples in columns (genomics format - default)
+   - `False`: Samples in rows, features in columns (standard ML format)
 
 2. **Updated `ERICA` class in `erica/core.py`**:
-   - Added `transpose='auto'` parameter to `__init__()`
+   - Added `transpose=True` parameter to `__init__()` (default matches genomics format)
    - Passes transpose parameter to `prepare_samples_array()`
    - Added comprehensive documentation
 
 3. **Updated `get_dataset_info()` in `erica/data.py`**:
-   - Added `transpose` parameter for consistency
+   - Added `transpose=True` parameter for consistency
 
-4. **Added comprehensive tests in `tests/test_erica.py`**:
+4. **Added helpful error messages in `validate_dataset()`**:
+   - When data has too few samples but many features, suggests trying `transpose=False`
+   - Helps users quickly identify orientation issues
+
+5. **Added comprehensive tests in `tests/test_erica.py`**:
    - `test_csv_loading_samples_in_rows()`: Tests standard format
    - `test_csv_loading_features_in_rows()`: Tests genomics format
    - `test_csv_transpose_parameter()`: Tests explicit control
    - `test_erica_with_csv()`: End-to-end CSV test
 
-5. **Updated documentation in `README.md`**:
+6. **Updated documentation in `README.md`**:
    - Added feature bullet point
    - Added Example 1b showing different CSV format handling
+   - Added note about transpose parameter
 
 ## How It Works
 
-### Automatic Detection (`transpose='auto'`)
+### Simple Explicit Control
 ```python
-# Simple rule: if we have more columns than rows, transpose
-if n_cols > n_rows:
-    should_transpose = True  # Features in rows (genomics format)
-else:
-    should_transpose = False  # Samples in rows (standard format)
+# Default: genomics format (matches .npy files)
+erica = ERICA(data=data, transpose=True)  # Features in rows → transpose
+
+# Standard ML format
+erica = ERICA(data=data, transpose=False)  # Samples in rows → don't transpose
 ```
 
 ### Usage Examples
@@ -51,21 +56,21 @@ else:
 from erica import ERICA
 from erica.data import load_data
 
-# Auto-detect (recommended)
-data = load_data('your_data.csv')
-erica = ERICA(data=data, transpose='auto')  # Default
+# For genomics data (features in rows) - DEFAULT
+data = load_data('gene_expression.csv')
+erica = ERICA(data=data, transpose=True)  # or just erica = ERICA(data=data)
 
-# Explicit control
-erica = ERICA(data=data, transpose='no')   # Samples in rows
-erica = ERICA(data=data, transpose='yes')  # Features in rows
+# For standard ML data (samples in rows)
+data = load_data('samples.csv')
+erica = ERICA(data=data, transpose=False)
 ```
 
 ## Test Results
 
-### VDX_3_SV.csv
-- Input: 344 rows × 4 columns (1 ID column + 3 feature columns)
-- After processing: 344 samples × 3 features ✓
-- Correctly detected as samples-in-rows format
+### VDX_3_SV.csv (Samples in Rows)
+- Input: 344 rows × 4 columns (1 ID column + 3 gene columns)
+- With `transpose=False`: 344 samples × 3 features ✓
+- With `transpose=True`: 3 samples × 344 features (would fail for k>3)
 
 ### All Tests Pass
 ```
@@ -81,11 +86,13 @@ tests/test_erica.py::test_erica_with_csv PASSED
 
 ## Key Insights
 
-1. **Simple is Better**: Initially tried complex heuristics based on row/column counts and thresholds. The final solution uses a simple rule: more columns than rows = transpose.
+1. **Explicit is Better Than Implicit**: After discussion with collaborator, removed auto-detection in favor of explicit `transpose` parameter. Users know their data format better than heuristics can guess.
 
-2. **pd.read_csv Works Fine**: The issue wasn't with pandas CSV loading, but with the subsequent data orientation detection.
+2. **Default Matches Existing Workflow**: Set `transpose=True` as default to match the genomics format used in existing `.npy` files.
 
-3. **Explicit Control Available**: Users can override auto-detection if needed with `transpose='yes'` or `transpose='no'`.
+3. **Helpful Error Messages**: When validation fails due to insufficient samples, error message suggests trying `transpose=False` if the data shape indicates possible orientation issue.
+
+4. **`.npy` Files Unaffected**: NumPy arrays bypass all this logic and are used as-is, maintaining backward compatibility.
 
 ## Files Modified
 - `erica/data.py`: Added transpose parameter and auto-detection logic
