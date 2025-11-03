@@ -93,36 +93,149 @@ def load_and_preview_data(file, transpose: bool) -> Tuple[str, Optional[Dict]]:
         # Load data
         data = load_data(file.name)
         
+        # Convert to numpy array if needed
+        if isinstance(data, pd.DataFrame):
+            data_array = data.values
+        else:
+            data_array = np.array(data)
+        
         # Get dataset info
         info = get_dataset_info(data, transpose=transpose)
         
+        # Apply transpose if needed to get the correct orientation for display
+        if transpose:
+            data_array = data_array.T
+        
+        # Check for non-numeric data
+        has_non_numeric = False
+        header_row = False
+        if data_array.dtype == object or data_array.dtype.kind in ['U', 'S', 'O']:
+            # Check if only first row is non-numeric (likely headers)
+            try:
+                if data_array.shape[0] > 1:
+                    # Try to convert everything except first row to float
+                    test_conversion = data_array[1:].astype(float)
+                    header_row = True  # First row is headers, rest is numeric
+                else:
+                    has_non_numeric = True
+            except (ValueError, TypeError):
+                has_non_numeric = True  # Mixed types throughout dataset
+        
         # Create preview
         preview_lines = [
-            "=" * 60,
-            "Dataset Information",
-            "=" * 60,
+            "=" * 80,
+            "📊 DATASET INFORMATION",
+            "=" * 80,
+            f"File: {Path(file.name).name}",
             f"Original shape: {data.shape if hasattr(data, 'shape') else 'N/A'}",
             f"After processing: {info['shape']}",
-            f"  - Samples: {info['n_samples']}",
-            f"  - Features: {info['n_features']}",
-            f"  - Transpose: {transpose}",
+            f"  • Samples: {info['n_samples']}",
+            f"  • Features: {info['n_features']}",
+            f"  • Transpose applied: {transpose}",
             "",
-            "Statistics:",
-            f"  - Min value: {info['min_value']:.4f}",
-            f"  - Max value: {info['max_value']:.4f}",
-            f"  - Mean value: {info['mean_value']:.4f}",
-            f"  - Std value: {info['std_value']:.4f}",
-            "",
-            f"Data type: {info['dtype']}",
-            f"Has NaN: {info['has_nan']}",
-            f"Has Inf: {info['has_inf']}",
-            "=" * 60,
+            "📈 STATISTICS:",
+            f"  • Data type: {info['dtype']}",
+            f"  • Min value: {info['min_value']:.6f}",
+            f"  • Max value: {info['max_value']:.6f}",
+            f"  • Mean value: {info['mean_value']:.6f}",
+            f"  • Std value: {info['std_value']:.6f}",
+            f"  • Has NaN: {info['has_nan']}",
+            f"  • Has Inf: {info['has_inf']}",
         ]
+        
+        # Add info/warning messages about data types
+        if header_row:
+            preview_lines.extend([
+                "",
+                "ℹ️  INFO: Header row detected (gene IDs or feature names).",
+                "   First row contains labels and will be shown in the preview.",
+                "   ERICA will use the numeric data rows for clustering analysis.",
+            ])
+        elif has_non_numeric:
+            preview_lines.extend([
+                "",
+                "⚠️  WARNING: Non-numeric data detected!",
+                "   ERICA requires numeric data for clustering analysis.",
+                "   The preview below shows the data, but analysis may fail.",
+                "   Consider converting/encoding string values to numeric format.",
+            ])
+        
+        preview_lines.extend([
+            "",
+            "=" * 80,
+            "🔍 DATA PREVIEW (First 5 samples, First 10 features)",
+            "=" * 80,
+        ])
+        
+        # Show head of data
+        n_preview_samples = min(5, data_array.shape[0])
+        n_preview_features = min(10, data_array.shape[1])
+        
+        # Create header
+        header = "Sample".ljust(10)
+        for j in range(n_preview_features):
+            header += f"Feat_{j}".rjust(12)
+        if data_array.shape[1] > n_preview_features:
+            header += "  ..."
+        preview_lines.append(header)
+        preview_lines.append("-" * 80)
+        
+        # Show data rows
+        for i in range(n_preview_samples):
+            row = f"[{i}]".ljust(10)
+            for j in range(n_preview_features):
+                value = data_array[i, j]
+                # Handle different data types
+                try:
+                    # Try to format as float
+                    row += f"{float(value):12.4f}"
+                except (ValueError, TypeError):
+                    # If not numeric, show as string (truncated to 12 chars)
+                    row += f"{str(value)[:12]:>12}"
+            if data_array.shape[1] > n_preview_features:
+                row += "  ..."
+            preview_lines.append(row)
+        
+        if data_array.shape[0] > n_preview_samples:
+            preview_lines.append(f"... ({data_array.shape[0] - n_preview_samples} more samples)")
+        
+        preview_lines.append("")
+        preview_lines.append("=" * 80)
+        preview_lines.append("🔍 DATA PREVIEW (Last 3 samples, First 10 features)")
+        preview_lines.append("=" * 80)
+        
+        # Show tail of data
+        n_tail_samples = min(3, data_array.shape[0])
+        start_idx = max(0, data_array.shape[0] - n_tail_samples)
+        
+        # Create header
+        preview_lines.append(header)
+        preview_lines.append("-" * 80)
+        
+        # Show tail rows
+        for i in range(start_idx, data_array.shape[0]):
+            row = f"[{i}]".ljust(10)
+            for j in range(n_preview_features):
+                value = data_array[i, j]
+                # Handle different data types
+                try:
+                    # Try to format as float
+                    row += f"{float(value):12.4f}"
+                except (ValueError, TypeError):
+                    # If not numeric, show as string (truncated to 12 chars)
+                    row += f"{str(value)[:12]:>12}"
+            if data_array.shape[1] > n_preview_features:
+                row += "  ..."
+            preview_lines.append(row)
+        
+        preview_lines.append("=" * 80)
+        preview_lines.append("✅ Data loaded successfully! Ready for analysis.")
+        preview_lines.append("=" * 80)
         
         return "\n".join(preview_lines), info
         
     except Exception as e:
-        error_msg = f"Error loading data:\n{str(e)}\n\n{traceback.format_exc()}"
+        error_msg = f"❌ Error loading data:\n{str(e)}\n\n{traceback.format_exc()}"
         return error_msg, None
 
 
@@ -536,12 +649,12 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
                 methods, k_values = get_available_methods_and_k()
                 return (
                     summary,
-                    gr.Dropdown.update(choices=methods, value=methods[0] if methods else None),  # plot_method
-                    gr.Dropdown.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k
-                    gr.Dropdown.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display
-                    gr.Dropdown.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display
-                    gr.Dropdown.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display_input
-                    gr.Dropdown.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display_input
+                    gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method
+                    gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k
+                    gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display
+                    gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display
+                    gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display_input
+                    gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display_input
                 )
             
             run_btn.click(
@@ -595,8 +708,8 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
                 )
             
             # Sync hidden to visible
-            plot_k_display_input.change(lambda x: gr.Dropdown.update(value=x), inputs=[plot_k_display_input], outputs=[plot_k_display_input_show])
-            plot_method_display_input.change(lambda x: gr.Dropdown.update(value=x), inputs=[plot_method_display_input], outputs=[plot_method_display_input_show])
+            plot_k_display_input.change(lambda x: gr.update(value=x), inputs=[plot_k_display_input], outputs=[plot_k_display_input_show])
+            plot_method_display_input.change(lambda x: gr.update(value=x), inputs=[plot_method_display_input], outputs=[plot_method_display_input_show])
             
             # Sync visible to hidden
             plot_k_display_input_show.change(lambda x: x, inputs=[plot_k_display_input_show], outputs=[plot_k_display_input])
@@ -605,13 +718,13 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
             # Sync hidden components with display components
             def sync_k_to_display(k_val):
                 if k_val is not None:
-                    return gr.Dropdown.update(value=k_val)
-                return gr.Dropdown.update()
+                    return gr.update(value=k_val)
+                return gr.update()
             
             def sync_method_to_display(method_val):
                 if method_val is not None:
-                    return gr.Dropdown.update(value=method_val)
-                return gr.Dropdown.update()
+                    return gr.update(value=method_val)
+                return gr.update()
             
             plot_k.change(sync_k_to_display, inputs=[plot_k], outputs=[plot_k_display])
             plot_method.change(sync_method_to_display, inputs=[plot_method], outputs=[plot_method_display])
@@ -633,20 +746,20 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
             # Sync hidden components with display components
             def sync_k_to_display(k_val):
                 if k_val is not None:
-                    return gr.Dropdown.update(value=k_val)
-                return gr.Dropdown.update()
+                    return gr.update(value=k_val)
+                return gr.update()
             
             def sync_method_to_display(method_val):
                 if method_val is not None:
-                    return gr.Dropdown.update(value=method_val)
-                return gr.Dropdown.update()
+                    return gr.update(value=method_val)
+                return gr.update()
             
             plot_k.change(sync_k_to_display, inputs=[plot_k], outputs=[plot_k_display])
             plot_method.change(sync_method_to_display, inputs=[plot_method], outputs=[plot_method_display])
             
             # Sync display components to input components
-            plot_k_display.change(lambda x: gr.Dropdown.update(value=x), inputs=[plot_k_display], outputs=[plot_k_display_input])
-            plot_method_display.change(lambda x: gr.Dropdown.update(value=x), inputs=[plot_method_display], outputs=[plot_method_display_input])
+            plot_k_display.change(lambda x: gr.update(value=x), inputs=[plot_k_display], outputs=[plot_k_display_input])
+            plot_method_display.change(lambda x: gr.update(value=x), inputs=[plot_method_display], outputs=[plot_method_display_input])
             
             # Also sync back from input to hidden for interactive updates
             plot_k_display_input.change(lambda x: x, inputs=[plot_k_display_input], outputs=[plot_k])
@@ -658,12 +771,12 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
                 def refresh_plot_options():
                     methods, k_values = get_available_methods_and_k()
                     return (
-                        gr.Dropdown.update(choices=methods, value=methods[0] if methods else None),  # plot_method
-                        gr.Dropdown.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k
-                        gr.Dropdown.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display
-                        gr.Dropdown.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display
-                        gr.Dropdown.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display_input
-                        gr.Dropdown.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display_input
+                        gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method
+                        gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k
+                        gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display
+                        gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display
+                        gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display_input
+                        gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display_input
                     )
                 
                 refresh_plot_options_btn.click(
