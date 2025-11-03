@@ -124,46 +124,46 @@ def load_and_preview_data(file, transpose: bool) -> Tuple[str, Optional[Dict]]:
         # Create preview
         preview_lines = [
             "=" * 80,
-            "📊 DATASET INFORMATION",
+            "DATASET INFORMATION",
             "=" * 80,
             f"File: {Path(file.name).name}",
             f"Original shape: {data.shape if hasattr(data, 'shape') else 'N/A'}",
             f"After processing: {info['shape']}",
-            f"  • Samples: {info['n_samples']}",
-            f"  • Features: {info['n_features']}",
-            f"  • Transpose applied: {transpose}",
+            f"  Samples: {info['n_samples']}",
+            f"  Features: {info['n_features']}",
+            f"  Transpose applied: {transpose}",
             "",
-            "📈 STATISTICS:",
-            f"  • Data type: {info['dtype']}",
-            f"  • Min value: {info['min_value']:.6f}",
-            f"  • Max value: {info['max_value']:.6f}",
-            f"  • Mean value: {info['mean_value']:.6f}",
-            f"  • Std value: {info['std_value']:.6f}",
-            f"  • Has NaN: {info['has_nan']}",
-            f"  • Has Inf: {info['has_inf']}",
+            "Statistics:",
+            f"  Data type: {info['dtype']}",
+            f"  Min value: {info['min_value']:.6f}",
+            f"  Max value: {info['max_value']:.6f}",
+            f"  Mean value: {info['mean_value']:.6f}",
+            f"  Std value: {info['std_value']:.6f}",
+            f"  Has NaN: {info['has_nan']}",
+            f"  Has Inf: {info['has_inf']}",
         ]
         
         # Add info/warning messages about data types
         if header_row:
             preview_lines.extend([
                 "",
-                "ℹ️  INFO: Header row detected (gene IDs or feature names).",
-                "   First row contains labels and will be shown in the preview.",
-                "   ERICA will use the numeric data rows for clustering analysis.",
+                "INFO: Header row detected (gene IDs or feature names).",
+                "  First row contains labels and will be shown in the preview.",
+                "  ERICA will use the numeric data rows for clustering analysis.",
             ])
         elif has_non_numeric:
             preview_lines.extend([
                 "",
-                "⚠️  WARNING: Non-numeric data detected!",
-                "   ERICA requires numeric data for clustering analysis.",
-                "   The preview below shows the data, but analysis may fail.",
-                "   Consider converting/encoding string values to numeric format.",
+                "WARNING: Non-numeric data detected!",
+                "  ERICA requires numeric data for clustering analysis.",
+                "  The preview below shows the data, but analysis may fail.",
+                "  Consider converting/encoding string values to numeric format.",
             ])
         
         preview_lines.extend([
             "",
             "=" * 80,
-            "🔍 DATA PREVIEW (First 5 samples, First 10 features)",
+            "DATA PREVIEW (First 5 samples, First 10 features)",
             "=" * 80,
         ])
         
@@ -201,7 +201,7 @@ def load_and_preview_data(file, transpose: bool) -> Tuple[str, Optional[Dict]]:
         
         preview_lines.append("")
         preview_lines.append("=" * 80)
-        preview_lines.append("🔍 DATA PREVIEW (Last 3 samples, First 10 features)")
+        preview_lines.append("DATA PREVIEW (Last 3 samples, First 10 features)")
         preview_lines.append("=" * 80)
         
         # Show tail of data
@@ -229,13 +229,13 @@ def load_and_preview_data(file, transpose: bool) -> Tuple[str, Optional[Dict]]:
             preview_lines.append(row)
         
         preview_lines.append("=" * 80)
-        preview_lines.append("✅ Data loaded successfully! Ready for analysis.")
+        preview_lines.append("Data loaded successfully. Ready for analysis.")
         preview_lines.append("=" * 80)
         
         return "\n".join(preview_lines), info
         
     except Exception as e:
-        error_msg = f"❌ Error loading data:\n{str(e)}\n\n{traceback.format_exc()}"
+        error_msg = f"Error loading data:\n{str(e)}\n\n{traceback.format_exc()}"
         return error_msg, None
 
 
@@ -258,6 +258,9 @@ def run_erica_analysis(
         return "ERROR: Please upload a data file first.", None
     
     try:
+        import time
+        start_time = time.time()
+        
         # Parse k range
         k_range = parse_k_range(k_range_str)
         
@@ -282,20 +285,32 @@ def run_erica_analysis(
         )
         
         # Run analysis
+        print(f"\n🔄 Starting ERICA analysis... (K={k_range}, iterations={n_iterations})")
         erica_results = erica_instance.run()
+        
+        # Calculate elapsed time
+        elapsed_time = time.time() - start_time
+        minutes = int(elapsed_time // 60)
+        seconds = int(elapsed_time % 60)
+        time_str = f"{minutes}m {seconds}s" if minutes > 0 else f"{seconds}s"
         
         # Generate summary
         summary_lines = [
-            "=" * 60,
-            "ERICA Analysis Complete!",
-            "=" * 60,
-            f"Data shape: {erica_instance.samples_array.shape}",
-            f"K range: {k_range}",
-            f"Iterations: {n_iterations}",
-            f"Method: {method}",
-            f"Output directory: {erica_instance.output_folders_[0] if erica_instance.output_folders_ else 'N/A'}",
+            "=" * 80,
+            "ANALYSIS COMPLETE",
+            "=" * 80,
             "",
+            "Analysis Summary:",
+            f"  Elapsed time: {time_str}",
+            f"  Data shape: {erica_instance.samples_array.shape}",
+            f"  K range: {k_range}",
+            f"  Iterations: {n_iterations}",
+            f"  Method: {method}",
+            f"  Output: {erica_instance.output_folders_[0] if erica_instance.output_folders_ else 'N/A'}",
+            "",
+            "=" * 80,
             "Results Summary:",
+            "=" * 80,
         ]
         
         # Add metrics summary
@@ -310,26 +325,38 @@ def run_erica_analysis(
         
         # Add K* summary
         if erica_instance.k_star_:
-            summary_lines.append("\n" + "=" * 60)
+            summary_lines.append("\n" + "=" * 80)
             summary_lines.append("Optimal K* Selection:")
-            summary_lines.append("=" * 60)
+            summary_lines.append("=" * 80)
             for metric_name in ['CRI', 'WCRI', 'TWCRI']:
                 if metric_name in erica_instance.k_star_:
                     summary_lines.append(f"\n{metric_name}:")
                     for method_name, k_star in erica_instance.k_star_[metric_name].items():
                         summary_lines.append(f"  {method_name}: K* = {k_star}")
         
-        summary_lines.append("\n" + "=" * 60)
+        # Final completion message
+        summary_lines.extend([
+            "",
+            "=" * 80,
+            "Analysis complete. Results are ready for visualization.",
+            "=" * 80,
+            "",
+            "Next steps:",
+            "  1. View metrics and visualizations in Tab 3",
+            "  2. Check output files in the output directory",
+            "",
+            "=" * 80,
+        ])
         
         return "\n".join(summary_lines), erica_instance
         
     except Exception as e:
-        error_msg = f"Error running ERICA analysis:\n{str(e)}\n\n{traceback.format_exc()}"
+        error_msg = f"ERROR RUNNING ANALYSIS:\n\n{str(e)}\n\n{traceback.format_exc()}"
         return error_msg, None
 
 
 def get_metrics_table() -> Optional[str]:
-    """Generate metrics table from results."""
+    """Generate metrics table from results with K* highlighting."""
     global erica_instance
     
     if erica_instance is None:
@@ -337,16 +364,61 @@ def get_metrics_table() -> Optional[str]:
     
     try:
         metrics = erica_instance.get_metrics()
+        k_star = erica_instance.k_star_ if hasattr(erica_instance, 'k_star_') else {}
         
-        lines = ["| K | Method | CRI | WCRI | TWCRI |"]
-        lines.append("|" + "|".join(["---"] * 5) + "|")
+        # Create K* lookup for easy checking
+        k_star_lookup = {}
+        if k_star:
+            for metric_name in ['CRI', 'WCRI', 'TWCRI']:
+                if metric_name in k_star:
+                    for method_name, k_val in k_star[metric_name].items():
+                        if method_name not in k_star_lookup:
+                            k_star_lookup[method_name] = {}
+                        k_star_lookup[method_name][metric_name] = k_val
+        
+        lines = [
+            "## Clustering Metrics Summary",
+            "",
+            "| K | Method | CRI | WCRI | TWCRI | Optimal K* |",
+            "|---|--------|-----|------|-------|------------|"
+        ]
         
         for k in sorted(metrics.keys()):
             for method_name, metric_dict in metrics[k].items():
                 cri = metric_dict.get('CRI', 0)
                 wcri = metric_dict.get('WCRI', 0)
                 twcri = metric_dict.get('TWCRI', 0)
-                lines.append(f"| {k} | {method_name} | {cri:.6f} | {wcri:.6f} | {twcri:.6f} |")
+                
+                # Check if this K is selected for any metric
+                k_star_markers = []
+                if method_name in k_star_lookup:
+                    for metric_name, selected_k in k_star_lookup[method_name].items():
+                        if selected_k == k:
+                            k_star_markers.append(metric_name)
+                
+                k_star_col = ", ".join(k_star_markers) if k_star_markers else "—"
+                
+                # Add bold formatting for rows with K* selections
+                if k_star_markers:
+                    lines.append(f"| **{k}** | **{method_name}** | **{cri:.6f}** | **{wcri:.6f}** | **{twcri:.6f}** | **{k_star_col}** |")
+                else:
+                    lines.append(f"| {k} | {method_name} | {cri:.6f} | {wcri:.6f} | {twcri:.6f} | {k_star_col} |")
+        
+        # Add K* summary at the bottom
+        if k_star:
+            lines.extend([
+                "",
+                "---",
+                "",
+                "### Optimal K* Selections",
+                ""
+            ])
+            for metric_name in ['CRI', 'WCRI', 'TWCRI']:
+                if metric_name in k_star:
+                    lines.append(f"**{metric_name}:**")
+                    for method_name, k_val in k_star[metric_name].items():
+                        lines.append(f"  - {method_name}: K* = {k_val}")
+                    lines.append("")
         
         return "\n".join(lines)
         
@@ -510,18 +582,17 @@ def get_available_methods_and_k() -> Tuple[List[str], List[int]]:
 with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
     gr.Markdown(
         """
-        # 🧬 ERICA Clustering Replicability Analysis Demo
+        # ERICA Clustering Replicability Analysis
         
-        Welcome to the ERICA demo interface! This tool allows you to test and explore
-        the ERICA library for clustering replicability analysis.
+        Evaluate clustering stability through iterative subsampling analysis.
         
         **Features:**
-        - 📊 Upload and preview datasets (CSV, NPY)
-        - ⚙️ Configure clustering parameters
-        - 🔄 Run Monte Carlo subsampling analysis
-        - 📈 View metrics (CRI, WCRI, TWCRI)
-        - 📉 Visualize results with interactive plots
-        - ⭐ Find optimal K* values
+        - Upload and preview datasets (CSV, NPY)
+        - Configure clustering parameters
+        - Run Monte Carlo subsampling analysis
+        - View replicability metrics (CRI, WCRI, TWCRI)
+        - Visualize results with interactive plots
+        - Identify optimal K* values
         """
     )
     
@@ -565,8 +636,8 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
                 outputs=[data_preview]
             )
         
-        # Tab 2: Configuration
-        with gr.Tab("2. Configure Parameters"):
+        # Tab 2: Configuration & Run Analysis
+        with gr.Tab("2. Configure & Run Analysis"):
             gr.Markdown("### Analysis Parameters")
             
             with gr.Row():
@@ -624,17 +695,27 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
                     value=True,
                     info="Print detailed progress messages"
                 )
-        
-        # Tab 3: Run Analysis
-        with gr.Tab("3. Run Analysis"):
-            gr.Markdown("### Run ERICA Analysis")
+            
+            gr.Markdown("---")
+            gr.Markdown("### Run Analysis")
+            gr.Markdown("*Note: Make sure you've loaded data in Tab 1 before running analysis.*")
+            
+            # Status indicator
+            status_box = gr.Textbox(
+                label="Status",
+                value="Ready to run analysis",
+                lines=1,
+                interactive=False,
+                elem_id="status_box"
+            )
             
             run_btn = gr.Button("Run Analysis", variant="primary", size="lg")
             
             analysis_output = gr.Textbox(
                 label="Analysis Results",
                 lines=30,
-                interactive=False
+                interactive=False,
+                placeholder="Results will appear here after running analysis..."
             )
             
             def run_and_refresh(
@@ -642,13 +723,53 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
                 seed, out_dir, verb
             ):
                 """Run analysis and refresh plot options."""
+                # Check if data file is loaded
+                if file is None:
+                    status = "No data loaded - Please upload data in Tab 1"
+                    error_msg = (
+                        "=" * 80 + "\n"
+                        "NO DATA FILE LOADED\n" +
+                        "=" * 80 + "\n\n"
+                        "Please follow these steps:\n\n"
+                        "1. Go to Tab 1: Load Data\n"
+                        "2. Click 'Data File' and select your CSV or NPY file\n"
+                        "3. Set the 'Transpose Data' checkbox as needed\n"
+                        "4. Click 'Load & Preview Data' to verify your data\n"
+                        "5. Return to this tab and click 'Run Analysis'\n\n" +
+                        "=" * 80
+                    )
+                    return (
+                        status,  # status_box
+                        error_msg,  # analysis_output
+                        gr.update(),  # plot_method
+                        gr.update(),  # plot_k
+                        gr.update(),  # plot_method_display
+                        gr.update(),  # plot_k_display
+                        gr.update(),  # plot_method_display_input
+                        gr.update(),  # plot_k_display_input
+                    )
+                
+                # Parse k_range to show in status
+                k_range = parse_k_range(k_str)
+                
+                # Run analysis
                 summary, _ = run_erica_analysis(
                     file, transpose, k_str, n_iter, train_pct, meth, linkage_list,
                     seed, out_dir, verb
                 )
+                
+                # Determine status based on result
+                if "ANALYSIS COMPLETE" in summary:
+                    status = "Analysis completed successfully"
+                elif "ERROR" in summary:
+                    status = "Analysis failed - check results below"
+                else:
+                    status = "Analysis finished with warnings"
+                
                 methods, k_values = get_available_methods_and_k()
                 return (
-                    summary,
+                    status,  # status_box
+                    summary,  # analysis_output
                     gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method
                     gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k
                     gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display
@@ -671,174 +792,84 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
                     output_dir,
                     verbose,
                 ],
-                outputs=[analysis_output, plot_method, plot_k, plot_method_display, plot_k_display, plot_method_display_input, plot_k_display_input]
+                outputs=[status_box, analysis_output, plot_method, plot_k, plot_method_display, plot_k_display, plot_method_display_input, plot_k_display_input]
             )
         
-        # Tab 4: Metrics
-        with gr.Tab("4. View Metrics"):
-            gr.Markdown("### Clustering Replicability Metrics")
+        # Tab 3: Results & Visualizations
+        with gr.Tab("3. Results & Visualizations"):
+            gr.Markdown("### Metrics Summary")
+            gr.Markdown("*Bold rows indicate optimal K* selections for each metric.*")
             
             metrics_table = gr.Markdown(
-                label="Metrics Table",
                 value="Run analysis first to see metrics."
             )
             
-            refresh_metrics_btn = gr.Button("Refresh Metrics Table")
+            metrics_line_plot = gr.Plot(label="Metrics Across K Values")
+            
+            refresh_metrics_btn = gr.Button("Refresh Results")
+            
+            def refresh_metrics_and_plots():
+                """Refresh metrics table and generate plot."""
+                table = get_metrics_table()
+                plot = create_metrics_plot()
+                return table, plot
+            
             refresh_metrics_btn.click(
-                fn=get_metrics_table,
-                outputs=[metrics_table]
+                fn=refresh_metrics_and_plots,
+                outputs=[metrics_table, metrics_line_plot]
             )
-        
-        # Tab 5: Visualizations
-        with gr.Tab("5. Visualizations"):
-            gr.Markdown("### Interactive Plots")
+            
+            gr.Markdown("---")
+            gr.Markdown("### Detailed Analysis")
+            gr.Markdown("Select K and method to view CLAM heatmap and cluster size distributions.")
             
             with gr.Row():
-                plot_k_display_input_show = gr.Dropdown(
+                plot_k_selector = gr.Dropdown(
                     label="Select K",
                     choices=[],
-                    value=None,
-                    info="K value for CLAM heatmap and cluster sizes"
+                    value=None
                 )
-                plot_method_display_input_show = gr.Dropdown(
+                plot_method_selector = gr.Dropdown(
                     label="Select Method",
                     choices=[],
-                    value=None,
-                    info="Clustering method"
+                    value=None
                 )
             
-            # Sync hidden to visible
-            plot_k_display_input.change(lambda x: gr.update(value=x), inputs=[plot_k_display_input], outputs=[plot_k_display_input_show])
-            plot_method_display_input.change(lambda x: gr.update(value=x), inputs=[plot_method_display_input], outputs=[plot_method_display_input_show])
-            
-            # Sync visible to hidden
-            plot_k_display_input_show.change(lambda x: x, inputs=[plot_k_display_input_show], outputs=[plot_k_display_input])
-            plot_method_display_input_show.change(lambda x: x, inputs=[plot_method_display_input_show], outputs=[plot_method_display_input])
-            
-            # Sync hidden components with display components
-            def sync_k_to_display(k_val):
-                if k_val is not None:
-                    return gr.update(value=k_val)
-                return gr.update()
-            
-            def sync_method_to_display(method_val):
-                if method_val is not None:
-                    return gr.update(value=method_val)
-                return gr.update()
-            
-            plot_k.change(sync_k_to_display, inputs=[plot_k], outputs=[plot_k_display])
-            plot_method.change(sync_method_to_display, inputs=[plot_method], outputs=[plot_method_display])
-            
-            # Also sync back from display to hidden for interactive updates
-            def sync_display_to_k(k_val):
-                return k_val
-            
-            def sync_display_to_method(method_val):
-                return method_val
-            
-            plot_k_display_input.change(sync_display_to_k, inputs=[plot_k_display_input], outputs=[plot_k])
-            plot_method_display_input.change(sync_display_to_method, inputs=[plot_method_display_input], outputs=[plot_method])
-            
-            # Sync display components
-            plot_k_display.change(lambda x: x, inputs=[plot_k_display], outputs=[plot_k_display_input])
-            plot_method_display.change(lambda x: x, inputs=[plot_method_display], outputs=[plot_method_display_input])
-            
-            # Sync hidden components with display components
-            def sync_k_to_display(k_val):
-                if k_val is not None:
-                    return gr.update(value=k_val)
-                return gr.update()
-            
-            def sync_method_to_display(method_val):
-                if method_val is not None:
-                    return gr.update(value=method_val)
-                return gr.update()
-            
-            plot_k.change(sync_k_to_display, inputs=[plot_k], outputs=[plot_k_display])
-            plot_method.change(sync_method_to_display, inputs=[plot_method], outputs=[plot_method_display])
-            
-            # Sync display components to input components
-            plot_k_display.change(lambda x: gr.update(value=x), inputs=[plot_k_display], outputs=[plot_k_display_input])
-            plot_method_display.change(lambda x: gr.update(value=x), inputs=[plot_method_display], outputs=[plot_method_display_input])
-            
-            # Also sync back from input to hidden for interactive updates
-            plot_k_display_input.change(lambda x: x, inputs=[plot_k_display_input], outputs=[plot_k])
-            plot_method_display_input.change(lambda x: x, inputs=[plot_method_display_input], outputs=[plot_method])
+            # Sync from hidden dropdowns when analysis completes
+            plot_k_display_input.change(
+                lambda x: gr.update(choices=get_available_methods_and_k()[1], value=x),
+                inputs=[plot_k_display_input],
+                outputs=[plot_k_selector]
+            )
+            plot_method_display_input.change(
+                lambda x: gr.update(choices=get_available_methods_and_k()[0], value=x),
+                inputs=[plot_method_display_input],
+                outputs=[plot_method_selector]
+            )
             
             with gr.Row():
-                refresh_plot_options_btn = gr.Button("Refresh Options")
-                
-                def refresh_plot_options():
-                    methods, k_values = get_available_methods_and_k()
-                    return (
-                        gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method
-                        gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k
-                        gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display
-                        gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display
-                        gr.update(choices=methods, value=methods[0] if methods else None),  # plot_method_display_input
-                        gr.update(choices=k_values, value=k_values[0] if k_values else None),  # plot_k_display_input
-                    )
-                
-                refresh_plot_options_btn.click(
-                    fn=refresh_plot_options,
-                    outputs=[plot_method, plot_k, plot_method_display, plot_k_display, plot_method_display_input, plot_k_display_input]
-                )
+                with gr.Column():
+                    clam_heatmap = gr.Plot(label="CLAM Matrix Heatmap")
+                with gr.Column():
+                    cluster_sizes_plot = gr.Plot(label="Cluster Size Distribution")
             
-            gr.Markdown("### Metrics Plot")
-            metrics_plot = gr.Plot(label="Metrics Across K Values")
-            
-            refresh_metrics_plot_btn = gr.Button("Generate Metrics Plot")
-            refresh_metrics_plot_btn.click(
-                fn=create_metrics_plot,
-                outputs=[metrics_plot]
-            )
-            
-            gr.Markdown("### CLAM Heatmap")
-            clam_heatmap = gr.Plot(label="CLAM Matrix Heatmap")
-            
-            def update_clam_plot(k_val, method_val):
+            def update_detailed_plots(k_val, method_val):
+                """Update both CLAM and cluster size plots."""
                 if k_val is None or method_val is None:
-                    return None
-                return create_clam_heatmap(int(k_val), str(method_val))
+                    return None, None
+                clam = create_clam_heatmap(int(k_val), str(method_val))
+                sizes = create_cluster_sizes_plot(int(k_val), str(method_val))
+                return clam, sizes
             
-            plot_k_display_input_show.change(
-                fn=update_clam_plot,
-                inputs=[plot_k_display_input_show, plot_method_display_input_show],
-                outputs=[clam_heatmap]
+            plot_k_selector.change(
+                fn=update_detailed_plots,
+                inputs=[plot_k_selector, plot_method_selector],
+                outputs=[clam_heatmap, cluster_sizes_plot]
             )
-            plot_method_display_input_show.change(
-                fn=update_clam_plot,
-                inputs=[plot_k_display_input_show, plot_method_display_input_show],
-                outputs=[clam_heatmap]
-            )
-            
-            gr.Markdown("### Cluster Sizes")
-            cluster_sizes_plot = gr.Plot(label="Cluster Size Distribution")
-            
-            def update_cluster_sizes(k_val, method_val):
-                if k_val is None or method_val is None:
-                    return None
-                return create_cluster_sizes_plot(int(k_val), str(method_val))
-            
-            plot_k_display_input_show.change(
-                fn=update_cluster_sizes,
-                inputs=[plot_k_display_input_show, plot_method_display_input_show],
-                outputs=[cluster_sizes_plot]
-            )
-            plot_method_display_input_show.change(
-                fn=update_cluster_sizes,
-                inputs=[plot_k_display_input_show, plot_method_display_input_show],
-                outputs=[cluster_sizes_plot]
-            )
-            
-            gr.Markdown("### Optimal K* Selection")
-            k_star_bar_plot = gr.Plot(label="K* by Method")
-            k_star_line_plot = gr.Plot(label="K* Selection Detail")
-            
-            refresh_k_star_btn = gr.Button("Generate K* Plots")
-            refresh_k_star_btn.click(
-                fn=create_k_star_plots,
-                outputs=[k_star_bar_plot, k_star_line_plot]
+            plot_method_selector.change(
+                fn=update_detailed_plots,
+                inputs=[plot_k_selector, plot_method_selector],
+                outputs=[clam_heatmap, cluster_sizes_plot]
             )
     
     # Footer

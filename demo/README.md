@@ -1,6 +1,6 @@
-# 🧬 ERICA Demo Interface
+# ERICA Demo Interface
 
-This folder contains a comprehensive Gradio-based web interface for testing and exploring the ERICA (Evaluating Replicability via Iterative Clustering Assignments) library. The demo provides an interactive way to upload datasets, configure clustering parameters, run analyses, and visualize results—all through an intuitive web interface.
+This folder contains a streamlined Gradio-based web interface for the ERICA (Evaluating Replicability via Iterative Clustering Assignments) library. The demo provides an intuitive way to upload datasets, configure clustering parameters, run analyses, and visualize results through a clean, professional interface.
 
 ## 📋 Table of Contents
 
@@ -82,48 +82,61 @@ If all tests pass, you'll see:
 
 ## Features
 
-The demo interface is organized into 5 main tabs:
+The demo interface is organized into 3 streamlined tabs:
 
-### Tab 1: Data Loading
+### Tab 1: Load Data
 - **Upload Files**: Support for CSV and NPY formats
-- **Dataset Preview**: View shape, statistics, and data properties
+- **Dataset Preview**: Detailed preview showing:
+  - File information and shape
+  - Sample and feature counts
+  - Statistical summaries (min, max, mean, std)
+  - Data validation (NaN, Inf detection)
+  - First 5 and last 3 rows of data
 - **Transpose Option**: Toggle between genomics format (features×samples) and ML format (samples×features)
-- **Automatic Validation**: Checks for NaN, Inf, and data type issues
+- **Header Detection**: Automatically identifies gene ID or feature name headers
 
-### Tab 2: Parameter Configuration
+### Tab 2: Configure & Run Analysis
+**Configuration Section:**
 - **K Range**: Multiple format support
   - Comma-separated: `2,3,4,5`
   - Range: `2-5` → [2, 3, 4, 5]
   - Range with step: `2-10:2` → [2, 4, 6, 8, 10]
-- **Iterations**: Control Monte Carlo subsampling iterations (10-1000)
+- **Iterations**: Control Monte Carlo subsampling (10-1000 iterations)
 - **Training Percentage**: Adjust train/test split ratio (50-95%)
 - **Clustering Method**: Choose kmeans, agglomerative, or both
-- **Linkage Methods**: Configure hierarchical clustering linkages (single, complete, average, ward)
-- **Random Seed**: Set seed for reproducible results
-- **Output Directory**: Specify where to save results
+- **Linkage Methods**: Configure hierarchical clustering (single, complete, average, ward)
+- **Random Seed**: Set seed for reproducibility
+- **Output Directory**: Specify results location
+- **Verbose Output**: Toggle detailed progress messages
 
-### Tab 3: Run Analysis
-- **Execute Analysis**: Run ERICA with configured parameters
-- **Real-time Progress**: View detailed progress messages
-- **Results Summary**: See metrics, K* values, and output locations
-- **Automatic Refresh**: Updates visualization options after completion
+**Run Section:**
+- **Status Indicator**: Real-time status updates
+- **Run Button**: Execute analysis with configured parameters
+- **Results Summary**: Comprehensive output showing:
+  - Elapsed time
+  - Data shape and parameters used
+  - Metrics for each K value
+  - Optimal K* selections
+  - Next steps guidance
 
-### Tab 4: View Metrics
-- **Interactive Table**: Comprehensive metrics for all K values and methods
+### Tab 3: Results & Visualizations
+**Metrics Summary:**
+- **Interactive Table**: All metrics for each K value and method
+- **K* Highlighting**: Bold rows indicate optimal selections
 - **Metrics Display**:
-  - **CRI** (Clustering Replicability Index)
-  - **WCRI** (Weighted CRI)
-  - **TWCRI** (Training-Weighted CRI)
-- **Sortable Results**: Easy comparison across methods
+  - CRI (Clustering Replicability Index)
+  - WCRI (Weighted CRI)
+  - TWCRI (Training-Weighted CRI)
+  - Optimal K* column showing which metrics selected each K
+- **Auto-Refresh**: One button updates both table and plot
 
-### Tab 5: Visualizations
-- **Metrics Plot**: Line charts showing metric trends across K values
-- **CLAM Heatmap**: Interactive heatmap of cluster assignment matrices
-- **Cluster Sizes**: Bar plots showing cluster size distributions
-- **K* Selection Plots**:
-  - Bar chart comparing K* across methods
-  - Detailed K* selection with elbow detection
-- **Dynamic Updates**: Plots update automatically when changing K or method
+**Visualizations:**
+- **Metrics Line Plot**: Trends across K values (auto-generated with metrics)
+- **Detailed Analysis Section**:
+  - K and Method selectors
+  - CLAM Heatmap: Cluster assignment stability visualization
+  - Cluster Size Distribution: Bar chart of cluster sizes
+  - Auto-updates when selection changes
 
 ## Usage Guide
 
@@ -162,52 +175,65 @@ The demo interface is organized into 5 main tabs:
 
 ## Example Workflow
 
-Here's a complete workflow for analyzing a dataset:
+Here's a streamlined workflow for analyzing a dataset:
 
 ### 1. Load Your Data
 - Navigate to **Tab 1: Load Data**
 - Click **"Data File"** and upload your CSV or NPY file
-- Check **"Transpose Data"** if using genomics format
-- Click **"Load & Preview Data"** to see dataset information
-- Verify the shape and statistics look correct
+- Check **"Transpose Data"** if using genomics format (features in rows)
+- Click **"Load & Preview Data"** to see:
+  - Dataset shape and statistics
+  - First 5 and last 3 rows
+  - Data validation results
+- Verify everything looks correct before proceeding
 
-### 2. Configure Parameters
-- Navigate to **Tab 2: Configure Parameters**
+### 2. Configure & Run Analysis
+- Navigate to **Tab 2: Configure & Run Analysis**
+
+**Configure Parameters:**
 - Set **K Range**: `2-6` (for initial exploration)
-- Set **Iterations**: `100` (for quick testing)
-- Set **Training Percentage**: `0.8`
-- Select **Method**: `kmeans` (fastest) or `both` (comprehensive)
-- Keep default **Random Seed** for reproducibility
+- Set **Iterations**: `100` (for quick testing) or `500` (for publication)
+- Set **Training Percentage**: `0.8` (standard) or adjust based on sample size
+- Select **Method**: `kmeans` (fastest) or `both` (comprehensive comparison)
+- Keep default **Random Seed** (`123`) for reproducibility
 - Set **Output Directory**: `./erica_output`
+- Enable **Verbose Output** if you want detailed progress
 
-### 3. Run Analysis
-- Navigate to **Tab 3: Run Analysis**
+**Run Analysis:**
+- Scroll down to the "Run Analysis" section
+- Check the status indicator (should say "Ready to run analysis")
 - Click **"Run Analysis"**
-- Monitor progress in the output window
-- Wait for completion message showing:
-  - Data shape
-  - Metrics summary for each K
-  - K* selection results
+- Watch the status indicator update
+- View comprehensive results showing:
+  - Elapsed time
+  - Data shape and parameters
+  - Metrics for each K value
+  - Optimal K* selections
+  - Next steps
 
-### 4. View Metrics
-- Navigate to **Tab 4: View Metrics**
-- Click **"Refresh Metrics Table"**
-- Review CRI, WCRI, and TWCRI values
-- Compare metrics across different K values
-- Identify trends and patterns
+### 3. View Results & Visualizations
+- Navigate to **Tab 3: Results & Visualizations**
 
-### 5. Explore Visualizations
-- Navigate to **Tab 5: Visualizations**
-- **Metrics Plot**: Click "Generate Metrics Plot" to see trends
-- **CLAM Heatmap**: Select K and method, view cluster stability
-- **Cluster Sizes**: Check cluster size distributions
-- **K* Selection**: Click "Generate K* Plots" to see optimal K recommendations
+**Review Metrics:**
+- Click **"Refresh Results"** to update both table and plot
+- Review the metrics table:
+  - **Bold rows** indicate optimal K* selections
+  - Check "Optimal K*" column to see which metrics selected each K
+  - Compare CRI, WCRI, and TWCRI values across K values
+- View the metrics line plot showing trends across K
 
-### 6. Interpret Results
+**Explore Detailed Analysis:**
+- Select a **K value** and **Method** from the dropdowns
+- View **CLAM Heatmap**: Shows cluster assignment stability
+- View **Cluster Size Distribution**: Check if clusters are balanced
+- Plots update automatically when you change selections
+
+### 4. Interpret Results
 - **High CRI/WCRI/TWCRI** (>0.7): Stable, replicable clusters
 - **Moderate values** (0.5-0.7): Moderately stable clusters
 - **Low values** (<0.5): Unstable clusters, consider different K or method
 - **K* value**: The optimal number of clusters based on stability metrics
+- **Bold rows in table**: These K values show best replicability
 
 ## Troubleshooting
 
@@ -280,7 +306,7 @@ If you encounter issues not listed here:
 
 ```
 demo/
-├── gradio_demo.py    # Main Gradio web interface with all UI components
+├── gradio_demo.py    # Main Gradio web interface (streamlined 3-tab design)
 ├── test_demo.py      # Test script to verify installation and dependencies
 ├── README.md         # This documentation file
 └── SUMMARY.md        # Technical summary of demo implementation
@@ -288,7 +314,12 @@ demo/
 
 ### File Descriptions
 
-- **gradio_demo.py**: Complete Gradio interface with 5 tabs (Data Loading, Configuration, Analysis, Metrics, Visualizations). Includes helper functions for data parsing, plot generation, and result management.
+- **gradio_demo.py**: Professional Gradio interface with 3 streamlined tabs:
+  - Tab 1: Data loading with detailed preview
+  - Tab 2: Combined configuration and execution
+  - Tab 3: Results with auto-refreshing visualizations
+  - Includes helper functions for data parsing, plot generation, and result management
+  - ~900 lines of clean, well-documented code
 
 - **test_demo.py**: Lightweight testing script that verifies imports and basic functionality. Run this first to ensure everything is set up correctly.
 
@@ -302,7 +333,7 @@ The demo interface is designed to be modular and easily extensible. Here are som
 
 ### Adding New Visualizations
 
-To add a new plot type:
+To add a new plot type in Tab 3:
 
 1. Create a new plotting function in the global scope:
 ```python
@@ -315,9 +346,11 @@ def create_custom_plot() -> Optional[object]:
     return fig
 ```
 
-2. Add a new plot component in the Visualizations tab:
+2. Add the plot component in Tab 3 (Results & Visualizations):
 ```python
-with gr.Tab("5. Visualizations"):
+with gr.Tab("3. Results & Visualizations"):
+    # Add after existing visualizations
+    gr.Markdown("### Custom Analysis")
     custom_plot = gr.Plot(label="My Custom Plot")
     refresh_custom_btn = gr.Button("Generate Custom Plot")
     refresh_custom_btn.click(
@@ -336,7 +369,7 @@ To display custom metrics:
 
 ### Customizing Parameters
 
-You can modify default values or add new parameters in the Configuration tab by adding new Gradio components (Slider, Dropdown, Textbox, etc.) and passing them to the `run_erica_analysis` function.
+You can modify default values or add new parameters in Tab 2 by adding new Gradio components (Slider, Dropdown, Textbox, etc.) and passing them to the `run_erica_analysis` function. Remember to update the `run_and_refresh` function to include your new parameters.
 
 ### Using with Custom Datasets
 
@@ -348,17 +381,21 @@ The demo works with any numeric dataset. For best results:
 ## Best Practices
 
 ### For Exploratory Analysis
-- Start with K range 2-5 and 50-100 iterations
-- Use kmeans for speed
-- Review plots to understand data structure
-- Iterate with refined parameters
+1. Load your data and verify the preview (Tab 1)
+2. Start with K range 2-5 and 100 iterations (Tab 2)
+3. Use kmeans for speed
+4. Run analysis and review metrics table (Tab 2)
+5. Check visualizations to understand data structure (Tab 3)
+6. Iterate with refined parameters as needed
 
 ### For Publication-Quality Results
-- Use 500-1000 iterations
-- Test both kmeans and agglomerative methods
-- Compare multiple linkage functions
-- Use multiple random seeds to verify stability
-- Document all parameter choices
+1. Use 500-1000 iterations for stable estimates
+2. Test both kmeans and agglomerative methods
+3. Compare multiple linkage functions (single, ward, complete)
+4. Run with multiple random seeds to verify stability
+5. Document all parameter choices in your methods
+6. Save comprehensive results from Tab 2 output
+7. Export visualizations from Tab 3 for figures
 
 ### For Large Datasets (>1000 samples)
 - Start with higher training percentage (0.85-0.90)
