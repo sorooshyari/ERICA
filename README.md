@@ -298,6 +298,57 @@ metrics_agg = erica_agg.get_metrics()
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## Patterns and Technology
+
+### Core Technologies
+- **Python 3.8+**: Primary programming language
+- **NumPy**: Numerical computing and array operations
+- **pandas**: Data manipulation and I/O
+- **scikit-learn**: Clustering algorithms (KMeans, AgglomerativeClustering)
+- **Plotly**: Interactive visualizations
+- **Gradio**: Web-based GUI interface
+
+### Design Patterns
+- **Object-Oriented Design**: Main `ERICA` class encapsulates analysis workflow
+- **Modular Architecture**: Separate modules for clustering, metrics, plotting, and data handling
+- **Deterministic Execution**: Reproducibility through controlled random seeds
+- **Lazy Computation**: CLAM matrices computed on-demand with caching
+- **Strategy Pattern**: Multiple clustering methods via pluggable algorithms
+- **Factory Pattern**: Automatic method selection and configuration
+- **Iterator Pattern**: Monte Carlo subsampling iterations
+
+### Code Organization
+```
+erica/
+├── core.py           # Main ERICA class and workflow orchestration
+├── clustering.py     # Clustering algorithms (KMeans, Agglomerative)
+├── metrics.py        # Replicability metrics (CRI, WCRI, TWCRI) and K* selection
+├── plotting.py       # Visualization functions
+├── data.py           # Data loading and preprocessing
+└── utils.py          # Utility functions and helpers
+```
+
+### Key Algorithms
+1. **Monte Carlo Subsampling (MCSS)**: Iterative train/test splitting for stability evaluation
+2. **CLAM Matrix Construction**: Co-occurrence matrix tracking cluster assignments
+3. **Algorithm 2 (K* Selection)**: Non-decreasing metric approach for optimal K determination
+4. **CRI/WCRI/TWCRI Metrics**: Replicability indices for clustering quality
+
+### Development Workflow
+- **Version Control**: Git/GitHub
+- **Testing**: pytest with comprehensive test suite
+- **Code Quality**: black (formatting), flake8 (linting), mypy (type checking)
+- **Documentation**: Markdown documentation and inline docstrings
+- **Packaging**: setuptools with pyproject.toml
+
+### Recent Enhancements (November 2025)
+- ✅ CoLab integration: `find_largest_increasing_entry_by_index()` for alternative K* selection
+- ✅ Enhanced NA handling per Algorithm 2, Line 4
+- ✅ Improved K* selection documentation with line-by-line algorithm mapping
+- ✅ Gradio demo with professional UI (3-tab design)
+- ✅ Load previous runs feature for demo interface
+- ✅ Comprehensive testing and validation
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
