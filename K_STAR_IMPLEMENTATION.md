@@ -230,6 +230,30 @@ The implementation was validated using synthetic data with 3 known clusters:
 - WCRI selected K* = 2 (expected due to size weighting)
 - All edge cases handled correctly (NaN, gaps, equal values)
 
+## Recent Enhancements (November 6, 2025)
+
+### 1. CoLab Integration
+Added `find_largest_increasing_entry_by_index()` function from the CoLab notebook:
+- Finds the last position where a metric value increased
+- Provides alternative approach to K* selection
+- Validates consistency with Algorithm 2 implementation
+- Useful for research and comparative analysis
+
+### 2. Improved NA Handling
+Enhanced `select_optimal_k()` to explicitly follow Algorithm 2, Line 4:
+- Line 4: "if NA ∉ {M_K(k)} then % is violated if ∃ k ≥ 1 : X_k = 0"
+- Added explicit comments mapping code to algorithm steps
+- Improved documentation to reference paper algorithm directly
+- Better handling of edge cases (NaN at start, multiple NaN, etc.)
+
+### 3. Validation
+Created comprehensive test suite validating:
+- `find_largest_increasing_entry_by_index` correctness
+- NA handling per Algorithm 2, Line 4
+- Consistency between both approaches
+- 10 test cases covering all edge cases
+- All tests pass ✓
+
 ## Future Enhancements
 
 Potential improvements for future versions:
@@ -237,7 +261,7 @@ Potential improvements for future versions:
 2. Support for custom metric functions
 3. Statistical significance testing between K values
 4. Ensemble K* selection across multiple metrics
-5. GUI integration for K* visualization
+5. Alternative K* selection using `find_largest_increasing_entry_by_index`
 
 ## References
 

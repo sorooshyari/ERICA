@@ -393,18 +393,78 @@ def summarize_metrics(
     }
 
 
+def find_largest_increasing_entry_by_index(vec: List[float]) -> Tuple[Optional[float], Optional[int]]:
+    """Find the value and index of the largest entry that is greater than the preceding entry.
+    
+    This function implements an alternative K* selection approach by finding the last
+    position where a metric value increased compared to the previous value. Returns
+    the last such increasing entry.
+    
+    Parameters
+    ----------
+    vec : List[float]
+        The input list of float values (can contain NaN values)
+        
+    Returns
+    -------
+    Tuple[Optional[float], Optional[int]]
+        - Optional[float]: The value of the largest increasing entry, or None if none found
+        - Optional[int]: The index of the largest increasing entry, or None if none found
+        
+    Examples
+    --------
+    >>> vec = [0.71, 0.75, 0.74, 0.78]
+    >>> value, idx = find_largest_increasing_entry_by_index(vec)
+    >>> print(f"Value: {value}, Index: {idx}")
+    Value: 0.78, Index: 3
+    
+    >>> vec = [0.85, 0.90, 0.88, 0.87]
+    >>> value, idx = find_largest_increasing_entry_by_index(vec)
+    >>> print(f"Value: {value}, Index: {idx}")
+    Value: 0.90, Index: 1
+    
+    Notes
+    -----
+    This function is used in the CoLab implementation of ERICA for K* selection.
+    It identifies the last position where the metric improved, which corresponds
+    to the optimal K value before stability starts to degrade.
+    """
+    arr = np.asarray(vec)
+    if arr.size == 0:
+        return None, None  # Return None if the vector is empty
+    
+    # Find indices where the current element is greater than the previous one
+    mask = arr[1:] > arr[:-1]
+    inc_indices = np.where(mask)[0] + 1  # Adjust indices to match original array
+    
+    if len(inc_indices) == 0:
+        # If no increasing entries, return the first entry (index 0)
+        return float(arr[0]), 0
+    else:
+        # Return the value and index of the last increasing entry
+        max_idx_in_inc = int(inc_indices[-1])
+        return float(arr[max_idx_in_inc]), max_idx_in_inc
+
+
 def select_optimal_k(
     metric_dict: Dict[int, float],
     k_max: Optional[int] = None
 ) -> int:
     """Select optimal K using ERICA Algorithm 2 (non-decreasing metric selection).
     
-    This algorithm implements the K_star selection procedure from ERICA:
-    1. Initialize K_star = 2
-    2. For K = 3 to K_max:
-        a. If M[K] is not NaN:
-            i. If M[K] >= M[K-1], set K_star = K
-    3. Return K_star
+    This algorithm implements the K_star selection procedure from ERICA paper:
+    
+    Algorithm 2: Cluster number (K*) selection with ERICA
+    1. Input: Metric for considered K values {M_K : K = 2, ..., K^max}
+    2. K* ← 2  (initialize)
+    3. for K = 3 to K^max do
+    4.     if NA ∉ {M_K(k)} then  % is violated if ∃ k ≥ 1 : X_k = 0
+    5.         if M_K ≥ M_{K-1} then
+    6.             K* ← K
+    7.         end if
+    8.     end if
+    9. end for
+    10. return K*
     
     The algorithm prefers the largest K where the metric is non-decreasing,
     ensuring we select the most granular clustering that maintains stability.
@@ -413,7 +473,7 @@ def select_optimal_k(
     ----------
     metric_dict : dict
         Dictionary mapping K values to metric scores (e.g., {2: 0.71, 3: 0.75, ...})
-        NaN values are skipped
+        NaN values are skipped per line 4 of Algorithm 2
     k_max : int, optional
         Maximum K to consider. If None, uses max(metric_dict.keys())
         
@@ -440,8 +500,8 @@ def select_optimal_k(
     It prefers larger K values when metrics are non-decreasing, which helps
     identify the most detailed stable clustering structure.
     
-    The algorithm handles NaN values gracefully by skipping them, which is
-    important when clustering fails for certain K values.
+    Line 4 of Algorithm 2: "if NA ∉ {M_K(k)}" means we skip any K with NaN values.
+    This is important when clustering fails for certain K values.
     """
     import math
     
@@ -458,16 +518,16 @@ def select_optimal_k(
     if k_max is None:
         k_max = max(k_values)
     
-    # Initialize K_star to minimum K (typically 2)
+    # Algorithm 2, Line 2: Initialize K_star to minimum K (typically 2)
     k_star = min(k_values)
     
     # Track the most recent valid K and its metric value
     last_valid_k = k_star
     last_valid_metric = metric_dict.get(k_star, float('nan'))
     
-    # Skip if the first K itself is NaN
+    # Handle case where the first K itself is NaN
     if math.isnan(last_valid_metric):
-        # Find first valid K
+        # Find first valid K (satisfies line 4: NA ∉ {M_K(k)})
         for k in k_values:
             val = metric_dict.get(k, float('nan'))
             if not math.isnan(val):
@@ -476,26 +536,30 @@ def select_optimal_k(
                 last_valid_metric = val
                 break
     
-    # Iterate through remaining K values
+    # Algorithm 2, Line 3: for K = 3 to K^max do
     for k in k_values:
         if k <= last_valid_k:
             continue
         if k > k_max:
             break
-            
+        
+        # Algorithm 2, Line 4: if NA ∉ {M_K(k)} then
         # Check if current metric is valid (not NaN)
         current_metric = metric_dict.get(k, float('nan'))
         if math.isnan(current_metric):
-            continue
+            continue  # Skip this K if it contains NA
         
+        # Algorithm 2, Line 5: if M_K ≥ M_{K-1} then
         # Compare with the most recent valid metric
         if current_metric >= last_valid_metric:
+            # Algorithm 2, Line 6: K* ← K
             k_star = k
         
-        # Update last valid K and metric
+        # Update last valid K and metric for next comparison
         last_valid_k = k
         last_valid_metric = current_metric
     
+    # Algorithm 2, Line 10: return K*
     return k_star
 
 
