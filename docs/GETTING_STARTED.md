@@ -192,19 +192,27 @@ print(f"  WCRI:  {metrics['WCRI']:.4f}")
 print(f"  TWCRI: {metrics['TWCRI']:.4f}")
 ```
 
-### Step 5: Find Optimal K
+### Step 5: Get Optimal K* (Algorithm 2)
+
+ERICA automatically computes K* using Algorithm 2 during the run. You can access it easily:
 
 ```python
-from erica.metrics import find_optimal_k
+# Get optimal K* for each metric (automatically computed)
+k_star_twcri = erica.get_k_star('TWCRI')
+k_star_cri = erica.get_k_star('CRI')
+k_star_wcri = erica.get_k_star('WCRI')
 
-# Find optimal k based on TWCRI
-optimal_k, twcri_value = find_optimal_k(all_metrics, metric_name='TWCRI')
-print(f"Optimal k = {optimal_k} (TWCRI = {twcri_value:.4f})")
+print(f"Optimal K* (TWCRI): {k_star_twcri['kmeans']}")
+print(f"Optimal K* (CRI): {k_star_cri['kmeans']}")
+print(f"Optimal K* (WCRI): {k_star_wcri['kmeans']}")
 
-# Compare different metrics
-for metric in ['CRI', 'WCRI', 'TWCRI']:
-    k_opt, value = find_optimal_k(all_metrics, metric_name=metric)
-    print(f"{metric}: optimal k = {k_opt} (value = {value:.4f})")
+# Or use select_optimal_k directly for custom analysis
+from erica.metrics import select_optimal_k
+
+# Extract TWCRI values for all K
+twcri_dict = {k: all_metrics[k]['kmeans']['TWCRI'] for k in all_metrics}
+optimal_k = select_optimal_k(twcri_dict)
+print(f"Optimal K* = {optimal_k}")
 ```
 
 ### Step 6: Visualize Results
@@ -276,10 +284,9 @@ erica = ERICA(
 
 results = erica.run()
 
-# Find optimal k
-from erica.metrics import find_optimal_k
-
-optimal_k, _ = find_optimal_k(erica.get_metrics(), metric_name='TWCRI')
+# Get optimal K* (automatically computed by ERICA)
+k_star = erica.get_k_star('TWCRI')
+optimal_k = k_star['kmeans']
 print(f"Recommended number of clusters: {optimal_k}")
 
 # Get cluster assignments for optimal k

@@ -253,9 +253,9 @@ erica = ERICA(
 )
 results = erica.run()
 
-# Find optimal k
-from erica.metrics import find_optimal_k
-optimal_k, _ = find_optimal_k(erica.get_metrics(), metric_name='TWCRI')
+# Get optimal K* (automatically computed by ERICA)
+k_star = erica.get_k_star('TWCRI')
+optimal_k = k_star['kmeans']
 print(f"Recommended number of clusters: {optimal_k}")
 ```
 
@@ -365,7 +365,6 @@ erica/
 - **Packaging**: setuptools with pyproject.toml
 
 ### Recent Enhancements (November 2025)
-- ✅ CoLab integration: `find_largest_increasing_entry_by_index()` for alternative K* selection
 - ✅ Enhanced NA handling per Algorithm 2, Line 4
 - ✅ Improved K* selection documentation with line-by-line algorithm mapping
 - ✅ Gradio demo with professional UI (3-tab design)

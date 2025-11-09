@@ -46,13 +46,12 @@ def main():
             print(f"  WCRI:  {m['WCRI']:.4f}")
             print(f"  TWCRI: {m['TWCRI']:.4f}")
     
-    # Find optimal k
-    print("\n5. Finding optimal k...")
-    from erica.metrics import find_optimal_k
-    
-    all_metrics = erica.get_metrics()
-    optimal_k, twcri_value = find_optimal_k(all_metrics, metric_name='TWCRI')
-    print(f"   Optimal k = {optimal_k} (TWCRI = {twcri_value:.4f})")
+    # Get optimal k (automatically computed by ERICA)
+    print("\n5. Getting optimal K* (Algorithm 2)...")
+    k_star = erica.get_k_star('TWCRI')
+    optimal_k = k_star['kmeans']
+    twcri_value = erica.get_metrics(k=optimal_k)['kmeans']['TWCRI']
+    print(f"   Optimal K* = {optimal_k} (TWCRI = {twcri_value:.4f})")
     
     # Save results
     print("\n6. Saving results...")

@@ -54,7 +54,6 @@ from erica.metrics import (
     compute_wcri,
     compute_twcri,
     compute_metrics_for_clam,
-    find_largest_increasing_entry_by_index,
     select_optimal_k,
     select_optimal_k_by_method,
 )
@@ -99,7 +98,6 @@ __all__ = [
     'compute_wcri',
     'compute_twcri',
     'compute_metrics_for_clam',
-    'find_largest_increasing_entry_by_index',
     'select_optimal_k',
     'select_optimal_k_by_method',
     

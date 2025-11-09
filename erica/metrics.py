@@ -247,55 +247,6 @@ def compute_metrics_for_clam(clam_matrix: np.ndarray, k: int) -> Dict[str, float
     return result
 
 
-def find_optimal_k(
-    metrics_by_k: Dict[int, Dict],
-    metric_name: str = 'TWCRI'
-) -> Tuple[int, float]:
-    """Find optimal k value based on specified metric.
-    
-    Parameters
-    ----------
-    metrics_by_k : dict
-        Dictionary mapping k values to their metrics
-    metric_name : str, optional
-        Metric to optimize ('CRI', 'WCRI', or 'TWCRI'), default 'TWCRI'
-        
-    Returns
-    -------
-    tuple of (int, float)
-        (optimal_k, metric_value) for the best k
-        
-    Examples
-    --------
-    >>> metrics_by_k = {
-    ...     2: {'TWCRI': 0.85},
-    ...     3: {'TWCRI': 0.92},
-    ...     4: {'TWCRI': 0.88}
-    ... }
-    >>> optimal_k, value = find_optimal_k(metrics_by_k)
-    >>> print(f"Optimal k={optimal_k} with TWCRI={value:.3f}")
-    Optimal k=3 with TWCRI=0.920
-    """
-    if not metrics_by_k:
-        raise ValueError("metrics_by_k is empty")
-    
-    if metric_name not in ['CRI', 'WCRI', 'TWCRI']:
-        raise ValueError(f"Invalid metric_name: {metric_name}")
-    
-    best_k = None
-    best_value = -np.inf
-    
-    for k, metrics in metrics_by_k.items():
-        if metric_name in metrics:
-            value = metrics[metric_name]
-            if value > best_value:
-                best_value = value
-                best_k = k
-    
-    if best_k is None:
-        raise ValueError(f"No valid {metric_name} values found")
-    
-    return best_k, best_value
 
 
 def compute_stability_score(clam_matrix: np.ndarray) -> float:
@@ -406,57 +357,6 @@ def summarize_metrics(
     }
 
 
-def find_largest_increasing_entry_by_index(vec: List[float]) -> Tuple[Optional[float], Optional[int]]:
-    """Find the value and index of the largest entry that is greater than the preceding entry.
-    
-    This function implements an alternative K* selection approach by finding the last
-    position where a metric value increased compared to the previous value. Returns
-    the last such increasing entry.
-    
-    Parameters
-    ----------
-    vec : List[float]
-        The input list of float values (can contain NaN values)
-        
-    Returns
-    -------
-    Tuple[Optional[float], Optional[int]]
-        - Optional[float]: The value of the largest increasing entry, or None if none found
-        - Optional[int]: The index of the largest increasing entry, or None if none found
-        
-    Examples
-    --------
-    >>> vec = [0.71, 0.75, 0.74, 0.78]
-    >>> value, idx = find_largest_increasing_entry_by_index(vec)
-    >>> print(f"Value: {value}, Index: {idx}")
-    Value: 0.78, Index: 3
-    
-    >>> vec = [0.85, 0.90, 0.88, 0.87]
-    >>> value, idx = find_largest_increasing_entry_by_index(vec)
-    >>> print(f"Value: {value}, Index: {idx}")
-    Value: 0.90, Index: 1
-    
-    Notes
-    -----
-    This function is used in the CoLab implementation of ERICA for K* selection.
-    It identifies the last position where the metric improved, which corresponds
-    to the optimal K value before stability starts to degrade.
-    """
-    arr = np.asarray(vec)
-    if arr.size == 0:
-        return None, None  # Return None if the vector is empty
-    
-    # Find indices where the current element is greater than the previous one
-    mask = arr[1:] > arr[:-1]
-    inc_indices = np.where(mask)[0] + 1  # Adjust indices to match original array
-    
-    if len(inc_indices) == 0:
-        # If no increasing entries, return the first entry (index 0)
-        return float(arr[0]), 0
-    else:
-        # Return the value and index of the last increasing entry
-        max_idx_in_inc = int(inc_indices[-1])
-        return float(arr[max_idx_in_inc]), max_idx_in_inc
 
 
 def select_optimal_k(

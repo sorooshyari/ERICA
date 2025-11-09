@@ -6,7 +6,7 @@ custom workflows and advanced analysis.
 
 import numpy as np
 from erica.clustering import iterative_clustering_subsampling, kmeans_clustering
-from erica.metrics import compute_metrics_for_clam, find_optimal_k
+from erica.metrics import compute_metrics_for_clam, select_optimal_k
 from erica.data import prepare_samples_array, validate_dataset, save_clam_matrix
 from erica.utils import set_deterministic_mode, compute_config_hash
 from erica.plotting import plot_metrics, plot_clam_heatmap
@@ -102,10 +102,19 @@ def main():
         print(f"     TWCRI: {metrics['TWCRI']:.4f}")
         print(f"     Cluster sizes: {metrics['cluster_sizes']}")
     
-    # Find optimal k
-    print(f"\n8. Finding optimal k...")
-    optimal_k, twcri_value = find_optimal_k(metrics_by_k, metric_name='TWCRI')
-    print(f"   Optimal k = {optimal_k}")
+    # Find optimal k using Algorithm 2
+    print(f"\n8. Finding optimal K* (Algorithm 2)...")
+    from erica.metrics import select_optimal_k_by_method
+    
+    # Prepare metrics for select_optimal_k_by_method
+    metrics_for_selection = {k: {'method': metrics_by_k[k]} for k in metrics_by_k}
+    
+    # Use select_optimal_k directly on the metric values
+    from erica.metrics import select_optimal_k
+    twcri_dict = {k: metrics_by_k[k]['TWCRI'] for k in metrics_by_k}
+    optimal_k = select_optimal_k(twcri_dict)
+    twcri_value = metrics_by_k[optimal_k]['TWCRI']
+    print(f"   Optimal K* = {optimal_k}")
     print(f"   TWCRI = {twcri_value:.4f}")
     
     # Create visualizations

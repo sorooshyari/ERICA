@@ -66,7 +66,8 @@ The library follows a **modular design** where:
   - `compute_cri()` - Clustering Replicability Index
   - `compute_wcri()` - Weighted CRI
   - `compute_twcri()` - Total Weighted CRI
-  - `find_optimal_k()` - Find best k value
+  - `select_optimal_k()` - Find K* using Algorithm 2
+  - `select_optimal_k_by_method()` - K* selection for multiple methods
 - **Usage**: `from erica.metrics import compute_cri`
 
 #### `data.py` - Data Operations
@@ -153,7 +154,7 @@ validate_dataset(samples, min_k=2, train_percent=0.8)
 
 ```python
 from erica import load_clam_matrix
-from erica.metrics import compute_metrics_for_clam, find_optimal_k
+from erica.metrics import compute_metrics_for_clam, select_optimal_k
 
 # Load pre-computed CLAM matrices
 clam_k2 = load_clam_matrix('clam_k2.csv')
@@ -163,8 +164,9 @@ clam_k3 = load_clam_matrix('clam_k3.csv')
 metrics_k2 = compute_metrics_for_clam(clam_k2, k=2)
 metrics_k3 = compute_metrics_for_clam(clam_k3, k=3)
 
-# Compare
-optimal_k, value = find_optimal_k({2: metrics_k2, 3: metrics_k3})
+# Find optimal K using Algorithm 2
+twcri_dict = {2: metrics_k2['TWCRI'], 3: metrics_k3['TWCRI']}
+optimal_k = select_optimal_k(twcri_dict)
 ```
 
 **When to use**: You already ran clustering, just need metrics.
