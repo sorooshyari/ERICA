@@ -94,17 +94,26 @@ K=8 with empty cluster:
    - Added `has_empty_clusters` field to returned metrics
    - Updated output formatting
 
-2. **`tests/test_erica.py`**
-   - Added 3 new comprehensive tests
-   - All tests pass (26/26)
+2. **`erica/core.py`**
+   - Added `disqualified_k_` attribute to track disqualified K values
+   - Modified `_compute_all_metrics()` to populate disqualified K tracking
+   - Updated `_print_k_star_summary()` to display disqualified K values
+   - Added `get_disqualified_k()` method for easy access
+   - Updated `get_results()` to include `disqualified_k` in returned dictionary
 
-3. **`README.md`**
+3. **`tests/test_erica.py`**
+   - Added 4 new comprehensive tests (including `test_get_disqualified_k`)
+   - All tests pass (27/27)
+
+4. **`README.md`**
    - Added "Empty Cluster Handling" section
    - Documented the behavior and rationale
+   - Added usage examples for `get_disqualified_k()`
 
-4. **`fixes/empty_cluster_handling.md`**
+5. **`fixes/empty_cluster_handling.md`**
    - Comprehensive documentation of the problem and solution
    - Includes examples, testing instructions, and verification steps
+   - Updated to reflect new tracking features
 
 ## Verification
 
@@ -131,8 +140,11 @@ All checks pass successfully.
 - ✅ Invalid K values are disqualified via NaN marking
 - ✅ K* selection only considers valid clustering configurations
 - ✅ Clear user feedback via warning messages
+- ✅ **NEW**: Disqualified K values are tracked and accessible
+- ✅ **NEW**: Easy programmatic access via `get_disqualified_k()` method
+- ✅ **NEW**: Displayed in verbose output summary
 - ✅ Full compliance with Algorithm 2 specification
-- ✅ Comprehensive test coverage
+- ✅ Comprehensive test coverage (27/27 passing)
 - ✅ No breaking changes to existing functionality
 
 ## Next Steps

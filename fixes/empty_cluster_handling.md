@@ -79,18 +79,23 @@ All tests pass successfully.
 - Empty clusters artificially lowered CRI scores
 - Invalid K values could be selected as K*
 - Results were misleading when clustering produced empty clusters
+- No way to identify which K values were problematic
 
 ### After Fix
 - Empty clusters are automatically detected
 - K values with empty clusters are disqualified (marked as NaN)
 - K* selection only considers valid K values
 - Clear warning message in output: "NaN (DISQUALIFIED - empty cluster detected)"
+- **NEW**: Disqualified K values are tracked and accessible via `get_disqualified_k()`
+- **NEW**: Disqualified K values shown in K* selection summary
+- **NEW**: Included in results dictionary as `disqualified_k`
 
 ## Related Files
 
-- `erica/metrics.py`: Main fix implementation
+- `erica/metrics.py`: Main fix implementation (NaN marking)
+- `erica/core.py`: Tracking and reporting of disqualified K values
 - `tests/test_erica.py`: Added comprehensive tests
-- `test_empty_cluster_example.py`: Demonstration script
+- `README.md`: Updated documentation with usage examples
 
 ## Algorithm 2 Compliance
 

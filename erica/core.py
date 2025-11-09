@@ -88,6 +88,7 @@ class ERICA:
         self.clam_matrices_ = {}
         self.metrics_ = {}
         self.k_star_ = {}  # Store optimal K for each method and metric
+        self.disqualified_k_ = {}  # Store disqualified K values by method
         self.output_folders_ = []
 
         os.makedirs(output_dir, exist_ok=True)
@@ -184,7 +185,7 @@ class ERICA:
 
 
     def _compute_all_metrics(self) -> Dict:
-        """Compute CRI, WCRI, TWCRI metrics for all results."""
+        """Compute CRI, WCRI, TWCRI metrics for all results and track disqualified K values."""
         metrics_by_k = {}
         for (k, method_name), result in self.results_.items():
             clam_matrix = result['clam_matrix']
@@ -192,6 +193,18 @@ class ERICA:
             if k not in metrics_by_k:
                 metrics_by_k[k] = {}
             metrics_by_k[k][method_name] = metrics
+            
+            # Track disqualified K values (those with empty clusters)
+            if metrics.get('has_empty_clusters', False):
+                if method_name not in self.disqualified_k_:
+                    self.disqualified_k_[method_name] = []
+                if k not in self.disqualified_k_[method_name]:
+                    self.disqualified_k_[method_name].append(k)
+        
+        # Sort disqualified K lists
+        for method_name in self.disqualified_k_:
+            self.disqualified_k_[method_name].sort()
+        
         return metrics_by_k
 
     def _select_optimal_k(self) -> Dict:
@@ -209,7 +222,7 @@ class ERICA:
         return k_star_results
 
     def _print_k_star_summary(self):
-        """Print summary of K* selections."""
+        """Print summary of K* selections and disqualified K values."""
         if not self.k_star_:
             return
         
@@ -228,15 +241,38 @@ class ERICA:
                     else:
                         print(f"  {method:25s} -> K* = {k_star}")
         
+        # Print disqualified K values if any
+        if self.disqualified_k_:
+            print("\n" + "-"*60)
+            print("DISQUALIFIED K VALUES (empty clusters)")
+            print("-"*60)
+            for method, k_list in sorted(self.disqualified_k_.items()):
+                if k_list:
+                    print(f"  {method:25s} -> K = {k_list}")
+        
         print("="*60 + "\n")
 
 
     def get_results(self) -> Dict:
-        """Get all analysis results."""
+        """Get all analysis results.
+        
+        Returns
+        -------
+        dict
+            Dictionary containing:
+            - 'clam_matrices': CLAM matrices for each (k, method) pair
+            - 'metrics': Computed metrics for each k and method
+            - 'k_star': Optimal K* values for each metric and method
+            - 'disqualified_k': K values disqualified due to empty clusters
+            - 'config': Configuration parameters
+            - 'output_folders': Output directory paths
+            - 'results': Raw clustering results
+        """
         return {
             'clam_matrices': self.clam_matrices_,
             'metrics': self.metrics_,
             'k_star': self.k_star_,
+            'disqualified_k': self.disqualified_k_,
             'config': self._get_config_dict(),
             'output_folders': self.output_folders_,
             'results': self.results_
@@ -276,6 +312,37 @@ class ERICA:
         if metric not in self.k_star_:
             raise ValueError(f"No K* computed for metric '{metric}'")
         return self.k_star_[metric]
+    
+    def get_disqualified_k(self, method: Optional[str] = None) -> Dict[str, List[int]]:
+        """Get K values that were disqualified due to empty clusters.
+        
+        Parameters
+        ----------
+        method : str, optional
+            Specific method to get disqualified K values for.
+            If None, returns all methods.
+            
+        Returns
+        -------
+        dict or list
+            If method is None: Dictionary mapping method names to lists of disqualified K values
+            If method is specified: List of disqualified K values for that method
+            
+        Examples
+        --------
+        >>> erica = ERICA(data, k_range=[2, 3, 4, 5, 6, 7, 8])
+        >>> erica.run()
+        >>> disqualified = erica.get_disqualified_k()
+        >>> print(disqualified)
+        {'kmeans': [8]}
+        
+        >>> disqualified_kmeans = erica.get_disqualified_k('kmeans')
+        >>> print(disqualified_kmeans)
+        [8]
+        """
+        if method is not None:
+            return self.disqualified_k_.get(method, [])
+        return self.disqualified_k_
 
     def _get_config_dict(self) -> Dict:
         """Return ERICA configuration as dictionary."""

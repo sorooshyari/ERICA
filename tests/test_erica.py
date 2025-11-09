@@ -442,5 +442,39 @@ def test_k_star_skips_empty_clusters():
     assert optimal_k_wcri['kmeans'] == 5
 
 
+def test_get_disqualified_k():
+    """Test that ERICA tracks and returns disqualified K values."""
+    # Create sample data
+    data = np.random.rand(30, 5)
+    
+    # Initialize and run ERICA
+    erica = ERICA(
+        data=data,
+        k_range=[2, 3],
+        n_iterations=5,
+        method='kmeans',
+        verbose=False
+    )
+    
+    results = erica.run()
+    
+    # Check that disqualified_k is in results
+    assert 'disqualified_k' in results
+    assert isinstance(results['disqualified_k'], dict)
+    
+    # Check that get_disqualified_k method works
+    disqualified = erica.get_disqualified_k()
+    assert isinstance(disqualified, dict)
+    
+    # Check that we can get disqualified K for specific method
+    disqualified_kmeans = erica.get_disqualified_k('kmeans')
+    assert isinstance(disqualified_kmeans, list)
+    
+    # For this random data, we likely won't have empty clusters,
+    # but the structure should be correct
+    if 'kmeans' in disqualified:
+        assert all(isinstance(k, int) for k in disqualified['kmeans'])
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

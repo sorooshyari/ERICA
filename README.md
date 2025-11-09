@@ -127,9 +127,21 @@ ERICA automatically detects and handles cases where a K value produces empty clu
 - **Detection**: Any K value with one or more empty clusters is flagged
 - **Disqualification**: Metrics (CRI, WCRI, TWCRI) are marked as `NaN` for that K value
 - **K* Selection**: NaN values are automatically skipped per Algorithm 2, Line 4
+- **Tracking**: Disqualified K values are tracked and accessible via `get_disqualified_k()`
 - **Output**: Clear warning message: "NaN (DISQUALIFIED - empty cluster detected)"
 
 This ensures that only valid clustering configurations are considered for K* selection, maintaining compliance with the ERICA algorithm specification.
+
+```python
+# Get disqualified K values
+disqualified = erica.get_disqualified_k()
+print(f"Disqualified K values: {disqualified}")
+# Output: {'kmeans': [8], 'agglomerative_ward': [7, 8]}
+
+# Check if specific K was disqualified
+if 8 in erica.get_disqualified_k('kmeans'):
+    print("K=8 had empty clusters and was disqualified")
+```
 
 ## Advanced Usage
 
