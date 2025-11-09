@@ -389,9 +389,3 @@ If you use ERICA in your research, please cite:
 - 📧 Email: your.email@example.com
 - 🐛 Issues: [GitHub Issues](https://github.com/yourusername/erica-clustering/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/erica-clustering/discussions)
-
----
-
-**Made with ❤️ for the scientific community**
-# ERICA_ClusterReplic_10242025
-# ERICA_ClusterReplic_10242025
