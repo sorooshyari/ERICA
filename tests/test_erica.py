@@ -367,5 +367,80 @@ def test_erica_k_star_multiple_methods():
     assert 'agglomerative_ward' in k_star_twcri
 
 
+def test_empty_cluster_disqualification():
+    """Test that K values with empty clusters are disqualified (marked as NaN)."""
+    from erica.metrics import compute_metrics_for_clam
+    
+    # Create a CLAM matrix where one cluster is empty (k=3, but only 2 clusters used)
+    # Samples 0-2 assigned to cluster 0, samples 3-5 assigned to cluster 1, cluster 2 is empty
+    clam_matrix = np.array([
+        [50, 10, 0],  # Sample 0: primarily cluster 0
+        [45, 15, 0],  # Sample 1: primarily cluster 0
+        [48, 12, 0],  # Sample 2: primarily cluster 0
+        [5, 55, 0],   # Sample 3: primarily cluster 1
+        [8, 52, 0],   # Sample 4: primarily cluster 1
+        [10, 50, 0],  # Sample 5: primarily cluster 1
+    ])
+    
+    metrics = compute_metrics_for_clam(clam_matrix, k=3)
+    
+    # Check that metrics are marked as NaN due to empty cluster
+    assert np.isnan(metrics['CRI']), "CRI should be NaN when there's an empty cluster"
+    assert np.isnan(metrics['WCRI']), "WCRI should be NaN when there's an empty cluster"
+    assert np.isnan(metrics['TWCRI']), "TWCRI should be NaN when there's an empty cluster"
+    assert metrics['has_empty_clusters'] is True
+    assert metrics['cluster_sizes'][2] == 0
+
+
+def test_no_empty_cluster_averaging():
+    """Test that CRI is averaged only over non-empty clusters when no empty clusters exist."""
+    from erica.metrics import compute_metrics_for_clam
+    
+    # Create a CLAM matrix with all clusters populated
+    clam_matrix = np.array([
+        [50, 10],  # Sample 0: primarily cluster 0
+        [45, 15],  # Sample 1: primarily cluster 0
+        [5, 55],   # Sample 2: primarily cluster 1
+    ])
+    
+    metrics = compute_metrics_for_clam(clam_matrix, k=2)
+    
+    # Check that metrics are valid (not NaN)
+    assert not np.isnan(metrics['CRI'])
+    assert not np.isnan(metrics['WCRI'])
+    assert not np.isnan(metrics['TWCRI'])
+    assert metrics['has_empty_clusters'] is False
+    
+    # Verify CRI is computed correctly
+    cri_per_cluster = metrics['CRI_per_cluster']
+    expected_cri = np.mean(cri_per_cluster)
+    assert abs(metrics['CRI'] - expected_cri) < 1e-6
+
+
+def test_k_star_skips_empty_clusters():
+    """Test that K* selection skips K values with empty clusters (NaN metrics)."""
+    # Simulate metrics where K=4 has an empty cluster (NaN)
+    metrics_by_k = {
+        2: {'kmeans': {'TWCRI': 0.71, 'CRI': 0.75, 'WCRI': 0.70}},
+        3: {'kmeans': {'TWCRI': 0.75, 'CRI': 0.78, 'WCRI': 0.72}},
+        4: {'kmeans': {'TWCRI': float('nan'), 'CRI': float('nan'), 'WCRI': float('nan')}},  # Empty cluster
+        5: {'kmeans': {'TWCRI': 0.78, 'CRI': 0.80, 'WCRI': 0.76}},
+    }
+    
+    # Test with TWCRI
+    optimal_k = select_optimal_k_by_method(metrics_by_k, 'TWCRI')
+    
+    # Should skip K=4 (NaN) and select K=5
+    assert optimal_k['kmeans'] == 5
+    
+    # Test with CRI
+    optimal_k_cri = select_optimal_k_by_method(metrics_by_k, 'CRI')
+    assert optimal_k_cri['kmeans'] == 5
+    
+    # Test with WCRI
+    optimal_k_wcri = select_optimal_k_by_method(metrics_by_k, 'WCRI')
+    assert optimal_k_wcri['kmeans'] == 5
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

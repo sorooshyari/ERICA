@@ -168,13 +168,19 @@ def compute_metrics_for_clam(clam_matrix: np.ndarray, k: int) -> Dict[str, float
     -------
     dict
         Dictionary containing:
-        - 'CRI': Mean CRI across clusters
+        - 'CRI': Mean CRI across non-empty clusters
         - 'CRI_per_cluster': CRI for each cluster
         - 'WCRI': Mean WCRI across clusters
         - 'WCRI_per_cluster': WCRI for each cluster
         - 'TWCRI': Total weighted CRI
         - 'cluster_sizes': Size of each cluster
+        - 'has_empty_clusters': Boolean indicating if any cluster is empty
         
+    Notes
+    -----
+    If any cluster is empty (size 0), the metrics are marked as NaN to indicate
+    this K value should be disqualified from K* selection per Algorithm 2, Line 4.
+    
     Examples
     --------
     >>> clam = np.array([[50, 10], [45, 15], [5, 55]])
@@ -193,26 +199,31 @@ def compute_metrics_for_clam(clam_matrix: np.ndarray, k: int) -> Dict[str, float
         np.sum(primary_clusters == i) for i in range(k)
     ])
     
-    #return {       #Siamak commented begin
-     #   'CRI': float(np.mean(cri_values)),
-      #  'CRI_per_cluster': cri_values.tolist(),
-       # 'WCRI': float(mean_wcri),
-       # 'WCRI_per_cluster': wcri_values.tolist(),
-    #    'TWCRI': float(twcri_value),
-     #   'cluster_sizes': cluster_sizes.tolist(),
-      #  'k': k
-   # }            #Siamak commented end
-
-
-    #Siamak added (begin)
+    # Check for empty clusters (violates Algorithm 2, Line 4: ∃ k ≥ 1 : X_k = 0)
+    has_empty_clusters = np.any(cluster_sizes == 0)
+    
+    # If there are empty clusters, mark all metrics as NaN to disqualify this K
+    if has_empty_clusters:
+        cri_mean = float('nan')
+        wcri_mean = float('nan')
+        twcri_final = float('nan')
+    else:
+        # Only average non-empty clusters for CRI
+        # (WCRI and TWCRI already handle weighting correctly)
+        non_empty_mask = cluster_sizes > 0
+        cri_mean = float(np.mean(cri_values[non_empty_mask]))
+        wcri_mean = float(mean_wcri)
+        twcri_final = float(twcri_value)
+    
     result = {
-        'CRI': float(np.mean(cri_values)),
+        'CRI': cri_mean,
         'CRI_per_cluster': cri_values.tolist(),
-        'WCRI': float(mean_wcri),
+        'WCRI': wcri_mean,
         'WCRI_per_cluster': wcri_values.tolist(),
-        'TWCRI': float(twcri_value),
+        'TWCRI': twcri_final,
         'cluster_sizes': cluster_sizes.tolist(),
-        'k': k
+        'k': k,
+        'has_empty_clusters': bool(has_empty_clusters)
     }
 
     # Print results neatly with 6 decimal places and extra newlines between main metrics
@@ -220,7 +231,10 @@ def compute_metrics_for_clam(clam_matrix: np.ndarray, k: int) -> Dict[str, float
 
     for key, value in result.items():
         if isinstance(value, float):
-            print(f"{key}: {value:.6f}")
+            if np.isnan(value):
+                print(f"{key}: NaN (DISQUALIFIED - empty cluster detected)")
+            else:
+                print(f"{key}: {value:.6f}")
         else:
             print(f"{key}: {value}")
 
@@ -231,7 +245,6 @@ def compute_metrics_for_clam(clam_matrix: np.ndarray, k: int) -> Dict[str, float
     print("==============================\n")
 
     return result
-    #Siamak added (end)
 
 
 def find_optimal_k(

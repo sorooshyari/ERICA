@@ -120,6 +120,17 @@ ERICA evaluates clustering stability through:
 
 **Higher values = Better replicability!**
 
+### Empty Cluster Handling
+
+ERICA automatically detects and handles cases where a K value produces empty clusters (clusters with no samples assigned):
+
+- **Detection**: Any K value with one or more empty clusters is flagged
+- **Disqualification**: Metrics (CRI, WCRI, TWCRI) are marked as `NaN` for that K value
+- **K* Selection**: NaN values are automatically skipped per Algorithm 2, Line 4
+- **Output**: Clear warning message: "NaN (DISQUALIFIED - empty cluster detected)"
+
+This ensures that only valid clustering configurations are considered for K* selection, maintaining compliance with the ERICA algorithm specification.
+
 ## Advanced Usage
 
 ### Using Individual Components
