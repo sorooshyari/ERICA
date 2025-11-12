@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/erica-clustering.svg)](https://badge.fury.io/py/erica-clustering)
 
-**ERICA** is a comprehensive Python library for analyzing clustering replicability using Monte Carlo subsampling. It provides robust evaluation of clustering stability across different subsamples of your data.
+Evaluating replicability via iterative clustering assignments (**ERICA**) is a Python library for analyzing clustering replicability using Monte Carlo (MC) subsampling and various clustering techniques. It provides robust evaluation of clustering stability across different subsamples of your data.
 
 ## Features
 
