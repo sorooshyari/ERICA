@@ -106,7 +106,7 @@ erica = ERICA(data=data, transpose=False)
 
 ERICA evaluates clustering stability through:
 
-1. **Iterative Subsampling**: Repeatedly split data into train/test sets
+1. **Iterative Monte Carlo Subsampling**: Repeatedly split data into train/test sets
 2. **Clustering**: Run clustering algorithms on each subsample
 3. **Alignment**: Align cluster identities across iterations
 4. **CLAM Matrix Generation**: Track cluster assignments across iterations
@@ -118,11 +118,11 @@ ERICA evaluates clustering stability through:
 - **WCRI (Weighted CRI)**: CRI weighted by cluster sizes
 - **TWCRI (Total Weighted CRI)**: Sum of weighted CRI values for overall assessment
 
-**Higher values = Better replicability!**
+**Higher values = Higher replicability**
 
 ### Empty Cluster Handling
 
-ERICA automatically detects and handles cases where a K value produces empty clusters (clusters with no samples assigned):
+ERICA carefully addresses cases where there are empty (null) clusters - i.e. cluster(s) with no datapoints assigned to them:
 
 - **Detection**: Any K value with one or more empty clusters is flagged
 - **Disqualification**: Metrics (CRI, WCRI, TWCRI) are marked as `NaN` for that K value
