@@ -4,19 +4,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/erica-clustering.svg)](https://badge.fury.io/py/erica-clustering)
 
-Evaluating replicability via iterative clustering assignments (**ERICA**) is a Python library for analyzing clustering replicability using Monte Carlo (MC) subsampling and various clustering techniques. It provides robust evaluation of clustering stability across different subsamples of your data.
+Evaluating replicability via iterative clustering assignments (**ERICA**) is a Python library for assessing and quantifying clustering replicability via Monte Carlo (MC) subsampling and various clustering techniques. It provides robust evaluation of clustering stability across different savmpled versions of your dataset.
 
 ## Features
 
-- 🎯 **Multiple Clustering Methods**: Support for K-Means and Agglomerative (Hierarchical) Clustering
+- 🎯 **Multiple Clustering Methods**: Support for K-Means and agglomerative (hierarchical) clustering with Ward or single linkage. This will be extended to additonal linkages (for hierarchical clustering) and more clustering methods.
 - 📊 **Replicability Metrics**: Compute CRI, WCRI, and TWCRI metrics for stability assessment
-- ⭐ **Optimal K Selection**: Automatic K\* selection using Algorithm 2 for principled cluster number determination
-- 🔄 **Iterative Analysis**: Monte Carlo subsampling for robust evaluation
-- 📈 **Interactive Visualization**: Create beautiful plots with Plotly
-- 🎨 **Optional GUI**: User-friendly Gradio web interface
-- 🔬 **Reproducible**: Deterministic mode for scientific reproducibility
-- ⚡ **Optimized I/O**: Smart caching for efficient processing
-- 📁 **Flexible Data Loading**: Automatic detection of CSV orientation (samples in rows/columns)
+- ⭐ **Optimal K Selection**: Automatic K\* selection via Algorithm 2 which attempts to mitigate the under-clustering phenomenon.
+- 🔄 **Iterative Analysis**: Monte Carlo subsampling for robust evaluation.
+- 📈 **Interactive Visualization**: Create important plots with Plotly.
+- 🎨 **Optional GUI**: User-friendly Gradio web interface.
+- 🔬 **Reproducible**: Deterministic mode for scientific reproducibility.
+- ⚡ **Optimized I/O**: Smart caching for efficient processing.
+- 📁 **Flexible Data Loading**: Automatic detection of CSV orientation (samples in rows/columns).
 
 ## Quick Start
 
@@ -72,7 +72,7 @@ fig1, fig2 = erica.plot_metrics()
 fig1.show()
 ```
 
-### Data Orientation
+### Input Dataset Orientation
 
 ERICA expects data in **(n_samples, n_features)** format. The `transpose` parameter controls how your input data is interpreted:
 
