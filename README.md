@@ -126,7 +126,7 @@ ERICA carefully addresses cases where there are empty (null) clusters - i.e. clu
 
 - **Detection**: Any K value with one or more empty clusters is flagged
 - **Disqualification**: Metrics (CRI, WCRI, TWCRI) are marked as `NaN` for that K value
-- **K* Selection**: NaN values are automatically skipped per Algorithm 2, Line 4
+- **K Selection**: NaN values are automatically skipped per Algorithm 2
 - **Tracking**: Disqualified K values are tracked and accessible via `get_disqualified_k()`
 - **Output**: Clear warning message: "NaN (DISQUALIFIED - empty cluster detected)"
 
@@ -354,7 +354,7 @@ erica/
 ### Key Algorithms
 1. **Monte Carlo Subsampling (MCSS)**: Iterative train/test splitting for stability evaluation
 2. **CLAM Matrix Construction**: Co-occurrence matrix tracking cluster assignments
-3. **Algorithm 2 (K* Selection)**: Non-decreasing metric approach for optimal K determination
+3. **Algorithm 2 (K Selection)**: Non-decreasing metric approach for optimal K determination
 4. **CRI/WCRI/TWCRI Metrics**: Replicability indices for clustering quality
 
 ### Development Workflow
@@ -365,7 +365,7 @@ erica/
 - **Packaging**: setuptools with pyproject.toml
 
 ### Recent Enhancements (November 2025)
-- ✅ Enhanced NA handling per Algorithm 2, Line 4
+- ✅ Enhanced NA handling per Algorithm 2
 - ✅ Improved K* selection documentation with line-by-line algorithm mapping
 - ✅ Gradio demo with professional UI (3-tab design)
 - ✅ Load previous runs feature for demo interface
