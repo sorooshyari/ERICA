@@ -302,8 +302,11 @@ metrics_km = erica_km.get_metrics()
 metrics_agg = erica_agg.get_metrics()
 ```
 
+
 ## Performance Tips
 
+### Forthcoming...
+<!--
 ### For Large Datasets (n > 10,000)
 
 1. **Reduce iterations**: Use `n_iterations=100-200` instead of 500
@@ -316,6 +319,7 @@ metrics_agg = erica_agg.get_metrics()
 1. **Increase iterations**: Use `n_iterations=300-500` for stability
 2. **Adjust train/test split**: Use `train_percent=0.7` for larger test sets
 3. **Test smaller k range**: Avoid k close to n
+-->
 
 ## Contributing
 
@@ -397,6 +401,6 @@ If you use ERICA in your research, please cite:
 
 ## Support
 
-- 📧 Email: your.email@example.com
+- 📧 Email: siamak_sorooshyari@yahoo.com
 - 🐛 Issues: [GitHub Issues](https://github.com/yourusername/erica-clustering/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/erica-clustering/discussions)
