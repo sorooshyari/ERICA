@@ -82,10 +82,10 @@ from erica import ERICA
 from erica.data import load_data
 
 # For genomics data: features in rows, samples in columns
-# Example: 22,283 genes × 200 samples
+# Example: 22,283 genes × 344 samples
 data = load_data('gene_expression.npy')
 erica = ERICA(data=data)  # transpose=True by default
-# Result: 200 samples × 22,283 features ✓
+# Result: 344 samples × 22,283 features ✓
 ```
 
 **Standard ML Format:**
@@ -242,13 +242,13 @@ from erica import ERICA
 from erica.data import load_data
 
 # Load genomics data (features in rows, samples in columns)
-# Example: mainz_dict.npy contains 22,283 genes × 200 samples
-data = load_data('mainz_dict.npy')
+# Example: vdx_dict.npy contains 22,283 genes × 344 samples
+data = load_data('vdx_dict.npy')
 
 # Run ERICA (default transpose=True handles genomics format)
 erica = ERICA(
     data=data, 
-    k_range=[2, 3, 4, 5, 6], 
+    k_range=[2, 3, 4, 5, 6, 7, 8], 
     n_iterations=200
 )
 results = erica.run()
@@ -267,11 +267,11 @@ from erica.data import load_data
 
 # Case 1: Genomics CSV (features in rows, samples in columns)
 # File structure: each row = gene, each column = sample
-# Example: 22,283 rows × 201 columns (1 ID + 200 samples)
+# Example: 22,283 rows × 345 columns (1 ID + 344 samples)
 data = load_data('gene_expression.csv')
 erica = ERICA(data=data, transpose=True)  # Default
 results = erica.run()
-# Result: 200 samples × 22,283 features
+# Result: 344 samples × 22,283 features
 
 # Case 2: Standard ML CSV (samples in rows, features in columns)
 # File structure: each row = sample, each column = feature
