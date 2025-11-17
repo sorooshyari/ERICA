@@ -10,8 +10,8 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Siamak Sorooshyari", email = "siamak.sorooshyari@example.com"},
-    {name = "Shawn Shirazi", email = "shawn.shirazi@example.com"}
+    {name = "Siamak Sorooshyari", email = "siamak_sorooshyari@yahoo.com"},
+    {name = "Shawn Shirazi", email = "shawnshirazi@gmail.com"}
 ]
 keywords = ["clustering", "machine-learning", "replicability", "data-analysis"]
 classifiers = [
