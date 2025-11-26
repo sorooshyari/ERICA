@@ -24,16 +24,16 @@ Evaluating replicability via iterative clustering assignments (**ERICA**) is a P
 
 ```bash
 # Basic installation
-pip install erica-clustering
+pip install erica
 
 # With plotting support
-pip install erica-clustering[plots]
+pip install erica[plots]
 
 # With GUI support
-pip install erica-clustering[gui]
+pip install erica[gui]
 
 # Full installation
-pip install erica-clustering[all]
+pip install erica[all]
 ```
 
 ### Basic Usage
@@ -104,7 +104,7 @@ erica = ERICA(data=data, transpose=False)
 
 ## What is ERICA?
 
-ERICA evaluates clustering stability through:
+ERICA evaluates the likelihood of the structure discovered (or claimed to have been discovered) in a dataset being reproduced. This is inherently an unsupervised learning domain, and thus the following techniques are utilized:
 
 1. **Iterative Monte Carlo Subsampling**: Repeatedly split data into train/test sets
 2. **Clustering**: Run clustering algorithms on each subsample
