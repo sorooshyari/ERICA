@@ -235,6 +235,18 @@ erica/
 
 ## Examples
 
+### Sample Data
+
+ERICA examples use breast cancer gene expression data from [Parmigiani et al.'s clustering replicability paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10600961/). Download the sample data:
+
+```bash
+# Full gene expression dataset (22,283 genes × 344 samples, 85MB)
+curl -L -o vdx_dict.npy https://raw.githubusercontent.com/lorenzomasoero/clustering_replicability/master/real_data/Data/vdx_dict.npy
+
+# Small 3-gene subset (344 samples × 3 features, 21KB)
+curl -L -o VDX_3_SV.csv https://raw.githubusercontent.com/lorenzomasoero/clustering_replicability/master/real_data/Data/VDX_3_SV.csv
+```
+
 ### Example 1: Gene Expression Analysis (.npy files)
 
 ```python
@@ -242,13 +254,13 @@ from erica import ERICA
 from erica.data import load_data
 
 # Load genomics data (features in rows, samples in columns)
-# Example: vdx_dict.npy contains 22,283 genes × 344 samples
+# vdx_dict.npy contains 22,283 genes × 344 samples
 data = load_data('vdx_dict.npy')
 
 # Run ERICA (default transpose=True handles genomics format)
 erica = ERICA(
-    data=data, 
-    k_range=[2, 3, 4, 5, 6, 7, 8], 
+    data=data,
+    k_range=[2, 3, 4, 5, 6, 7, 8],
     n_iterations=200
 )
 results = erica.run()
@@ -259,32 +271,23 @@ optimal_k = k_star['kmeans']
 print(f"Recommended number of clusters: {optimal_k}")
 ```
 
-### Example 1b: CSV Files with Different Orientations
+### Example 2: CSV Files with Different Orientations
 
 ```python
 from erica import ERICA
 from erica.data import load_data
 
-# Case 1: Genomics CSV (features in rows, samples in columns)
-# File structure: each row = gene, each column = sample
-# Example: 22,283 rows × 345 columns (1 ID + 344 samples)
-data = load_data('gene_expression.csv')
-erica = ERICA(data=data, transpose=True)  # Default
-results = erica.run()
-# Result: 344 samples × 22,283 features
-
-# Case 2: Standard ML CSV (samples in rows, features in columns)
-# File structure: each row = sample, each column = feature
-# Example: VDX_3_SV.csv with 344 rows × 4 columns (1 ID + 3 genes)
+# Standard ML CSV (samples in rows, features in columns)
+# VDX_3_SV.csv: 344 rows × 3 columns (3 genes)
 data = load_data('VDX_3_SV.csv')
-erica = ERICA(data=data, transpose=False)  # Must specify!
+erica = ERICA(data=data, transpose=False)  # samples already in rows
 results = erica.run()
 # Result: 344 samples × 3 features
 ```
 
 **Troubleshooting:** If you get an error like "Dataset has 3 samples but k=4 clusters requested", your data orientation is likely incorrect. Try toggling `transpose=True/False`.
 
-### Example 2: Method Comparison
+### Example 3: Method Comparison
 
 ```python
 from erica import ERICA
