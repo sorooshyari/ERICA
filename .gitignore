@@ -130,3 +130,9 @@ output/
 *.pkl
 *.npy
 CLAUDE.md
+
+# Local development guidelines (portable across projects)
+.dev-guidelines/
+
+# Git worktrees for parallel development
+.worktrees/
