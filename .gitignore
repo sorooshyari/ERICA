@@ -130,6 +130,7 @@ output/
 *.pkl
 *.npy
 CLAUDE.md
+GEMINI.md
 
 # Local development guidelines (portable across projects)
 .dev-guidelines/

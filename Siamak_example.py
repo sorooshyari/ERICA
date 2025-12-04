@@ -1,5 +1,5 @@
 """
-Comprehensive examples for ERICA Clustering.
+Examples of ERICA on VDX breast cancer dataset with=344 samples, and p=22,283 genes (full) or p=3 genes (3G)
 Updated to load data from .npy or .csv files.
 """
 
@@ -56,9 +56,8 @@ def example_1_basic_usage():
     print("=" * 60)
 
     # Modify the filename as needed
-    filename = "vdx_dict.npy"  # or "data.csv"      #Siamak commented out
-    #filename = "VDX_3_SV.csv"  # or "data.csv"       #Siamak added
-    #filename = "LiuWeissman_2023_DE_then_PCA.csv"  # or "data.csv"       #Siamak added
+    filename = "vdx_dict.npy"  # or "data.csv"      #One data matrix to use
+    #filename = "VDX_3_SV.csv"  # or "data.csv"       #The 3-gene version of the VDX dataset
     data_matrix = load_data_matrix(filename, key='all')
 
     print(f"Data shape: {data_matrix.shape}")
