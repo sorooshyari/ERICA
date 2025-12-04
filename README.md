@@ -85,7 +85,7 @@ from erica.data import load_data
 
 # For genomics data: features in rows, samples in columns
 # Example: 22,283 genes × 344 samples
-data = load_data('gene_expression.npy')
+data = load_data('vdx_dict.npy')
 erica = ERICA(data=data)  # transpose=True by default
 # Result: 344 samples × 22,283 features ✓
 ```
@@ -94,7 +94,7 @@ erica = ERICA(data=data)  # transpose=True by default
 ```python
 # For standard ML data: samples in rows, features in columns
 # Example: 344 samples × 3 features
-data = load_data('samples.csv')
+data = load_data('VDX_3_SV.csv')
 erica = ERICA(data=data, transpose=False)
 # Result: 344 samples × 3 features ✓
 ```
