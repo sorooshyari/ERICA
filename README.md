@@ -76,7 +76,9 @@ fig1.show()
 
 ### Input Dataset Orientation
 
-ERICA expects data in **(n_samples, n_features)** format. The `transpose` parameter controls how your input data is interpreted. The below dataset names and dimensionalities correspond to several used in the ERICA paper and are provided are part of this package. 
+ERICA expects data in **n_samples x n_features** format. The `transpose` parameter controls how your input data is interpreted. The below dataset names and dimensionalities correspond to several used in the ERICA paper and are provided are part of this package. 
+
+**Important**: The user must ensure the input data is in the above form/orientation. Also, dataset input via a .csv must not contain a header column or row - rather it must be only the numeric data. 
 
 **Default (Genomics Format):**
 ```python
@@ -146,7 +148,7 @@ if 8 in erica.get_disqualified_k('kmeans'):
 ```
 
 ## Examples
-**Important**: To run the examples, must download the appropriate .csv or .npy files from this page.
+To run the below examples, please download the appropriate .csv or .npy files from this page.
 ### Example 1: Synthetic Dataset, Mixture of 4 Gaussians (.csv file of synthtic data)
 
 ```python
