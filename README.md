@@ -4,14 +4,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/erica-clustering.svg)](https://badge.fury.io/py/erica-clustering)
 
-Evaluating replicability via iterative clustering assignments (**ERICA**) is a Python library for assessing and quantifying clustering replicability via Monte Carlo (MC) subsampling and various clustering techniques. It provides robust evaluation of clustering stability across different savmpled versions of your dataset.
+Evaluating replicability via iterative clustering assignments (**ERICA**) is a Python library for assessing and quantifying clustering replicability via Monte Carlo subsampling (MCSS) and various clustering techniques. It provides robust evaluation of clustering stability across different sampled versions of your dataset.
 
 ## Features
 
-- **Multiple Clustering Methods**: Support for K-Means and agglomerative (hierarchical) clustering with Ward or single linkage. This will be extended to additonal linkages (for hierarchical clustering) and more clustering methods.
-- **Replicability Metrics**: Compute CRI, WCRI, and TWCRI metrics for stability assessment
-- **Optimal K Selection**: Automatic K\* selection via Algorithm 2 which attempts to mitigate the under-clustering phenomenon.
-- **Iterative Analysis**: Monte Carlo subsampling for robust evaluation.
+- **Multiple Clustering Methods**: Support for K-Means and agglomerative (hierarchical) clustering with Ward or single linkage. This will be extended to additional linkages (for hierarchical clustering) and more clustering methods.
+- **Replicability Metrics**: Compute CRI, WCRI, and TWCRI metrics for stability assessment. 
+- **Optimal K Selection**: Suggestion of K\* via Algorithm 2 which attempts to mitigate the under-clustering phenomenon.
+- **Iterative Analysis**: Monte Carlo subsampling (MCSS) of a dataset to test for replicability of the clustering assignments.
 - **Interactive Visualization**: Create important plots with Plotly.
 - **Optional GUI**: User-friendly Gradio web interface.
 - **Reproducible**: Deterministic mode for scientific reproducibility.
@@ -209,6 +209,7 @@ optimal_k = k_star['kmeans']
 print(f"Recommended number of clusters: {optimal_k}")
 ```
 
+<!--
 ### Example 2b: CSV Files with Different Orientations
 
 ```python
@@ -231,6 +232,7 @@ erica = ERICA(data=data, transpose=False)  # Must specify!
 results = erica.run()
 # Result: 344 samples × 3 features
 ```
+-->
 
 **Troubleshooting:** If you get an error like "Dataset has 3 samples but k=4 clusters requested", your data orientation is likely incorrect. Try toggling `transpose=True/False`.
 
