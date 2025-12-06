@@ -247,8 +247,12 @@ from erica import ERICA
 erica_km = ERICA(data=data, k_range=[2, 3, 4], method='kmeans')
 results_km = erica_km.run()
 
-# Test Agglomerative
-erica_agg = ERICA(data=data, k_range=[2, 3, 4], method='agglomerative')
+# Test Agglomerative with single linkage
+erica_agg = ERICA(data=data, k_range=[2, 3, 4], method='agglomerative', linkages=['single'])
+results_agg = erica_agg.run()
+
+# Test Agglomerative with Ward linkage
+erica_agg = ERICA(data=data, k_range=[2, 3, 4], method='agglomerative', linkages=['ward'])
 results_agg = erica_agg.run()
 
 # Compare metrics
