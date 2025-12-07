@@ -14,7 +14,7 @@ Evaluating replicability via iterative clustering assignments (**ERICA**) is a P
 - **Iterative Analysis**: Monte Carlo subsampling (MCSS) of a dataset to test for replicability of the clustering assignments.
 - **Interactive Visualization**: Create important plots with Plotly.
 - **Optional GUI**: User-friendly Gradio web interface.
-- **Reproducible**: Deterministic mode for scientific reproducibility.
+<span style="display:none">**Reproducible**: Evaluate replicability by operating using a deterministic mode for scientific reproducibility.</span>
 - **Optimized I/O**: Smart caching for efficient processing.
 - **Flexible Data Loading**: Automatic detection of CSV orientation (samples in rows/columns).
 
@@ -242,17 +242,24 @@ results = erica.run()
 
 ```python
 from erica import ERICA
+from erica.data import load_data
+
+# Load genomics data (features in rows, samples in columns)
+# Example: vdx_dict.npy contains 22,283 genes × 344 samples
+data = load_data('vdx_dict.npy')
+
+# Run ERICA (default transpose=True handles genomics format)
 
 # Test K-Means
-erica_km = ERICA(data=data, k_range=[2, 3, 4], method='kmeans')
+erica_km = ERICA(data=data, k_range=[2, 3, 4, 5], method='kmeans')
 results_km = erica_km.run()
 
 # Test Agglomerative with single linkage
-erica_agg = ERICA(data=data, k_range=[2, 3, 4], method='agglomerative', linkages=['single'])
+erica_agg = ERICA(data=data, k_range=[2, 3, 4, 5], method='agglomerative', linkages=['single'])
 results_agg = erica_agg.run()
 
 # Test Agglomerative with Ward linkage
-erica_agg = ERICA(data=data, k_range=[2, 3, 4], method='agglomerative', linkages=['ward'])
+erica_agg = ERICA(data=data, k_range=[2, 3, 4, 5], method='agglomerative', linkages=['ward'])
 results_agg = erica_agg.run()
 
 # Compare metrics
