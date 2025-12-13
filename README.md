@@ -4,17 +4,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/erica-clustering.svg)](https://badge.fury.io/py/erica-clustering)
 
-Evaluating replicability via iterative clustering assignments (**ERICA**) is a Python library for assessing and quantifying clustering replicability via Monte Carlo subsampling (MCSS) and various clustering techniques. It provides robust evaluation of clustering stability across different sampled versions of your dataset.
+Evaluating replicability via iterative clustering assignments (**ERICA**) is a Python library for assessing and quantifying clustering replicability. It uses Monte Carlo subsampling (MCSS) of the input dataset followed by the application of various clustering techniques. It provides robust evaluation of clustering stability across different sampled versions of your dataset.
 
 ## Features
 
+- **Iterative Analysis**: MCSS of a dataset to test for replicability of the clustering assignments. 
 - **Multiple Clustering Methods**: Support for K-Means and agglomerative (hierarchical) clustering with Ward or single linkage. This will be extended to additional linkages (for hierarchical clustering) and more clustering methods.
-- **Replicability Metrics**: Compute CRI, WCRI, and TWCRI metrics for stability assessment. 
-- **Optimal K Selection**: Suggestion of K\* via Algorithm 2 which attempts to mitigate the under-clustering phenomenon.
-- **Iterative Analysis**: Monte Carlo subsampling (MCSS) of a dataset to test for replicability of the clustering assignments.
+- **Replicability Metrics**: Compute the metrics Clustering Replicability Index (CRI), Weighted CRI (WCRI), and Total WCRI (TWCRI) for stability assessment. 
+- **Optimal K Selection**: Suggestion of K\* via Algorithm 2 which attempts to mitigate the under-clustering phenomenon. 
 - **Interactive Visualization**: Create important plots with Plotly.
 - **Optional GUI**: User-friendly Gradio web interface.
-<span style="display:none">**Reproducible**: Evaluate replicability by operating using a deterministic mode for scientific reproducibility.</span>
+<!-- 
+- **Reproducible**: Evaluate replicability by operating using a deterministic mode for scientific reproducibility.
+-->
 - **Optimized I/O**: Smart caching for efficient processing.
 - **Flexible Data Loading**: Automatic detection of CSV orientation (samples in rows/columns).
 
@@ -76,7 +78,7 @@ fig1.show()
 
 ### Input Dataset Orientation
 
-ERICA expects data in **n_samples x n_features** format. The `transpose` parameter controls how your input data is interpreted. The below dataset names and dimensionalities correspond to several used in the ERICA paper and are provided are part of this package. 
+ERICA expects data in **n_samples x n_features** format. The `transpose` parameter controls how your input data is interpreted. The below dataset names and dimensionalities correspond to several used in the ERICA paper and are provided as part of this package. 
 
 **Important**: The user must ensure the input data is in the above form/orientation. Also, dataset input via a .csv must not contain a header column or row - rather it must be only the numeric data. 
 
@@ -102,39 +104,39 @@ erica = ERICA(data=data, transpose=False)
 ```
 
 **Important Notes:**
-- `.npy` files: If your array is already numeric, it's used as-is (no transposition)
-- CSV files: Automatically removes ID columns and converts to numeric
+- `.npy` files: If your array is already numeric, it's used as-is (no transposition).
+- `.csv` files: Automatically removes ID columns and converts to numeric.
 - If you get an error about insufficient samples, try toggling `transpose=True/False`
 
 ## What is ERICA?
 
 ERICA evaluates the likelihood of the structure discovered (or claimed to have been discovered) in a dataset being reproduced. This is inherently an unsupervised learning domain, and thus the following techniques are utilized:
 
-1. **Iterative Monte Carlo Subsampling**: Repeatedly split data into train/test sets
-2. **Clustering**: Run clustering algorithms on each subsample
-3. **Alignment**: Align cluster identities across iterations
-4. **CLAM Matrix Generation**: Track cluster assignments across iterations
-5. **Metrics Computation**: Calculate replicability scores
+1. **Iterative Monte Carlo Subsampling**: Repeatedly split data into train/test sets.
+2. **Clustering**: Run clustering algorithms on each subsample.
+3. **Alignment**: Align cluster identities across iterations.
+4. **Generation of a CLuster Assignment Matrix (CLAM)**: Track cluster assignments across iterations.
+5. **Replicability Metrics**: Calculate metrics that quantify the replicability of the clustering at the data point, cluster, and dataset levels.
 
 ### Replicability Metrics
 
-- **CRI (Clustering Replicability Index)**: Measures how consistently samples are assigned to their primary cluster
-- **WCRI (Weighted CRI)**: CRI weighted by cluster sizes
-- **TWCRI (Total Weighted CRI)**: Sum of weighted CRI values for overall assessment
+- **CRI (Clustering Replicability Index)**: Measures how consistently samples are assigned to their primary cluster.
+- **WCRI (Weighted CRI)**: CRI weighted by the number of datapoints in the cluster.
+- **TWCRI (Total WCRI)**: Sum of WCRI values over all of the clusters.
 
 **Higher values = Higher replicability**
 
 ### Empty Cluster Handling
 
-ERICA carefully addresses cases where there are empty (null) clusters - i.e. cluster(s) with no datapoints assigned to them:
+ERICA carefully addresses cases where there are empty (null) clusters - i.e. clusters with no datapoints assigned to them:
 
-- **Detection**: Any K value with one or more empty clusters is flagged
-- **Disqualification**: Metrics (CRI, WCRI, TWCRI) are marked as `NaN` for that K value
-- **K Selection**: NaN values are automatically skipped per Algorithm 2
+- **Detection**: Any K value with one or more empty clusters is flagged.
+- **Disqualification**: A CRI value is `NaN` for a cluster.
+- **K Selection**: NaN values are automatically skipped per Algorithm 2.
 - **Tracking**: Disqualified K values are tracked and accessible via `get_disqualified_k()`
 - **Output**: Clear warning message: "NaN (DISQUALIFIED - empty cluster detected)"
 
-This ensures that only valid clustering configurations are considered for K* selection, maintaining compliance with the ERICA algorithm specification.
+This ensures that only valid clustering assignments are considered in K* selection, maintaining compliance with the ERICA algorithm specification.
 
 ```python
 # Get disqualified K values
