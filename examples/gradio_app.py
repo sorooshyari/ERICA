@@ -645,10 +645,51 @@ with gr.Blocks(title="ERICA Clustering Demo", theme=gr.themes.Soft()) as demo:
                         interactive=False
                     )
                     
-                    load_btn = gr.Button("Load & Preview Data", variant="primary")
+                    with gr.Row():
+                        load_btn = gr.Button("1. Load & Preview Uploaded File", variant="primary")
+                        load_vdx_btn = gr.Button("OR Load VDX Example Data (Auto-Download)", variant="secondary")
+
                     load_btn.click(
                         fn=load_and_preview_data,
                         inputs=[data_file, transpose_data],
+                        outputs=[data_preview]
+                    )
+
+                    def load_vdx_example():
+                        """Load VDX example data, downloading if necessary."""
+                        try:
+                            from erica.data import check_and_download_example_data
+                            # Check/download vdx_dict.npy
+                            # Note: In a GUI, we can't easily do the interactive input() 
+                            # inside the function if it runs on the server.
+                            # However, check_and_download has a fallback/try-except.
+                            # Ideally, we should handle the prompt in the UI, but for now 
+                            # let's assume the user wants it if they clicked the button.
+                            
+                            # We'll temporarily patch input to always return 'y' for the demo context
+                            # This is a bit hacky but makes the demo smooth
+                            import builtins
+                            original_input = builtins.input
+                            builtins.input = lambda _: 'y'
+                            
+                            try:
+                                filename = check_and_download_example_data("vdx_dict.npy")
+                            finally:
+                                builtins.input = original_input
+                                
+                            # Create a dummy file object for load_and_preview_data
+                            class DummyFile:
+                                name = filename
+                            
+                            # VDX data is genes x samples, so transpose=True is correct
+                            return load_and_preview_data(DummyFile(), True)
+                            
+                        except Exception as e:
+                            return f"Error loading example data: {str(e)}", None
+
+                    load_vdx_btn.click(
+                        fn=load_vdx_example,
+                        inputs=[],
                         outputs=[data_preview]
                     )
                 

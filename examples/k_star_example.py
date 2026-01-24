@@ -9,6 +9,11 @@ This example shows how to:
 """
 
 import numpy as np
+import sys
+import os
+# Add parent directory to path to ensure we import the local erica package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from erica import ERICA
 from erica.metrics import select_optimal_k
 

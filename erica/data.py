@@ -382,3 +382,75 @@ def get_dataset_info(
     }
 
 
+
+def check_and_download_example_data(filename: str) -> str:
+    """Check if example data exists and download if missing.
+    
+    Downloads VDX data from the public clustering_replicability repository
+    (Parmigiani et al.). No authentication required.
+    
+    Available datasets:
+    - vdx_dict.npy: Full VDX dataset (22,283 genes × 344 samples, ~85MB)
+    - VDX_3_SV.csv: 3-gene subset (344 samples × 3 features, ~12KB)
+    
+    Parameters
+    ----------
+    filename : str
+        Name of the file to check (e.g., 'vdx_dict.npy')
+        
+    Returns
+    -------
+    str
+        Path to the data file
+        
+    Raises
+    ------
+    FileNotFoundError
+        If file is missing and user declines download
+    """
+    # Public data sources (no auth required)
+    DATA_SOURCES = {
+        'vdx_dict.npy': 'https://github.com/lorenzomasoero/clustering_replicability/raw/master/real_data/Data/vdx_dict.npy',
+        'VDX_3_SV.csv': 'https://github.com/lorenzomasoero/clustering_replicability/raw/master/real_data/Data/VDX_3_SV.csv',
+    }
+    
+    if os.path.exists(filename):
+        return filename
+        
+    print(f"\nExample data file '{filename}' not found locally.")
+    
+    # Check if we have a known source
+    if filename not in DATA_SOURCES:
+        raise FileNotFoundError(
+            f"Unknown data file: {filename}. "
+            f"Available files: {list(DATA_SOURCES.keys())}"
+        )
+    
+    url = DATA_SOURCES[filename]
+    file_size = "~85MB" if filename == 'vdx_dict.npy' else "~12KB"
+    
+    # Interactive prompt for download
+    try:
+        print(f"This file ({file_size}) is available from the clustering_replicability repository.")
+        response = input(f"Would you like to download it? (y/n): ")
+        if response.lower().strip() != 'y':
+            raise FileNotFoundError(
+                f"Data file '{filename}' missing and download declined. "
+                f"Download manually from: {url}"
+            )
+    except OSError:
+        # Non-interactive environment - auto-download
+        print(f"Non-interactive environment. Auto-downloading {filename}...")
+
+    print(f"Downloading {filename} ({file_size})...")
+    print(f"Source: {url}")
+    
+    try:
+        import urllib.request
+        urllib.request.urlretrieve(url, filename)
+        print("Download complete!")
+        return filename
+    except Exception as e:
+        raise RuntimeError(f"Failed to download {filename}: {e}\nURL: {url}")
+
+

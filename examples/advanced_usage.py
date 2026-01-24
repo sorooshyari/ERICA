@@ -4,6 +4,12 @@ This example demonstrates using individual ERICA components for
 custom workflows and advanced analysis.
 """
 
+
+import sys
+import os
+# Add parent directory to path to ensure we import the local erica package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import numpy as np
 from erica.clustering import iterative_clustering_subsampling, kmeans_clustering
 from erica.metrics import compute_metrics_for_clam, select_optimal_k

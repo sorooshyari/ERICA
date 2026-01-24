@@ -5,6 +5,11 @@ replicability analysis.
 """
 
 import numpy as np
+import sys
+import os
+# Add parent directory to path to ensure we import the local erica package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from erica import ERICA
 
 def main():
@@ -55,7 +60,10 @@ def main():
     
     # Save results
     print("\n6. Saving results...")
-    erica.save_results('erica_results.json')
+    import json
+    results_data = erica.get_results()
+    with open('erica_results.json', 'w') as f:
+        json.dump(results_data, f, indent=2, default=str)
     print("   Results saved to: erica_results.json")
     
     # Save CLAM matrix
