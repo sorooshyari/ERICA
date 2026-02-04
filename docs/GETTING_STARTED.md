@@ -29,8 +29,8 @@ pip install erica-clustering[all]
 ### Development Installation
 
 ```bash
-git clone https://github.com/yourusername/erica-clustering.git
-cd erica-clustering
+git clone https://github.com/sorooshyari/ERICA.git
+cd ERICA
 pip install -e .[dev]
 ```
 
@@ -92,11 +92,15 @@ The CLAM (CLuster Assignment Matrix) is a fundamental output where element (i, j
 
 #### Replicability Metrics
 
-- **CRI (Clustering Replicability Index)**: Measures how consistently samples are assigned to their primary cluster
-- **WCRI (Weighted CRI)**: CRI weighted by cluster sizes to account for imbalance
-- **TWCRI (Total Weighted CRI)**: Sum of WCRI values for overall replicability assessment
+**CRI (Clustering Replicability Index)** is the core metric of ERICA—the number you'll report in your papers. It measures how consistently samples are assigned to their primary cluster across Monte Carlo iterations.
 
-Higher values indicate better replicability!
+| Metric | Role | Description |
+|--------|------|-------------|
+| **CRI** | Core metric | Consistency of sample-to-cluster assignments (0–1 scale) |
+| WCRI | Derived | CRI weighted by cluster size |
+| TWCRI | Aggregate | Sum of WCRI (used for K* selection) |
+
+Higher values indicate better replicability. CRI > 0.8 is excellent; CRI < 0.6 means reviewer 2 will have questions.
 
 ---
 
@@ -192,27 +196,27 @@ print(f"  WCRI:  {metrics['WCRI']:.4f}")
 print(f"  TWCRI: {metrics['TWCRI']:.4f}")
 ```
 
-### Step 5: Get Optimal K* (Algorithm 2)
+### Step 5: Get Recommended K* (Algorithm 2)
 
-ERICA automatically computes K* using Algorithm 2 during the run. You can access it easily:
+ERICA automatically computes K* using Algorithm 2 during the run. K* represents the **recommended** number of clusters—the largest K where replicability metrics remain non-decreasing. This is a data-driven suggestion, not a definitive answer.
 
 ```python
-# Get optimal K* for each metric (automatically computed)
+# Get recommended K* for each metric (automatically computed)
 k_star_twcri = erica.get_k_star('TWCRI')
 k_star_cri = erica.get_k_star('CRI')
 k_star_wcri = erica.get_k_star('WCRI')
 
-print(f"Optimal K* (TWCRI): {k_star_twcri['kmeans']}")
-print(f"Optimal K* (CRI): {k_star_cri['kmeans']}")
-print(f"Optimal K* (WCRI): {k_star_wcri['kmeans']}")
+print(f"Recommended K* (TWCRI): {k_star_twcri['kmeans']}")
+print(f"Recommended K* (CRI): {k_star_cri['kmeans']}")
+print(f"Recommended K* (WCRI): {k_star_wcri['kmeans']}")
 
 # Or use select_optimal_k directly for custom analysis
 from erica.metrics import select_optimal_k
 
 # Extract TWCRI values for all K
 twcri_dict = {k: all_metrics[k]['kmeans']['TWCRI'] for k in all_metrics}
-optimal_k = select_optimal_k(twcri_dict)
-print(f"Optimal K* = {optimal_k}")
+recommended_k = select_optimal_k(twcri_dict)
+print(f"Recommended K* = {recommended_k}")
 ```
 
 ### Step 6: Visualize Results
@@ -284,13 +288,13 @@ erica = ERICA(
 
 results = erica.run()
 
-# Get optimal K* (automatically computed by ERICA)
+# Get recommended K* (automatically computed by ERICA)
 k_star = erica.get_k_star('TWCRI')
-optimal_k = k_star['kmeans']
-print(f"Recommended number of clusters: {optimal_k}")
+recommended_k = k_star['kmeans']
+print(f"Recommended number of clusters: {recommended_k}")
 
-# Get cluster assignments for optimal k
-clam = erica.get_clam_matrix(k=optimal_k, method='kmeans')
+# Get cluster assignments for recommended k
+clam = erica.get_clam_matrix(k=recommended_k, method='kmeans')
 primary_clusters = np.argmax(clam, axis=1)
 
 # Add cluster assignments to original dataframe
@@ -417,6 +421,6 @@ pip install erica-clustering[plots]
 - Read the [API Reference](API_REFERENCE.md) for detailed function documentation
 - Check out [Examples](../examples/) for more use cases
 - See [Methodology](METHODOLOGY.md) for theoretical background
-- Visit the [GitHub repository](https://github.com/yourusername/erica-clustering) for issues and contributions
+- Visit the [GitHub repository](https://github.com/sorooshyari/ERICA) for issues and contributions
 
 

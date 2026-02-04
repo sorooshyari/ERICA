@@ -263,7 +263,7 @@ compute_metrics_for_clam(clam_matrix, k)
 
 #### `select_optimal_k()`
 
-Select optimal K using ERICA Algorithm 2 (non-decreasing metric selection).
+Select the recommended K* using ERICA Algorithm 2 (non-decreasing metric selection).
 
 ```python
 select_optimal_k(metric_dict, k_max=None)
@@ -273,13 +273,13 @@ select_optimal_k(metric_dict, k_max=None)
 - `metric_dict` (dict): Dictionary mapping K values to metric scores (e.g., {2: 0.71, 3: 0.75, ...})
 - `k_max` (int, optional): Maximum K to consider
 
-**Returns:** int (optimal K value)
+**Returns:** int (recommended K* value)
 
-**Notes:** Implements Algorithm 2 from the ERICA paper. Prefers the largest K where the metric is non-decreasing. Automatically skips NaN values (e.g., from empty clusters).
+**Notes:** Implements Algorithm 2 from the ERICA methodology. Returns the largest K where the metric is non-decreasing—a data-driven **recommendation**, not a definitive "optimal" value. The final choice of K should incorporate domain knowledge. Automatically skips NaN values (e.g., from empty clusters).
 
 #### `select_optimal_k_by_method()`
 
-Select optimal K for each clustering method using Algorithm 2.
+Select the recommended K* for each clustering method using Algorithm 2.
 
 ```python
 select_optimal_k_by_method(metrics_by_k, metric_name='TWCRI')
@@ -289,7 +289,7 @@ select_optimal_k_by_method(metrics_by_k, metric_name='TWCRI')
 - `metrics_by_k` (dict): Nested dictionary {k: {method: metrics_dict}}
 - `metric_name` (str): Metric to use ('CRI', 'WCRI', or 'TWCRI')
 
-**Returns:** dict mapping method names to their optimal K values
+**Returns:** dict mapping method names to their recommended K* values
 
 ---
 

@@ -13,7 +13,7 @@ ERICA consists of four main steps:
 2. Cluster Identity Alignment
 3. CLAM Matrix Generation
 4. Metrics Computation (CRI, WCRI, TWCRI)
-5. **Optimal K Selection (K\*) using Algorithm 2**
+5. **K\* Selection using Algorithm 2**
 
 ### 1. Iterative Clustering Subsampling
 
@@ -110,7 +110,7 @@ TWCRI is particularly useful for selecting optimal *k* as it balances:
 
 ---
 
-## Selecting Optimal K
+## Selecting K*
 
 ERICA provides multiple approaches for selecting the optimal number of clusters:
 
@@ -414,7 +414,7 @@ If you use ERICA in your research, please cite:
   title = {ERICA: Evaluating Replicability via Iterative Clustering Assignments},
   author = {Sorooshyari, Siamak and Shirazi, Shawn},
   year = {2025},
-  url = {https://github.com/yourusername/erica-clustering}
+  url = {https://github.com/sorooshyari/ERICA}
 }
 ```
 

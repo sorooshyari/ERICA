@@ -1,446 +1,110 @@
-# ERICA - Evaluating Replicability via Iterative Clustering Assignments
+# ERICA: Evaluating Replicability via Iterative Clustering Assignments
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/erica-clustering.svg)](https://badge.fury.io/py/erica-clustering)
 
-Evaluating replicability via iterative clustering assignments (**ERICA**) is a Python library for assessing and quantifying clustering replicability. It uses Monte Carlo subsampling (MCSS) of the input dataset followed by the application of various clustering techniques. It provides robust evaluation of clustering stability across different sampled versions of your dataset.
+**ERICA** is a Python implementation for assessing clustering replicability using Monte Carlo subsampling (MCSS). Because finding clusters is easy—finding clusters that *actually exist* is the hard part.
 
-## Features
+The method evaluates whether cluster structures identified in a dataset are stable and reproducible across random subsamples, providing quantitative metrics for clustering validity assessment.
 
-- **Iterative Analysis**: MCSS of a dataset to test for replicability of the clustering assignments. 
-- **Multiple Clustering Methods**: Support for K-Means and agglomerative (hierarchical) clustering with Ward or single linkage. This will be extended to additional linkages (for hierarchical clustering) and more clustering methods.
-- **Replicability Metrics**: Compute the metrics Clustering Replicability Index (CRI), Weighted CRI (WCRI), and Total WCRI (TWCRI) for stability assessment. 
-- **Optimal K Selection**: Suggestion of K\* via Algorithm 2 which attempts to mitigate the under-clustering phenomenon. 
-- **Interactive Visualization**: Create important plots with Plotly.
-- **Optional GUI**: User-friendly Gradio web interface.
-<!-- 
-- **Reproducible**: Evaluate replicability by operating using a deterministic mode for scientific reproducibility.
--->
-- **Optimized I/O**: Smart caching for efficient processing.
-- **Flexible Data Loading**: Automatic detection of CSV orientation (samples in rows/columns).
-
-## Quick Start
-
-### Installation
+## Installation
 
 ```bash
-# Basic installation
-pip install erica
+pip install erica-clustering
 
-# With plotting support
-pip install erica[plots]
+# With visualization support
+pip install erica-clustering[plots]
 
-# With GUI support
-pip install erica[gui]
-
-# Full installation
-pip install erica[all]
+# With graphical interface (for those who prefer clicking)
+pip install erica-clustering[gui]
 ```
 
-<!--
-### Basic Usage
+## Basic Usage
 
-```python
-import numpy as np
-from erica import ERICA
-
-# Load your data (samples × features)
-data = np.random.rand(100, 50)
-
-# Run ERICA analysis
-erica = ERICA(
-    data=data,
-    k_range=[2, 3, 4, 5],
-    n_iterations=200,
-    method='both'
-)
-
-results = erica.run()
-
-# Get results
-clam_matrix = erica.get_clam_matrix(k=3)
-metrics = erica.get_metrics()
-
-# Get optimal K* (automatically computed)
-k_star = erica.get_k_star('TWCRI')
-print(f"Optimal K* = {k_star['kmeans']}")
-
-print(f"CRI: {metrics[3]['kmeans']['CRI']:.3f}")
-print(f"WCRI: {metrics[3]['kmeans']['WCRI']:.3f}")
-print(f"TWCRI: {metrics[3]['kmeans']['TWCRI']:.3f}")
-
-# Visualize results
-fig1, fig2 = erica.plot_metrics()
-fig1.show()
-```
--->
-
-### Input Dataset Orientation
-
-ERICA expects data in **n_samples x n_features** format. The `transpose` parameter controls how your input data is interpreted. The below dataset names and dimensionalities correspond to several used in the ERICA paper and are provided as part of this package. 
-
-**Important**: The user must ensure the input data is in the above form/orientation. Also, dataset input via a .csv must not contain a header column or row - rather it must be only the numeric data. 
-
-**Default (Genomics Format):**
 ```python
 from erica import ERICA
 from erica.data import load_data
 
-# For genomics data: features in rows, samples in columns
-# Example: 22,283 genes × 344 samples
-data = load_data('vdx_dict.npy')
-erica = ERICA(data=data)  # transpose=True by default
-# Result: 344 samples × 22,283 features ✓
-```
+# Load data (samples × features format)
+data = load_data('expression_data.csv')
 
-**Standard ML Format:**
-```python
-# For standard ML data: samples in rows, features in columns
-# Example: 344 samples × 3 features
-data = load_data('VDX_3_SV.csv')
-erica = ERICA(data=data, transpose=False)
-# Result: 344 samples × 3 features ✓
-```
-
-**Important Notes:**
-- `.npy` files: If your array is already numeric, it's used as-is (no transposition).
-- `.csv` files: Automatically removes ID columns and converts to numeric.
-- If you get an error about insufficient samples, try toggling `transpose=True/False`
-
-## What is ERICA?
-
-ERICA evaluates the likelihood of the structure discovered (or claimed to have been discovered) in a dataset being reproduced. This is inherently an unsupervised learning domain, and thus the following techniques are utilized:
-
-1. **Iterative Monte Carlo Subsampling**: Repeatedly split data into train/test sets.
-2. **Clustering**: Run clustering algorithms on each subsample.
-3. **Alignment**: Align cluster identities across iterations.
-4. **Generation of a CLuster Assignment Matrix (CLAM)**: Track cluster assignments across iterations.
-5. **Replicability Metrics**: Calculate metrics that quantify the replicability of the clustering at the data point, cluster, and dataset levels.
-
-### Replicability Metrics
-
-- **CRI (Clustering Replicability Index)**: Measures how consistently samples are assigned to their primary cluster.
-- **WCRI (Weighted CRI)**: CRI weighted by the number of datapoints in the cluster.
-- **TWCRI (Total WCRI)**: Sum of WCRI values over all of the clusters.
-
-**Higher values = Higher replicability**
-
-### Empty Cluster Handling
-
-ERICA carefully addresses cases where there are empty (null) clusters - i.e. clusters with no datapoints assigned to them:
-
-- **Detection**: Any K value with one or more empty clusters is flagged.
-- **Disqualification**: A CRI value is `NaN` for a cluster.
-- **K Selection**: NaN values are automatically skipped per Algorithm 2.
-- **Tracking**: Disqualified K values are tracked and accessible via `get_disqualified_k()`
-- **Output**: Clear warning message: "NaN (DISQUALIFIED - empty cluster detected)"
-
-This ensures that only valid clustering assignments are considered in K* selection, maintaining compliance with the ERICA algorithm specification.
-
-```python
-# Get disqualified K values
-disqualified = erica.get_disqualified_k()
-print(f"Disqualified K values: {disqualified}")
-# Output: {'kmeans': [8], 'agglomerative_ward': [7, 8]}
-
-# Check if specific K was disqualified
-if 8 in erica.get_disqualified_k('kmeans'):
-    print("K=8 had empty clusters and was disqualified")
-```
-
-## Examples
-To run the below examples, please download the appropriate .csv or .npy files from this page.
-### Example 1: Synthetic Dataset, Mixture of 4 Gaussians (.csv file of synthtic data)
-
-```python
-import numpy as np
-import pandas as pd
-from erica import ERICA
-from erica.data import load_data
-
-# Load your data (samples × features)
-data = pd.read_csv('samples_original_1.csv', header=None).values  #mixture of 4 Gaussians dataset (t=100, p=1000 case)
-
-# Run ERICA analysis
+# Initialize and run analysis
 erica = ERICA(
     data=data,
     k_range=[2, 3, 4, 5, 6, 7, 8],
     n_iterations=200,
     method='both'
 )
-
 results = erica.run()
 
-# Get results
-clam_matrix = erica.get_clam_matrix(k=3)
-metrics = erica.get_metrics()
-
-# Get optimal K* (automatically computed)
+# Retrieve recommended cluster number
 k_star = erica.get_k_star('TWCRI')
-print(f"Optimal K* = {k_star['kmeans']}")
-
-print(f"CRI: {metrics[3]['kmeans']['CRI']:.3f}")
-print(f"WCRI: {metrics[3]['kmeans']['WCRI']:.3f}")
-print(f"TWCRI: {metrics[3]['kmeans']['TWCRI']:.3f}")
-
-# Visualize results
-fig1, fig2 = erica.plot_metrics()
-fig1.show()
-```
-
-### Example 2: VDX Dataset, Gene Expression for Breast Cancer (.npy files)
-
-```python
-from erica import ERICA
-from erica.data import load_data
-
-# Load genomics data (features in rows, samples in columns)
-# Example: vdx_dict.npy contains 22,283 genes × 344 samples
-data = load_data('vdx_dict.npy')
-
-# Run ERICA (default transpose=True handles genomics format)
-erica = ERICA(
-    data=data, 
-    k_range=[2, 3, 4, 5, 6, 7, 8], 
-    n_iterations=200
-)
-results = erica.run()
-
-# Get optimal K* (automatically computed by ERICA)
-k_star = erica.get_k_star('TWCRI')
-optimal_k = k_star['kmeans']
-print(f"Recommended number of clusters: {optimal_k}")
-```
-
-<!--
-### Example 2b: CSV Files with Different Orientations
-
-```python
-from erica import ERICA
-from erica.data import load_data
-
-# Case 1: Genomics CSV (features in rows, samples in columns)
-# File structure: each row = gene, each column = sample
-# Example: 22,283 rows × 345 columns (1 ID + 344 samples)
-data = load_data('gene_expression.csv')
-erica = ERICA(data=data, transpose=True)  # Default
-results = erica.run()
-# Result: 344 samples × 22,283 features
-
-# Case 2: Standard ML CSV (samples in rows, features in columns)
-# File structure: each row = sample, each column = feature
-# Example: VDX_3_SV.csv with 344 rows × 4 columns (1 ID + 3 genes)
-data = load_data('VDX_3_SV.csv')
-erica = ERICA(data=data, transpose=False)  # Must specify!
-results = erica.run()
-# Result: 344 samples × 3 features
-```
--->
-
-**Troubleshooting:** If you get an error like "Dataset has 3 samples but k=4 clusters requested", your data orientation is likely incorrect. Try toggling `transpose=True/False`.
-
-### Example 3: Method Comparison
-
-```python
-from erica import ERICA
-from erica.data import load_data
-
-# Load genomics data (features in rows, samples in columns)
-# Example: vdx_dict.npy contains 22,283 genes × 344 samples
-data = load_data('vdx_dict.npy')
-
-# Run ERICA (default transpose=True handles genomics format)
-
-# Test K-Means
-erica_km = ERICA(data=data, k_range=[2, 3, 4, 5], method='kmeans')
-results_km = erica_km.run()
-
-# Test Agglomerative with single linkage
-erica_agg = ERICA(data=data, k_range=[2, 3, 4, 5], method='agglomerative', linkages=['single'])
-results_agg = erica_agg.run()
-
-# Test Agglomerative with Ward linkage
-erica_agg = ERICA(data=data, k_range=[2, 3, 4, 5], method='agglomerative', linkages=['ward'])
-results_agg = erica_agg.run()
-
-# Compare metrics
-metrics_km = erica_km.get_metrics()
-metrics_agg = erica_agg.get_metrics()
-```
-
-<!--
-## Performance Tips
-
-### Forthcoming...
-
-### For Large Datasets (n > 10,000)
-
-1. **Reduce iterations**: Use `n_iterations=100-200` instead of 500
-2. **Use K-Means**: Faster than Agglomerative clustering
-3. **Optimize I/O**: Enabled by default, keeps memory usage low
-4. **Feature selection**: Reduce dimensionality if d is large
-
-### For Small Datasets (n < 100)
-
-1. **Increase iterations**: Use `n_iterations=300-500` for stability
-2. **Adjust train/test split**: Use `train_percent=0.7` for larger test sets
-3. **Test smaller k range**: Avoid k close to n
-
-
-## Advanced Usage
-
-### Using Individual Components
-
-```python
-from erica.clustering import kmeans_clustering, iterative_clustering_subsampling
-from erica.metrics import compute_metrics_for_clam
-from erica.data import prepare_samples_array
-
-# Prepare data
-samples = prepare_samples_array(your_data)
-
-# Perform subsampling
-train_size = int(len(samples) * 0.8)
-_, indices_folder = iterative_clustering_subsampling(
-    samples, len(samples), 200, train_size, './output'
-)
-
-# Run clustering
-result = kmeans_clustering(
-    samples, k=3, n_iterations=200,
-    indices_folder=indices_folder,
-    output_dir='./output'
-)
-
-# Compute metrics
-metrics = compute_metrics_for_clam(result['clam_matrix'], k=3)
-```
-
-### Custom Plotting
-
-```python
-from erica.plotting import plot_metrics, plot_clam_heatmap
-
-# Plot metrics
-fig = plot_metrics(k_values, cri_values, wcri_values, twcri_values)
-fig.show()
-
-# Visualize CLAM matrix
-fig = plot_clam_heatmap(clam_matrix, k=3)
-fig.show()
+print(f"Recommended K: {k_star['kmeans']}")
 ```
 
 ## Documentation
 
-- [Getting Started Guide](docs/GETTING_STARTED.md)
-- [API Reference](docs/API_REFERENCE.md)
-- [Methodology](docs/METHODOLOGY.md)
-- [PyPI Publishing Guide](PYPI_GUIDE.md)
+| Document | Description |
+|----------|-------------|
+| [Documentation Index](docs/README.md) | Complete documentation |
+| [Getting Started](docs/GETTING_STARTED.md) | Installation and tutorial |
+| [Metrics Guide](docs/METRICS_GUIDE.md) | CRI, WCRI, TWCRI explained |
+| [API Reference](docs/API_REFERENCE.md) | Function documentation |
+| [Methodology](docs/METHODOLOGY.md) | The science behind the magic |
 
-## Project Structure
+## Example Scripts
 
-```
-erica/
-├── __init__.py          # Main package interface
-├── core.py              # ERICA main class
-├── clustering.py        # Clustering algorithms
-├── metrics.py           # Replicability metrics
-├── data.py              # Data loading and preparation
-├── plotting.py          # Visualization functions
-└── utils.py             # Utility functions
-```
--->
+| # | Script | Description |
+|---|--------|-------------|
+| 1 | [01_basic_usage.py](examples/01_basic_usage.py) | Synthetic data analysis |
+| 2 | [02_vdx_analysis.py](examples/02_vdx_analysis.py) | Breast cancer gene expression (VDX dataset) |
+| 3 | [03_k_star_selection.py](examples/03_k_star_selection.py) | K* selection via Algorithm 2 |
+| 4 | [04_advanced_usage.py](examples/04_advanced_usage.py) | Component-level workflows |
+
+See [examples/README.md](examples/README.md) for details and data acquisition instructions.
+
+## Data Format
+
+ERICA operates on data in **samples × features** format. (Yes, the orientation matters. We've all learned this the hard way.)
+
+| Data Type | Input Format | Parameter |
+|-----------|--------------|-----------|
+| Genomics (genes × samples) | Features in rows | `transpose=True` (default) |
+| Standard (samples × features) | Samples in rows | `transpose=False` |
+
+## The CRI Metric
+
+**CRI (Clustering Replicability Index)** is the core metric of ERICA. It measures how consistently samples are assigned to their primary cluster across Monte Carlo iterations.
+
+| Metric | Role | Definition |
+|--------|------|------------|
+| **CRI** | Core metric | Proportion of iterations where samples are assigned to their primary cluster |
+| WCRI | Derived | CRI weighted by cluster size |
+| TWCRI | Aggregate | Sum of WCRI (used for K* selection) |
+
+Values range from 0 to 1, where higher values indicate greater replicability.
+
+| CRI Range | Interpretation |
+|-----------|----------------|
+| > 0.8 | High replicability (publishable with confidence) |
+| 0.6–0.8 | Moderate replicability (proceed with caution) |
+| < 0.6 | Low replicability (perhaps try a different K) |
+
+See the [Metrics Guide](docs/METRICS_GUIDE.md) for detailed explanations.
+
+## Sample Datasets
+
+| Dataset | Description | Source |
+|---------|-------------|--------|
+| VDX | Breast cancer gene expression (22,283 genes × 344 samples) | [Parmigiani et al.](https://github.com/lorenzomasoero/clustering_replicability) |
+| VDX_3_SV | Reduced 3-gene subset (344 samples) | Included in `examples/data/` |
 
 ## Requirements
 
-**Core Dependencies:**
-- Python >= 3.8
-- NumPy >= 1.21.0
-- Pandas >= 1.3.0
-- scikit-learn >= 1.0.0
-- PyYAML >= 6.0
+**Core:** Python ≥ 3.8, NumPy, Pandas, scikit-learn, PyYAML
 
-**Optional Dependencies:**
-- Plotly >= 5.0.0 (for plotting)
-- Matplotlib >= 3.5.0 (for additional plots)
-- Gradio >= 4.0.0 (for GUI)
-
-<!--
-## Use Cases
-
-### Bioinformatics
-- Gene expression clustering analysis
-- Single-cell RNA-seq clustering validation
-- Patient stratification assessment
-
-### General Machine Learning
-- Evaluating clustering stability before downstream analysis
-- Comparing different clustering methods objectively
-- Selecting optimal k with stability criterion
-- Identifying outliers or ambiguous samples
--->
-
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Patterns and Technology
-
-### Core Technologies
-- **Python 3.8+**: Primary programming language
-- **NumPy**: Numerical computing and array operations
-- **pandas**: Data manipulation and I/O
-- **scikit-learn**: Clustering algorithms (KMeans, AgglomerativeClustering)
-- **Plotly**: Interactive visualizations
-- **Gradio**: Web-based GUI interface
-
-<!--
-### Design Patterns
-- **Object-Oriented Design**: Main `ERICA` class encapsulates analysis workflow
-- **Modular Architecture**: Separate modules for clustering, metrics, plotting, and data handling
-- **Deterministic Execution**: Reproducibility through controlled random seeds
-- **Lazy Computation**: CLAM matrices computed on-demand with caching
-- **Strategy Pattern**: Multiple clustering methods via pluggable algorithms
-- **Factory Pattern**: Automatic method selection and configuration
-- **Iterator Pattern**: Monte Carlo subsampling iterations
-
-### Code Organization
-```
-erica/
-├── core.py           # Main ERICA class and workflow orchestration
-├── clustering.py     # Clustering algorithms (KMeans, Agglomerative)
-├── metrics.py        # Replicability metrics (CRI, WCRI, TWCRI) and K* selection
-├── plotting.py       # Visualization functions
-├── data.py           # Data loading and preprocessing
-└── utils.py          # Utility functions and helpers
-```
-
-### Key Algorithms
-1. **Monte Carlo Subsampling (MCSS)**: Iterative train/test splitting for stability evaluation
-2. **CLAM Matrix Construction**: Co-occurrence matrix tracking cluster assignments
-3. **Algorithm 2 (K Selection)**: Non-decreasing metric approach for optimal K determination
-4. **CRI/WCRI/TWCRI Metrics**: Replicability indices for clustering quality
--->
-
-### Development Workflow
-- **Version Control**: Git/GitHub
-- **Testing**: pytest with comprehensive test suite
-- **Code Quality**: black (formatting), flake8 (linting), mypy (type checking)
-- **Documentation**: Markdown documentation and inline docstrings
-- **Packaging**: setuptools with pyproject.toml
-
-### Recent Enhancements (November 2025)
-- ✅ Enhanced NA handling per Algorithm 2
-- ✅ Improved K* selection documentation with line-by-line algorithm mapping
-- ✅ Gradio demo with professional UI (3-tab design)
-- ✅ Load previous runs feature for demo interface
-- ✅ Comprehensive testing and validation
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**Optional:** Plotly (visualization), Gradio (GUI)
 
 ## Citation
 
@@ -455,15 +119,11 @@ If you use ERICA in your research, please cite:
 }
 ```
 
-## Acknowledgments
+## License
 
-- Original Monte Carlo Subsampling for Clustering Replicability (MCSS) methodology
-- scikit-learn for clustering algorithms
-- Plotly for interactive visualizations
-- Gradio for web interface capabilities
+MIT License. See [LICENSE](LICENSE) for details.
 
-## Support
+## Contact
 
-- Email: s.shirazi@berkeley.edu (Shawn Shirazi), siamak_sorooshyari@yahoo.com (Siamak Sorooshyari)
-- Issues: [GitHub Issues](https://github.com/sorooshyari/ERICA/issues)
-- Discussions: [GitHub Discussions](https://github.com/sorooshyari/ERICA/discussions)
+- **Issues:** [GitHub Issues](https://github.com/sorooshyari/ERICA/issues)
+- **Email:** s.shirazi@berkeley.edu, siamak_sorooshyari@yahoo.com

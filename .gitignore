@@ -128,12 +128,31 @@ dmypy.json
 # ERICA specific
 output/
 *.pkl
-*.npy
+erica_output/
+erica_results.json
+clam_*.csv
+
+# Archived outputs (generated during testing/development)
+archived_outputs/
+
+# WebUI development artifacts
+webui/frontend/node_modules/
+webui/backend/venv/
+
+# macOS
+.DS_Store
+
+# AI assistant instruction files (not relevant for library users)
 CLAUDE.md
 GEMINI.md
+COPILOT.md
+.claude/
 
 # Local development guidelines (portable across projects)
 .dev-guidelines/
 
 # Git worktrees for parallel development
 .worktrees/
+
+# R history
+.Rhistory
