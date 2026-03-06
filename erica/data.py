@@ -155,13 +155,13 @@ def prepare_samples_array(
             data = data.iloc[1:].reset_index(drop=True)
     
     # Remove non-numeric first column (likely gene IDs or sample names)
-    if not data.empty and not np.issubdtype(data.iloc[:, 0].dtype, np.number):
+    if not data.empty and not pd.api.types.is_numeric_dtype(data.iloc[:, 0]):
         data = data.iloc[:, 1:]
     
     # Convert all columns to numeric where possible
     converted_df = data.copy()
     for col in data.columns:
-        if not np.issubdtype(data[col].dtype, np.number):
+        if not pd.api.types.is_numeric_dtype(data[col]):
             try:
                 numeric_series = pd.to_numeric(data[col], errors='coerce')
                 # Keep conversion if at least 50% of values are valid
