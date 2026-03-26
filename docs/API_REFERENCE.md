@@ -291,6 +291,87 @@ select_optimal_k_by_method(metrics_by_k, metric_name='TWCRI')
 
 **Returns:** dict mapping method names to their recommended K* values
 
+### Parmigiani Metrics (Partition Comparison)
+
+These functions implement the ARI/AMI metrics from Parmigiani et al. (2023) "Cross-Study Replicability in Cluster Analysis".
+
+#### `compute_ari()`
+
+Compute Adjusted Rand Index between two clusterings.
+
+```python
+compute_ari(predicted_labels, true_labels)
+```
+
+**Parameters:**
+- `predicted_labels` (np.ndarray): Labels from train-fitted model applied to test samples
+- `true_labels` (np.ndarray): Labels from fitting directly on test samples
+
+**Returns:** float in range [-1, 1] (1.0 = perfect agreement, 0.0 = random)
+
+**Example:**
+```python
+from erica.metrics import compute_ari
+
+pred = np.array([0, 0, 1, 1, 2, 2])
+true = np.array([1, 1, 2, 2, 0, 0])  # Permuted but same structure
+ari = compute_ari(pred, true)  # Returns 1.0
+```
+
+#### `compute_ami()`
+
+Compute Adjusted Mutual Information between two clusterings.
+
+```python
+compute_ami(predicted_labels, true_labels, average_method='arithmetic')
+```
+
+**Parameters:**
+- `predicted_labels` (np.ndarray): Labels from train-fitted model
+- `true_labels` (np.ndarray): Labels from test-fitted model
+- `average_method` (str): Normalization method ('arithmetic', 'geometric', 'min', 'max')
+
+**Returns:** float in range [0, 1] (1.0 = perfect agreement)
+
+#### `compute_parmigiani_metrics()`
+
+Compute both ARI and AMI for a single iteration.
+
+```python
+compute_parmigiani_metrics(predicted_labels, true_labels)
+```
+
+**Returns:** dict with keys `'ARI'` and `'AMI'`
+
+#### `aggregate_parmigiani_metrics()`
+
+Aggregate ARI/AMI scores across multiple Monte Carlo iterations.
+
+```python
+aggregate_parmigiani_metrics(ari_scores, ami_scores)
+```
+
+**Parameters:**
+- `ari_scores` (list of float): ARI from each iteration
+- `ami_scores` (list of float): AMI from each iteration
+
+**Returns:** dict with keys:
+- `'ARI_mean'`: Mean ARI
+- `'ARI_std'`: Standard deviation of ARI
+- `'AMI_mean'`: Mean AMI
+- `'AMI_std'`: Standard deviation of AMI
+- `'n_iterations'`: Number of iterations
+
+**Example:**
+```python
+from erica.metrics import aggregate_parmigiani_metrics
+
+ari_scores = [0.85, 0.88, 0.82, 0.86, 0.84]
+ami_scores = [0.80, 0.83, 0.78, 0.81, 0.79]
+summary = aggregate_parmigiani_metrics(ari_scores, ami_scores)
+print(f"ARI: {summary['ARI_mean']:.3f} +/- {summary['ARI_std']:.3f}")
+```
+
 ---
 
 ## Data Module

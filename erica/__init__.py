@@ -50,12 +50,18 @@ from erica.clustering import (
 
 # Import metrics functions
 from erica.metrics import (
+    # ERICA metrics (CLAM-based)
     compute_cri,
     compute_wcri,
     compute_twcri,
     compute_metrics_for_clam,
     select_optimal_k,
     select_optimal_k_by_method,
+    # Parmigiani metrics (partition comparison)
+    compute_ari,
+    compute_ami,
+    compute_parmigiani_metrics,
+    aggregate_parmigiani_metrics,
 )
 
 # Import plotting functions (if available)
@@ -93,13 +99,18 @@ __all__ = [
     'agglomerative_clustering',
     'iterative_clustering_subsampling',
     
-    # Metrics
+    # ERICA Metrics (CLAM-based)
     'compute_cri',
     'compute_wcri',
     'compute_twcri',
     'compute_metrics_for_clam',
     'select_optimal_k',
     'select_optimal_k_by_method',
+    # Parmigiani Metrics (partition comparison)
+    'compute_ari',
+    'compute_ami',
+    'compute_parmigiani_metrics',
+    'aggregate_parmigiani_metrics',
     
     # Plotting (conditional)
     'plot_metrics',

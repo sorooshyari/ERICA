@@ -108,6 +108,62 @@ TWCRI is particularly useful for selecting optimal *k* as it balances:
 - Cluster size balance
 - Overall stability
 
+#### Parmigiani Metrics (ARI and AMI)
+
+In addition to CLAM-based metrics, ERICA also implements the partition comparison metrics from Parmigiani et al. (2023) "Cross-Study Replicability in Cluster Analysis" (Statistical Science, 38(2): 303-316, DOI: 10.1214/22-STS871).
+
+These metrics compare two clusterings of the test set:
+1. **predicted_labels**: Labels assigned by a model fitted on training data
+2. **true_labels**: Labels from fitting a fresh model directly on test data
+
+**ARI (Adjusted Rand Index)**
+
+ARI measures agreement between two clusterings, adjusted for chance:
+
+```
+ARI = (RI - Expected_RI) / (max_RI - Expected_RI)
+```
+
+**Interpretation:**
+- ARI = 1.0: Perfect agreement (identical clusterings up to permutation)
+- ARI = 0.0: Random agreement (no better than chance)
+- ARI < 0: Worse than random (rare)
+
+**AMI (Adjusted Mutual Information)**
+
+AMI measures mutual information between clusterings, adjusted for chance:
+
+```
+AMI = (MI - Expected_MI) / (mean(H(U), H(V)) - Expected_MI)
+```
+
+where H(U) and H(V) are the entropies of the two clusterings.
+
+**Interpretation:**
+- AMI = 1.0: Perfect mutual information
+- AMI = 0.0: Independent clusterings
+
+**Usage in ERICA:**
+
+```python
+from erica.metrics import compute_ari, compute_ami, aggregate_parmigiani_metrics
+
+# Single iteration
+ari = compute_ari(predicted_labels, true_labels)
+ami = compute_ami(predicted_labels, true_labels)
+
+# Multiple iterations
+summary = aggregate_parmigiani_metrics(ari_scores, ami_scores)
+print(f"Mean ARI: {summary['ARI_mean']:.3f} +/- {summary['ARI_std']:.3f}")
+```
+
+**When to use which metrics:**
+
+| Metric | Best for | Computation |
+|--------|----------|-------------|
+| CRI/WCRI/TWCRI | Per-sample stability analysis | From CLAM matrix (post-aggregation) |
+| ARI/AMI | Overall partition comparison | Per-iteration (then aggregated) |
+
 ---
 
 ## Selecting K*

@@ -61,6 +61,7 @@ print(f"Recommended K: {k_star['kmeans']}")
 | 2 | [02_vdx_analysis.py](examples/02_vdx_analysis.py) | Breast cancer gene expression (VDX dataset) |
 | 3 | [03_k_star_selection.py](examples/03_k_star_selection.py) | K* selection via Algorithm 2 |
 | 4 | [04_advanced_usage.py](examples/04_advanced_usage.py) | Component-level workflows |
+| 5 | [05_parmigiani_metrics.py](examples/05_parmigiani_metrics.py) | ARI/AMI partition comparison metrics |
 
 See [examples/README.md](examples/README.md) for details and data acquisition instructions.
 
@@ -73,9 +74,13 @@ ERICA operates on data in **samples × features** format. (Yes, the orientation 
 | Genomics (genes × samples) | Features in rows | `transpose=True` (default) |
 | Standard (samples × features) | Samples in rows | `transpose=False` |
 
-## The CRI Metric
+## Replicability Metrics
 
-**CRI (Clustering Replicability Index)** is the core metric of ERICA. It measures how consistently samples are assigned to their primary cluster across Monte Carlo iterations.
+ERICA implements two families of replicability metrics:
+
+### ERICA Metrics (CLAM-based)
+
+**CRI (Clustering Replicability Index)** is the core metric. It measures how consistently samples are assigned to their primary cluster across Monte Carlo iterations.
 
 | Metric | Role | Definition |
 |--------|------|------------|
@@ -83,10 +88,19 @@ ERICA operates on data in **samples × features** format. (Yes, the orientation 
 | WCRI | Derived | CRI weighted by cluster size |
 | TWCRI | Aggregate | Sum of WCRI (used for K* selection) |
 
-Values range from 0 to 1, where higher values indicate greater replicability.
+### Parmigiani Metrics (Partition Comparison)
 
-| CRI Range | Interpretation |
-|-----------|----------------|
+Based on Parmigiani et al. (2023) "Cross-Study Replicability in Cluster Analysis":
+
+| Metric | Definition |
+|--------|------------|
+| **ARI** | Adjusted Rand Index - partition similarity adjusted for chance |
+| **AMI** | Adjusted Mutual Information - information-theoretic comparison |
+
+### Interpretation
+
+| Value Range | Interpretation |
+|-------------|----------------|
 | > 0.8 | High replicability (publishable with confidence) |
 | 0.6–0.8 | Moderate replicability (proceed with caution) |
 | < 0.6 | Low replicability (perhaps try a different K) |
