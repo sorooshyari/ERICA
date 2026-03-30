@@ -45,6 +45,7 @@ from erica.core import ERICA
 from erica.clustering import (
     kmeans_clustering,
     agglomerative_clustering,
+    hdbscan_clustering,
     iterative_clustering_subsampling,
 )
 
@@ -88,6 +89,10 @@ from erica.data import (
 from erica.utils import (
     set_deterministic_mode,
     compute_config_hash,
+    normalize_method,
+    VALID_METHODS,
+    K_BASED_METHODS,
+    AUTO_K_METHODS,
 )
 
 __all__ = [
@@ -97,6 +102,7 @@ __all__ = [
     # Clustering
     'kmeans_clustering',
     'agglomerative_clustering',
+    'hdbscan_clustering',
     'iterative_clustering_subsampling',
     
     # ERICA Metrics (CLAM-based)
@@ -127,6 +133,10 @@ __all__ = [
     # Utilities
     'set_deterministic_mode',
     'compute_config_hash',
+    'normalize_method',
+    'VALID_METHODS',
+    'K_BASED_METHODS',
+    'AUTO_K_METHODS',
     
     # Version
     '__version__',
