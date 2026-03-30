@@ -118,7 +118,7 @@ class ERICA:
 
         # Step 2: Clustering for each k and method
         if self.verbose:
-            print(f"\n[2/3] Running clustering analysis...")
+            print(f"\n[2/4] Running clustering analysis...")
 
         for k in self.k_range:
             for method_name in self.k_based_methods:
@@ -152,15 +152,34 @@ class ERICA:
                     self.clam_matrices_[(k, method_name)] = result['clam_matrix']
                     self.results_[(k, method_name)] = result
 
-        # Step 3: Compute metrics
+        # Step 3: Auto-K clustering
+        if self.auto_k_methods:
+            if self.verbose:
+                print(f"\n[3/4] Running auto-K clustering methods...")
+            for method_name in self.auto_k_methods:
+                if method_name == 'hdbscan':
+                    if self.verbose:
+                        print(f"  Running HDBSCAN...")
+                    result = hdbscan_clustering(
+                        samples_array=self.samples_array,
+                        n_iterations=self.n_iterations,
+                        indices_folder=indices_folder,
+                        output_dir=run_dir,
+                        hdbscan_params=self.hdbscan_params,
+                        verbose=self.verbose,
+                    )
+                    self.auto_k_results_[method_name] = result
+
+        # Step 3b: Compute metrics
         if self.verbose:
-            print(f"\n[3/3] Computing metrics...")
+            print(f"\n[3/4] Computing metrics...")
         self.metrics_ = self._compute_all_metrics()
 
         # Step 4: Select optimal K using Algorithm 2
-        if self.verbose:
-            print(f"\n[4/4] Selecting optimal K* using Algorithm 2...")
-        self.k_star_ = self._select_optimal_k()
+        if self.k_based_methods and self.metrics_:
+            if self.verbose:
+                print(f"\n[4/4] Selecting optimal K* using Algorithm 2...")
+            self.k_star_ = self._select_optimal_k()
 
         # Store output folder
         self.output_folders_.append(run_dir)
@@ -175,26 +194,70 @@ class ERICA:
 
 
     def _compute_all_metrics(self) -> Dict:
-        """Compute CRI, WCRI, TWCRI metrics for all results and track disqualified K values."""
+        """Compute CRI, WCRI, TWCRI, and Parmigiani metrics for all results."""
+        from erica.metrics import (
+            compute_parmigiani_metrics, aggregate_parmigiani_metrics
+        )
+
         metrics_by_k = {}
         for (k, method_name), result in self.results_.items():
             clam_matrix = result['clam_matrix']
             metrics = compute_metrics_for_clam(clam_matrix, k)
+
+            # Compute ARI/AMI from iteration label pairs
+            if 'iteration_labels' in result:
+                predicted_list = result['iteration_labels']['predicted']
+                true_list = result['iteration_labels']['true']
+                ari_scores = []
+                ami_scores = []
+                for pred, true in zip(predicted_list, true_list):
+                    pm = compute_parmigiani_metrics(pred, true)
+                    ari_scores.append(pm['ARI'])
+                    ami_scores.append(pm['AMI'])
+                agg = aggregate_parmigiani_metrics(ari_scores, ami_scores)
+                metrics['ARI_mean'] = agg['ARI_mean']
+                metrics['ARI_std'] = agg['ARI_std']
+                metrics['AMI_mean'] = agg['AMI_mean']
+                metrics['AMI_std'] = agg['AMI_std']
+
             if k not in metrics_by_k:
                 metrics_by_k[k] = {}
             metrics_by_k[k][method_name] = metrics
-            
-            # Track disqualified K values (those with empty clusters)
+
             if metrics.get('has_empty_clusters', False):
                 if method_name not in self.disqualified_k_:
                     self.disqualified_k_[method_name] = []
                 if k not in self.disqualified_k_[method_name]:
                     self.disqualified_k_[method_name].append(k)
-        
-        # Sort disqualified K lists
+
         for method_name in self.disqualified_k_:
             self.disqualified_k_[method_name].sort()
-        
+
+        # Auto-K metrics
+        for method_name, result in self.auto_k_results_.items():
+            if 'iteration_labels' in result:
+                predicted_list = result['iteration_labels']['predicted']
+                true_list = result['iteration_labels']['true']
+                ari_scores = []
+                ami_scores = []
+                for pred, true in zip(predicted_list, true_list):
+                    if len(pred) > 0 and len(true) > 0:
+                        pm = compute_parmigiani_metrics(pred, true)
+                        ari_scores.append(pm['ARI'])
+                        ami_scores.append(pm['AMI'])
+                if ari_scores:
+                    agg = aggregate_parmigiani_metrics(ari_scores, ami_scores)
+                    result['ARI_mean'] = agg['ARI_mean']
+                    result['ARI_std'] = agg['ARI_std']
+                    result['AMI_mean'] = agg['AMI_mean']
+                    result['AMI_std'] = agg['AMI_std']
+
+            if result.get('modal_k', 0) > 0:
+                clam_metrics = compute_metrics_for_clam(
+                    result['clam_matrix'], result['modal_k']
+                )
+                result['metrics_at_modal_k'] = clam_metrics
+
         return metrics_by_k
 
     def _select_optimal_k(self) -> Dict:
@@ -263,9 +326,10 @@ class ERICA:
             'metrics': self.metrics_,
             'k_star': self.k_star_,
             'disqualified_k': self.disqualified_k_,
+            'auto_k': self.auto_k_results_,
             'config': self._get_config_dict(),
             'output_folders': self.output_folders_,
-            'results': self.results_
+            'results': self.results_,
         }
 
     def get_clam_matrix(self, k: int, method: str = 'kmeans') -> Optional[np.ndarray]:
@@ -334,22 +398,26 @@ class ERICA:
             return self.disqualified_k_.get(method, [])
         return self.disqualified_k_
 
+    def get_auto_k_results(self, method: str = 'hdbscan') -> Optional[Dict]:
+        """Get auto-K clustering results for a specific method."""
+        return self.auto_k_results_.get(method)
+
     def _get_config_dict(self) -> Dict:
         """Return ERICA configuration as dictionary."""
         return {
             'k_range': self.k_range,
             'n_iterations': self.n_iterations,
             'train_percent': self.train_percent,
-            'method': self.method,
-            'method_list': self.method_list,
+            'method': self.method_list,
             'random_seed': self.random_seed,
             'n_samples': self.n_samples,
             'n_features': self.n_features,
+            'hdbscan_params': self.hdbscan_params,
             'config_hash': compute_config_hash({
                 'k_range': self.k_range,
                 'n_iterations': self.n_iterations,
                 'train_percent': self.train_percent,
-                'method': self.method,
+                'method': sorted(self.method_list),
                 'random_seed': self.random_seed,
             })
         }
@@ -358,6 +426,6 @@ class ERICA:
         return (
             f"ERICA(n_samples={self.n_samples}, n_features={self.n_features}, "
             f"k_range={self.k_range}, n_iterations={self.n_iterations}, "
-            f"method='{self.method}')"
+            f"methods={self.method_list})"
         )
 

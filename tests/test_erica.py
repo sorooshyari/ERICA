@@ -748,5 +748,75 @@ def test_erica_init_hdbscan_params():
     assert erica.hdbscan_params == {'min_cluster_size': 10, 'min_samples': 3}
 
 
+def test_erica_run_kbased_ari_ami():
+    data = np.random.rand(30, 5)
+    erica = ERICA(
+        data=data, k_range=[2, 3], n_iterations=5,
+        method='kmeans', verbose=False,
+    )
+    results = erica.run()
+    metrics = results['metrics']
+    for k in [2, 3]:
+        assert k in metrics
+        assert 'kmeans' in metrics[k]
+        m = metrics[k]['kmeans']
+        assert 'ARI_mean' in m
+        assert 'ARI_std' in m
+        assert 'AMI_mean' in m
+        assert 'AMI_std' in m
+        assert -1 <= m['ARI_mean'] <= 1
+        assert -1 <= m['AMI_mean'] <= 1
+
+
+def test_erica_run_agglomerative_list():
+    data = np.random.rand(30, 5)
+    erica = ERICA(
+        data=data, k_range=[2], n_iterations=3,
+        method=['agglomerative_ward'], verbose=False,
+    )
+    results = erica.run()
+    assert 2 in results['metrics']
+    assert 'agglomerative_ward' in results['metrics'][2]
+
+
+def test_erica_run_hdbscan():
+    from sklearn.datasets import make_blobs
+    data, _ = make_blobs(n_samples=80, n_features=5, centers=3,
+                         cluster_std=0.5, random_state=42)
+    erica = ERICA(
+        data=data, k_range=[2, 3], n_iterations=10,
+        method=['kmeans', 'hdbscan'],
+        hdbscan_params={'min_cluster_size': 5},
+        transpose=False, verbose=False,
+    )
+    results = erica.run()
+    assert 'metrics' in results
+    assert 2 in results['metrics']
+    assert 'kmeans' in results['metrics'][2]
+    assert 'auto_k' in results
+    assert 'hdbscan' in results['auto_k']
+    hdb = results['auto_k']['hdbscan']
+    assert 'modal_k' in hdb
+    assert 'k_distribution' in hdb
+    assert 'k_agreement_rate' in hdb
+
+
+def test_get_auto_k_results():
+    from sklearn.datasets import make_blobs
+    data, _ = make_blobs(n_samples=60, n_features=3, centers=2,
+                         cluster_std=0.5, random_state=42)
+    erica = ERICA(
+        data=data, k_range=[2], n_iterations=5,
+        method=['hdbscan'],
+        hdbscan_params={'min_cluster_size': 5},
+        transpose=False, verbose=False,
+    )
+    erica.run()
+    result = erica.get_auto_k_results('hdbscan')
+    assert result is not None
+    assert 'modal_k' in result
+    assert erica.get_auto_k_results('nonexistent') is None
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
