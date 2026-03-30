@@ -27,11 +27,13 @@ def update_pyproject_toml(version):
     pyproject_path = Path("pyproject.toml")
     content = pyproject_path.read_text()
     
-    # Replace version line
+    # Replace only the project version line (not tool.mypy python_version, etc.)
     content = re.sub(
-        r'version = "[^"]*"',
+        r'^version = "[^"]*"',
         f'version = "{version}"',
-        content
+        content,
+        count=1,
+        flags=re.MULTILINE
     )
     
     pyproject_path.write_text(content)
