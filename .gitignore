@@ -165,3 +165,8 @@ docs/superpowers/
 
 # R history
 .Rhistory
+
+# Plotting experiments artifacts
+plotting_experiments/data/
+plotting_experiments/results/
+plotting_experiments/figures/
