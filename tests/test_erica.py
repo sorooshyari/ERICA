@@ -10,6 +10,7 @@ import tempfile
 from erica import ERICA
 from erica.data import load_data, prepare_samples_array
 from erica.metrics import select_optimal_k, select_optimal_k_by_method
+from erica.clustering import _assign_noise_to_nearest
 
 
 def test_erica_import():
@@ -543,6 +544,33 @@ def test_normalize_method_invalid_in_list():
 def test_normalize_method_wrong_type():
     with pytest.raises(TypeError):
         normalize_method(123)
+
+
+def test_assign_noise_to_nearest_no_noise():
+    labels = np.array([0, 1, 2, 0, 1])
+    data = np.random.rand(5, 3)
+    centroids = np.random.rand(3, 3)
+    result = _assign_noise_to_nearest(labels, data, centroids)
+    np.testing.assert_array_equal(result, labels)
+
+
+def test_assign_noise_to_nearest_with_noise():
+    centroids = np.array([[0.0, 0.0], [10.0, 10.0]])
+    data = np.array([[0.1, 0.1], [9.9, 9.9], [0.2, 0.2]])
+    labels = np.array([0, 1, -1])
+    result = _assign_noise_to_nearest(labels, data, centroids)
+    assert result[0] == 0
+    assert result[1] == 1
+    assert result[2] == 0
+
+
+def test_assign_noise_to_nearest_all_noise():
+    centroids = np.array([[0.0, 0.0], [10.0, 10.0]])
+    data = np.array([[0.1, 0.1], [9.9, 9.9]])
+    labels = np.array([-1, -1])
+    result = _assign_noise_to_nearest(labels, data, centroids)
+    assert result[0] == 0
+    assert result[1] == 1
 
 
 if __name__ == "__main__":

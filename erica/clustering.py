@@ -488,6 +488,44 @@ def agglomerative_clustering(
     }
 
 
+def _assign_noise_to_nearest(
+    labels: np.ndarray,
+    data: np.ndarray,
+    centroids: np.ndarray
+) -> np.ndarray:
+    """Assign noise points (label == -1) to the nearest non-noise cluster.
+
+    Parameters
+    ----------
+    labels : np.ndarray
+        Cluster labels where -1 indicates noise. Shape: (n_samples,)
+    data : np.ndarray
+        Data points. Shape: (n_samples, n_features)
+    centroids : np.ndarray
+        Cluster centroids. Shape: (n_clusters, n_features)
+
+    Returns
+    -------
+    np.ndarray
+        Labels with noise points reassigned to nearest cluster.
+    """
+    noise_mask = labels == -1
+    if not np.any(noise_mask):
+        return labels.copy()
+
+    result = labels.copy()
+    noise_points = data[noise_mask]
+
+    distances = np.linalg.norm(
+        noise_points[:, np.newaxis, :] - centroids[np.newaxis, :, :],
+        axis=2
+    )
+    nearest = np.argmin(distances, axis=1)
+    result[noise_mask] = nearest
+
+    return result
+
+
 def _align_cluster_identities(
     unaligned_predictions: np.ndarray,
     iteration_centroids_list: List[np.ndarray],
