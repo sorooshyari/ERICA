@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERICA Plotting Experiments Gallery</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; }
+  .header { background: #161b22; border-bottom: 1px solid #30363d; padding: 24px 40px; }
+  .header h1 { font-size: 28px; color: #f0f6fc; margin-bottom: 4px; }
+  .header p { color: #8b949e; font-size: 14px; }
+  .nav { background: #161b22; border-bottom: 1px solid #30363d; padding: 0 40px; position: sticky; top: 0; z-index: 100; }
+  .nav a { display: inline-block; padding: 12px 16px; color: #8b949e; text-decoration: none; font-size: 13px; border-bottom: 2px solid transparent; }
+  .nav a:hover, .nav a.active { color: #f0f6fc; border-bottom-color: #f78166; }
+  .content { max-width: 1400px; margin: 0 auto; padding: 32px 40px; }
+  .section { margin-bottom: 48px; }
+  .section h2 { font-size: 22px; color: #f0f6fc; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #30363d; }
+  .section .desc { color: #8b949e; font-size: 14px; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
+  .card:hover { border-color: #58a6ff; }
+  .card img { width: 100%; display: block; background: #fff; padding: 8px; }
+  .card .label { padding: 10px 14px; font-size: 12px; color: #8b949e; font-family: 'SFMono-Regular', Consolas, monospace; }
+  .wide .grid { grid-template-columns: 1fr; }
+  .wide .card img { max-width: 100%; }
+  .stats { display: flex; gap: 24px; margin: 20px 0; flex-wrap: wrap; }
+  .stat { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px 24px; }
+  .stat .num { font-size: 28px; color: #58a6ff; font-weight: 700; }
+  .stat .lbl { font-size: 12px; color: #8b949e; }
+  .quote { background: #161b22; border-left: 3px solid #f78166; padding: 16px 20px; margin: 24px 0; font-style: italic; color: #8b949e; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .content { padding: 16px; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>ERICA Plotting Experiments</h1>
+  <p>Publication-quality visualizations of clustering replicability across synthetic and real datasets</p>
+</div>
+
+<div class="nav">
+  <a href="#overview">Overview</a>
+  <a href="#clam">CLAM Heatmaps</a>
+  <a href="#stability">Stability</a>
+  <a href="#metrics">Metrics</a>
+  <a href="#methods">Methods</a>
+  <a href="#scatter">Scatter</a>
+  <a href="#progressions">K Progressions</a>
+  <a href="#surfaces">Surfaces</a>
+  <a href="#gaussian">Gaussian Study</a>
+</div>
+
+<div class="content">
+
+<!-- Overview -->
+<div class="section" id="overview">
+  <h2>Overview</h2>
+  <div class="stats">
+    <div class="stat"><div class="num">80+</div><div class="lbl">Figures generated</div></div>
+    <div class="stat"><div class="num">13</div><div class="lbl">Datasets</div></div>
+    <div class="stat"><div class="num">4</div><div class="lbl">Clustering methods</div></div>
+    <div class="stat"><div class="num">200</div><div class="lbl">MC iterations</div></div>
+    <div class="stat"><div class="num">55</div><div class="lbl">Tests passing</div></div>
+  </div>
+  <div class="quote">"All clusters are wrong, but some are replicable." &mdash; George Box, probably</div>
+</div>
+
+<!-- CLAM Heatmaps -->
+<div class="section" id="clam">
+  <h2>CLAM Heatmaps</h2>
+  <p class="desc">The CLAM matrix is ERICA's soul. Each row = sample, each column = cluster, each entry = how many times that sample was assigned to that cluster across 200 iterations. Sorted by primary cluster assignment.</p>
+  <div class="grid">
+    <div class="card"><img src="figures/clam_sorted_vdx_3gene_kmeans_k3.png" alt=""><div class="label">VDX 3-gene / K-Means / K=3 (sorted)</div></div>
+    <div class="card"><img src="figures/clam_raw_vdx_3gene_kmeans_k3.png" alt=""><div class="label">VDX 3-gene / K-Means / K=3 (raw)</div></div>
+    <div class="card"><img src="figures/clam_multipanel_vdx_3gene_kmeans.png" alt=""><div class="label">VDX 3-gene / K-Means / K=2,3,4 (multipanel)</div></div>
+    <div class="card"><img src="figures/clam_sorted_vdx_3gene_hdbscan.png" alt=""><div class="label">VDX 3-gene / HDBSCAN / modal K</div></div>
+  </div>
+</div>
+
+<!-- Stability Strips -->
+<div class="section" id="stability">
+  <h2>Stability Strips</h2>
+  <p class="desc">Each horizontal bar is one sample. Segments show cluster assignment proportions. Sorted by entropy: stable samples (solid bars) at top, confused samples (mixed bars) at bottom.</p>
+  <div class="grid">
+    <div class="card"><img src="figures/stability_vdx_3gene_kmeans_k3.png" alt=""><div class="label">VDX / K-Means / K=3</div></div>
+    <div class="card"><img src="figures/stability_vdx_3gene_agglomerative_ward_k3.png" alt=""><div class="label">VDX / Ward / K=3</div></div>
+  </div>
+</div>
+
+<!-- Metrics Curves -->
+<div class="section" id="metrics">
+  <h2>Metrics Curves</h2>
+  <p class="desc">CRI, WCRI, TWCRI vs K with K* marked (left panels). ARI/AMI with error bars (right panels). Dashed lines = optimal K*.</p>
+  <div class="grid">
+    <div class="card"><img src="figures/metrics_vdx_3gene_kmeans.png" alt=""><div class="label">VDX / K-Means</div></div>
+    <div class="card"><img src="figures/metrics_vdx_3gene_agglomerative_ward.png" alt=""><div class="label">VDX / Ward</div></div>
+    <div class="card"><img src="figures/metrics_well_separated_kmeans.png" alt=""><div class="label">Well-separated blobs / K-Means</div></div>
+    <div class="card"><img src="figures/metrics_overlapping_kmeans.png" alt=""><div class="label">Overlapping blobs / K-Means</div></div>
+  </div>
+</div>
+
+<!-- Method Comparison -->
+<div class="section" id="methods">
+  <h2>Method Comparison</h2>
+  <p class="desc">Side-by-side: K-Means vs Ward vs HDBSCAN. HDBSCAN appears as a star at its modal K. Plus K* grouped bar charts.</p>
+  <div class="grid">
+    <div class="card"><img src="figures/method_vdx_3gene.png" alt=""><div class="label">VDX / Method comparison</div></div>
+    <div class="card"><img src="figures/kstar_vdx_3gene.png" alt=""><div class="label">VDX / K* per method</div></div>
+    <div class="card"><img src="figures/method_well_separated.png" alt=""><div class="label">Well-separated / Method comparison</div></div>
+    <div class="card"><img src="figures/method_overlapping.png" alt=""><div class="label">Overlapping / Method comparison</div></div>
+  </div>
+</div>
+
+<!-- Scatter Plots -->
+<div class="section" id="scatter">
+  <h2>2D Cluster Scatter Plots</h2>
+  <p class="desc">Points colored by primary cluster assignment, sized by confidence. Larger dots = more stable assignment. Only works for 2D datasets.</p>
+  <div class="grid">
+    <div class="card"><img src="figures/scatter_raw_moons_2d.png" alt=""><div class="label">Moons / Raw data</div></div>
+    <div class="card"><img src="figures/scatter_compare_moons_2d_k2.png" alt=""><div class="label">Moons / Method comparison K=2</div></div>
+    <div class="card"><img src="figures/scatter_moons_2d_kmeans_k4.png" alt=""><div class="label">Moons / K-Means K=4 (why K* is wrong)</div></div>
+    <div class="card"><img src="figures/confidence_moons_2d_kmeans_k2.png" alt=""><div class="label">Moons / K-Means K=2 confidence map</div></div>
+    <div class="card"><img src="figures/scatter_raw_circles_2d.png" alt=""><div class="label">Circles / Raw data</div></div>
+    <div class="card"><img src="figures/scatter_compare_circles_2d_k2.png" alt=""><div class="label">Circles / Method comparison K=2</div></div>
+    <div class="card"><img src="figures/scatter_circles_2d_kmeans_k4.png" alt=""><div class="label">Circles / K-Means K=4</div></div>
+    <div class="card"><img src="figures/confidence_circles_2d_kmeans_k2.png" alt=""><div class="label">Circles / K-Means K=2 confidence map</div></div>
+    <div class="card"><img src="figures/scatter_raw_blobs_2d.png" alt=""><div class="label">Blobs / Raw data</div></div>
+    <div class="card"><img src="figures/scatter_compare_blobs_2d_k3.png" alt=""><div class="label">Blobs / Method comparison K=3</div></div>
+  </div>
+</div>
+
+<!-- K Progressions -->
+<div class="section wide" id="progressions">
+  <h2>K Progressions (K=2 through K=6)</h2>
+  <p class="desc">Rows = methods (K-Means, Ward, Single Linkage). Columns = K values. Orange borders mark K*. For 2D data: scatter plots. For high-D data: sorted CLAM heatmaps. True K marked with asterisk.</p>
+  <div class="grid">
+    <div class="card"><img src="figures/k_progressions/k_progression_moons_2d.png" alt=""><div class="label">Moons (true K=2) &mdash; K-Means cuts moons in half at K=4</div></div>
+    <div class="card"><img src="figures/k_progressions/k_progression_circles_2d.png" alt=""><div class="label">Circles (true K=2) &mdash; everyone struggles</div></div>
+    <div class="card"><img src="figures/k_progressions/k_progression_blobs_2d.png" alt=""><div class="label">Blobs 2D (true K=3) &mdash; clean diagonal at K=3</div></div>
+    <div class="card"><img src="figures/k_progressions/k_progression_well_separated.png" alt=""><div class="label">Well-separated 5D (true K=3) &mdash; CLAM heatmaps</div></div>
+    <div class="card"><img src="figures/k_progressions/k_progression_overlapping.png" alt=""><div class="label">Overlapping 5D (true K=4)</div></div>
+    <div class="card"><img src="figures/k_progressions/k_progression_vdx_3gene.png" alt=""><div class="label">VDX breast cancer (true K=?)</div></div>
+    <div class="card"><img src="figures/k_progressions/k_progression_gmm_anisotropic.png" alt=""><div class="label">Anisotropic GMM (true K=3)</div></div>
+    <div class="card"><img src="figures/k_progressions/k_progression_gmm_five_clusters.png" alt=""><div class="label">Five clusters GMM (true K=5)</div></div>
+    <div class="card"><img src="figures/k_progressions/k_progression_gmm_mixed_variance.png" alt=""><div class="label">Mixed variance GMM (true K=3)</div></div>
+    <div class="card"><img src="figures/k_progressions/k_progression_high_dim.png" alt=""><div class="label">High-dim 50D (true K=3)</div></div>
+  </div>
+</div>
+
+<!-- Surfaces -->
+<div class="section" id="surfaces">
+  <h2>3D Surfaces &amp; 2D Heatmaps</h2>
+  <p class="desc">CLAM topography, TWCRI landscape across K and methods, HDBSCAN parameter sensitivity.</p>
+  <div class="grid">
+    <div class="card"><img src="figures/surface_clam_vdx_3gene_kmeans_k3.png" alt=""><div class="label">CLAM surface / VDX K-Means K=3</div></div>
+    <div class="card"><img src="figures/landscape_twcri_vdx_3gene_2d.png" alt=""><div class="label">TWCRI landscape (2D heatmap)</div></div>
+    <div class="card"><img src="figures/landscape_twcri_vdx_3gene_3d.png" alt=""><div class="label">TWCRI landscape (3D surface)</div></div>
+    <div class="card"><img src="figures/hdbscan_sensitivity_2d.png" alt=""><div class="label">HDBSCAN param sensitivity (2D)</div></div>
+    <div class="card"><img src="figures/hdbscan_sensitivity_3d.png" alt=""><div class="label">HDBSCAN param sensitivity (3D)</div></div>
+  </div>
+</div>
+
+<!-- Gaussian Study -->
+<div class="section wide" id="gaussian">
+  <h2>Gaussian Mixture Sigma Study</h2>
+  <p class="desc">4 Gaussian centers in 50D. Sigma swept from 0.01 (trivially separated) to 10.0 (one big blob). How does replicability degrade?</p>
+  <div class="grid">
+    <div class="card"><img src="figures/gaussian_study/sigma_twcri_curves.png" alt=""><div class="label">TWCRI at K=4 vs sigma &mdash; the replicability cliff</div></div>
+    <div class="card"><img src="figures/gaussian_study/sigma_ari_ami_curves.png" alt=""><div class="label">ARI/AMI at K=4 vs sigma</div></div>
+    <div class="card"><img src="figures/gaussian_study/sigma_kstar_summary.png" alt=""><div class="label">K* selection across sigma levels</div></div>
+    <div class="card"><img src="figures/gaussian_study/sigma_hdbscan_noise.png" alt=""><div class="label">HDBSCAN noise fraction vs sigma</div></div>
+    <div class="card"><img src="figures/gaussian_study/vdx_gaussian_comparison.png" alt=""><div class="label">VDX vs Gaussian sigma=1.0 comparison</div></div>
+  </div>
+  <h3 style="color:#f0f6fc; margin: 24px 0 12px;">K Progression Grids by Sigma</h3>
+  <div class="grid">
+    <div class="card"><img src="figures/gaussian_study/k_progression_gauss4c_sigma0p01.png" alt=""><div class="label">sigma=0.01 &mdash; point masses, trivial</div></div>
+    <div class="card"><img src="figures/gaussian_study/k_progression_gauss4c_sigma0p1.png" alt=""><div class="label">sigma=0.1 &mdash; well-separated</div></div>
+    <div class="card"><img src="figures/gaussian_study/k_progression_gauss4c_sigma1p0.png" alt=""><div class="label">sigma=1.0 &mdash; overlap begins</div></div>
+    <div class="card"><img src="figures/gaussian_study/k_progression_gauss4c_sigma10p0.png" alt=""><div class="label">sigma=10.0 &mdash; total collapse</div></div>
+  </div>
+</div>
+
+</div>
+
+<div style="text-align:center; padding: 40px; color: #484f58; font-size: 12px;">
+  Generated by ERICA plotting experiments &middot; 80+ figures &middot; 13 datasets &middot; 200 MC iterations per run
+</div>
+
+</body>
+</html>
