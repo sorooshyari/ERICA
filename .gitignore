@@ -154,5 +154,11 @@ COPILOT.md
 # Git worktrees for parallel development
 .worktrees/
 
+# Cursor IDE
+.cursor/
+
+# Benchmarks
+.benchmarks/
+
 # R history
 .Rhistory
