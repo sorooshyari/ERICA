@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERICA Figure Gallery</title>
+<style>
+  :root { --bg: #fafafa; --text: #1a1a2e; --muted: #555; --accent: #2d6a4f; --border: #ddd; --card-bg: #fff; --code-bg: #f4f4f4; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+  .masthead { max-width: 900px; margin: 0 auto; padding: 60px 40px 32px; }
+  .masthead h1 { font-size: 28px; font-weight: 400; letter-spacing: 1px; }
+  .masthead .subtitle { font-size: 15px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .masthead .meta { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  /* Sticky section nav */
+  .nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-top: 2px solid var(--text); border-bottom: 1px solid var(--border); max-width: 900px; margin: 0 auto; padding: 0; display: flex; flex-wrap: wrap; }
+  .nav a { padding: 10px 14px; font-size: 12px; text-decoration: none; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+  .nav a:hover, .nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 0 40px 60px; }
+
+  /* Dataset index table */
+  .dataset-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 32px; }
+  .dataset-table th { text-align: left; padding: 6px 10px; border-bottom: 2px solid var(--text); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .dataset-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); }
+  .dataset-table tr:hover { background: #f0f0f0; }
+  .dataset-table .cat { font-weight: 600; color: var(--accent); }
+
+  /* Figure groups */
+  .figure-group { margin: 40px 0; padding-top: 20px; border-top: 1px solid var(--border); }
+  .figure-group h2 { font-size: 20px; font-weight: 400; margin-bottom: 6px; }
+  .figure-group .section-intro { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+
+  /* Expandable figures */
+  .figure { margin: 24px 0; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+  .figure:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .figure img { width: 100%; display: block; padding: 8px; background: #fff; }
+  .figure .caption { padding: 12px 16px; border-top: 1px solid var(--border); }
+  .figure .caption .fig-id { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .figure .caption .fig-title { font-size: 15px; font-weight: 600; margin: 3px 0 6px; }
+  .figure .caption .fig-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .figure .caption .fig-method { font-size: 11px; color: var(--muted); margin-top: 6px; font-family: 'SF Mono', 'Fira Code', monospace; background: var(--code-bg); padding: 4px 8px; border-radius: 3px; display: inline-block; }
+
+  .figure-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .figure-pair .figure { margin: 0; }
+
+  /* Lightbox overlay */
+  .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; background: #fff; padding: 12px; box-shadow: 0 4px 40px rgba(0,0,0,0.5); }
+  .lightbox .lb-caption { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #ccc; font-size: 13px; text-align: center; max-width: 700px; }
+  .lightbox .lb-close { position: fixed; top: 20px; right: 24px; color: #aaa; font-size: 28px; cursor: pointer; }
+  .lightbox .lb-close:hover { color: #fff; }
+
+  footer { max-width: 900px; margin: 0 auto; padding: 32px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
+
+  @media (max-width: 700px) {
+    .masthead, .content, footer { padding-left: 16px; padding-right: 16px; }
+    .figure-pair { grid-template-columns: 1fr; }
+    .nav { padding: 0 8px; }
+    .nav a { padding: 8px 10px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>ERICA Figure Gallery</h1>
+  <div class="subtitle">Exploring Visualizations of Clustering Replicability</div>
+  <div class="meta">Internal working document for CMAC &mdash; Sorooshyari &amp; Shirazi, 2026</div>
+</div>
+
+<div class="nav" id="topnav">
+  <a href="#datasets">Datasets</a>
+  <a href="#parmigiani">Parmigiani Reference</a>
+  <a href="#run-metrics">Run Metrics</a>
+  <a href="#clam">CLAM Heatmaps</a>
+  <a href="#stability">Stability</a>
+  <a href="#metrics">Metrics</a>
+  <a href="#methods">Methods</a>
+  <a href="#scatter">Scatter</a>
+  <a href="#progressions">K Progressions</a>
+  <a href="#surfaces">Surfaces</a>
+  <a href="#gaussian">Gaussian Study</a>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lb-close" onclick="closeLightbox()">&times;</span>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-caption" id="lb-caption"></div>
+</div>
+
+<div class="content">
+
+<p style="font-size: 14px; color: var(--muted); margin: 20px 0 4px;">This gallery explores which visualizations of the CLAM matrix and ERICA's replicability metrics are most useful for understanding internal cluster structure. All analyses use ERICA v0.1.4 with B=200 MC iterations, 80/20 train-test split. Primary methods: K-Means and Agglomerative Clustering (Ward and Single linkage). Figures generated with matplotlib; viridis and Okabe-Ito colorblind-accessible palettes.</p>
+<p style="font-size: 12px; color: #888; margin: 0 0 24px;"><sup>*</sup>HDBSCAN integration is under active development and not yet fully validated. HDBSCAN figures are included for exploratory purposes only.</p>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="datasets">
+<h2>Datasets</h2>
+<p class="section-intro">Index of all datasets used across these experiments. Click any section in the navigation bar above to jump to the corresponding figures.</p>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Real Data</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>Source</th></tr>
+  <tr><td class="cat">vdx_3gene</td><td>344</td><td>3</td><td>Unknown</td><td>Parmigiani et al. VDX breast cancer (ESR1, ERBB2, AURKA)</td></tr>
+</table>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Synthetic Data (scikit-learn)</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>Generator</th></tr>
+  <tr><td class="cat">well_separated</td><td>300</td><td>5</td><td>3</td><td>make_blobs(centers=3, std=0.8)</td></tr>
+  <tr><td class="cat">overlapping</td><td>300</td><td>5</td><td>4</td><td>make_blobs(centers=4, std=2.0)</td></tr>
+  <tr><td class="cat">moons_2d</td><td>300</td><td>2</td><td>2</td><td>make_moons(noise=0.05)</td></tr>
+  <tr><td class="cat">circles_2d</td><td>300</td><td>2</td><td>2</td><td>make_circles(noise=0.05, factor=0.5)</td></tr>
+  <tr><td class="cat">blobs_2d</td><td>300</td><td>2</td><td>3</td><td>make_blobs(centers=3, std=0.5, n_features=2)</td></tr>
+  <tr><td class="cat">high_dim</td><td>200</td><td>50</td><td>3</td><td>make_blobs(centers=3, n_features=50)</td></tr>
+</table>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Gaussian Mixtures (numpy)</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>Parameters</th></tr>
+  <tr><td class="cat">gmm_spherical</td><td>450</td><td>2</td><td>3</td><td>Isotropic, equal variance</td></tr>
+  <tr><td class="cat">gmm_anisotropic</td><td>450</td><td>2</td><td>3</td><td>Elongated ellipses, different orientations</td></tr>
+  <tr><td class="cat">gmm_mixed_variance</td><td>450</td><td>2</td><td>3</td><td>Tight (0.1) / medium (1.0) / spread (4.0)</td></tr>
+  <tr><td class="cat">gmm_overlapping_pair</td><td>500</td><td>2</td><td>3</td><td>Two overlapping + one isolated</td></tr>
+  <tr><td class="cat">gmm_five_clusters</td><td>400</td><td>2</td><td>5</td><td>Five varied covariances</td></tr>
+  <tr><td class="cat">gmm_high_dim_32</td><td>300</td><td>32</td><td>3</td><td>Isotropic in 32D</td></tr>
+</table>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Gaussian Sigma Sweep (50D, 4 centers)</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>&sigma;</th><th>Radius/Spacing</th></tr>
+  <tr><td class="cat">gauss4c_sigma0p01</td><td>400</td><td>50</td><td>4</td><td>0.01</td><td>0.01</td></tr>
+  <tr><td class="cat">gauss4c_sigma0p1</td><td>400</td><td>50</td><td>4</td><td>0.1</td><td>0.07</td></tr>
+  <tr><td class="cat">gauss4c_sigma1p0</td><td>400</td><td>50</td><td>4</td><td>1.0</td><td>0.75</td></tr>
+  <tr><td class="cat">gauss4c_sigma10p0</td><td>400</td><td>50</td><td>4</td><td>10.0</td><td>7.45</td></tr>
+</table>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="parmigiani">
+<h2>Parmigiani et al. Reference Datasets</h2>
+<p class="section-intro">Complete inventory of datasets used in Masoero, Camerlenghi, Favaro, Broderick &amp; Parmigiani, "Cross-Study Replicability in Cluster Analysis," <em>Statistical Science</em> 38(2): 303&ndash;316 (2023). <a href="https://arxiv.org/pdf/2202.01910.pdf" style="color:var(--accent);">arXiv:2202.01910</a>. Repo: <a href="https://github.com/lorenzomasoero/clustering_replicability" style="color:var(--accent);">github.com/lorenzomasoero/clustering_replicability</a></p>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Real Data: Breast Cancer Gene Expression (3 cohorts)</h3>
+<table class="dataset-table">
+  <tr><th>Cohort</th><th>Samples</th><th>Probesets</th><th>PAM50 Subtypes</th><th>Feature Variants Used</th><th>Figures</th></tr>
+  <tr><td class="cat">VDX</td><td>344</td><td>22,283</td><td>Basal(96), Her2(40), LumA(96), LumB(98), Normal(14)</td><td>HK_3 (3 genes), PAM50 (44), PAM50+PCA (15), top 0.5% (~111), top+PCA (30)</td><td>Figs. 5&ndash;6</td></tr>
+  <tr><td class="cat">Mainz</td><td>200</td><td>22,283</td><td>Basal(23), Her2(19), LumA(87), LumB(58), Normal(13)</td><td>Same 5 feature variants</td><td>Figs. 5&ndash;6</td></tr>
+  <tr><td class="cat">Transbig</td><td>198</td><td>22,283</td><td>Basal(45), Her2(26), LumA(78), LumB(45), Normal(4)</td><td>Same 5 variants + tSNE embedding</td><td>Figs. 5&ndash;7</td></tr>
+</table>
+<p style="font-size: 12px; color: #888; margin: 4px 0;">All from Bioconductor. Three genes in HK_3: ESR1, ERBB2, AURKA. PAM50 = 44 PAM50 gene probesets. Top = intersection of top 0.5% variable genes across studies. We currently use VDX HK_3 (3-gene subset) only.</p>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Benchmark Shape Datasets (8, from Fr&auml;nti &amp; Sieranoja 2018)</h3>
+<table class="dataset-table">
+  <tr><th>Name</th><th>Samples</th><th>Features</th><th>True K</th><th>Paper Figures</th><th>In Repo</th></tr>
+  <tr><td class="cat">aggregation</td><td>788</td><td>2</td><td>7</td><td>Fig. 1, Appendix</td><td>Yes</td></tr>
+  <tr><td class="cat">compound</td><td>399</td><td>2</td><td>6</td><td>Appendix</td><td>Yes</td></tr>
+  <tr><td class="cat">d31</td><td>3,100</td><td>2</td><td>31</td><td>Fig. 1</td><td>Yes</td></tr>
+  <tr><td class="cat">flame</td><td>240</td><td>2</td><td>2</td><td>Loaded, not plotted</td><td>Yes</td></tr>
+  <tr><td class="cat">jain</td><td>373</td><td>2</td><td>2</td><td>Loaded, not plotted</td><td>Yes</td></tr>
+  <tr><td class="cat">pathbased</td><td>300</td><td>2</td><td>3</td><td>Loaded, not plotted</td><td>Yes</td></tr>
+  <tr><td class="cat">r15</td><td>600</td><td>2</td><td>15</td><td>Fig. 1, Appendix</td><td>Yes</td></tr>
+  <tr><td class="cat">spiral</td><td>312</td><td>2</td><td>3</td><td>Fig. 1</td><td>Yes</td></tr>
+</table>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">High-Dimensional Gaussians (6, dimensionality sweep)</h3>
+<table class="dataset-table">
+  <tr><th>Name</th><th>Total Samples</th><th>Features</th><th>Studies</th><th>True K</th><th>Paper Figures</th></tr>
+  <tr><td class="cat">dim032</td><td>1,024</td><td>32</td><td>4 &times; 256</td><td>1 (null)</td><td>Fig. 2</td></tr>
+  <tr><td class="cat">dim064</td><td>1,024</td><td>64</td><td>4 &times; 256</td><td>1 (null)</td><td>Fig. 2 (main)</td></tr>
+  <tr><td class="cat">dim128</td><td>1,024</td><td>128</td><td>4 &times; 256</td><td>1 (null)</td><td>Fig. 2</td></tr>
+  <tr><td class="cat">dim256</td><td>1,024</td><td>256</td><td>4 &times; 256</td><td>1 (null)</td><td>Fig. 2</td></tr>
+  <tr><td class="cat">dim512</td><td>1,024</td><td>512</td><td>4 &times; 256</td><td>1 (null)</td><td>Fig. 2</td></tr>
+  <tr><td class="cat">dim1024</td><td>1,024</td><td>1,024</td><td>4 &times; 256</td><td>1 (null)</td><td>Fig. 2</td></tr>
+</table>
+<p style="font-size: 12px; color: #888; margin: 4px 0;">Drawn from a single Gaussian (no cluster structure). Tests replicability metric behavior under the null hypothesis as d/n ratio grows. Two of 4 sub-datasets have features permuted to introduce cross-study heterogeneity.</p>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Additional Synthetic (generated in code, not saved as files)</h3>
+<table class="dataset-table">
+  <tr><th>Description</th><th>Samples</th><th>Features</th><th>True K</th><th>Paper Figures</th></tr>
+  <tr><td>3-cluster 2D GMM (shifted test centroids)</td><td>100+100</td><td>2</td><td>3</td><td>Figs. 3&ndash;4</td></tr>
+  <tr><td>Null Gaussian (scaling in N: 50&ndash;500)</td><td>50&ndash;500</td><td>5</td><td>1</td><td>Appendix</td></tr>
+  <tr><td>Null Gaussian (scaling in d: 2&ndash;15)</td><td>200</td><td>2&ndash;15</td><td>1</td><td>Appendix</td></tr>
+  <tr><td>25-component grid GMM</td><td>50&ndash;1000</td><td>2</td><td>25</td><td>Appendix</td></tr>
+  <tr><td>4-cluster 2D GMM (calibration)</td><td>500</td><td>2</td><td>4</td><td>Appendix</td></tr>
+  <tr><td>3-cluster 2D GMM (calibration, &sigma;=2)</td><td>500</td><td>2</td><td>3</td><td>Appendix</td></tr>
+</table>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Methods in Parmigiani Paper</h3>
+<table class="dataset-table">
+  <tr><th>Method</th><th>Notes</th></tr>
+  <tr><td class="cat">K-Means</td><td>k-means++ init, n_init=50, max_iter=300</td></tr>
+  <tr><td class="cat">Mini-Batch K-Means</td><td>batch_size=100</td></tr>
+  <tr><td class="cat">Agglomerative</td><td>Euclidean, complete linkage</td></tr>
+  <tr><td>BIRCH</td><td>threshold=0.5, branching_factor=50</td></tr>
+  <tr><td>Affinity Propagation</td><td>Auto-K</td></tr>
+  <tr><td>Mean Shift</td><td>Auto-K, bandwidth estimated via sklearn</td></tr>
+  <tr><td>K-Medians</td><td>Some experiments</td></tr>
+  <tr><td>DBSCAN</td><td>Spiral dataset only</td></tr>
+</table>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="run-metrics">
+<h2>Run Metrics Table</h2>
+<p class="section-intro">Complete metrics for every (dataset, method, K) combination computed in these experiments. 374 rows across 26 datasets. HDBSCAN rows marked with * are experimental. Table is searchable and sortable &mdash; click column headers to sort. <a href="metrics_table.tsv" style="color:var(--accent);">Download TSV</a></p>
+
+<div style="margin-bottom: 12px;">
+  <input type="text" id="tableFilter" placeholder="Filter by dataset, method, or K..."
+    style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; font-family: inherit;">
+</div>
+
+<div style="max-height: 600px; overflow-y: auto; border: 1px solid var(--border);">
+<table class="dataset-table" id="metricsTable" style="margin: 0;">
+  <thead style="position: sticky; top: 0; background: var(--bg);">
+    <tr>
+      <th style="cursor:pointer;" onclick="sortTable(0)">Dataset</th>
+      <th style="cursor:pointer;" onclick="sortTable(1)">n</th>
+      <th style="cursor:pointer;" onclick="sortTable(2)">p</th>
+      <th style="cursor:pointer;" onclick="sortTable(3)">True K</th>
+      <th style="cursor:pointer;" onclick="sortTable(5)">Method</th>
+      <th style="cursor:pointer;" onclick="sortTable(6)">K</th>
+      <th style="cursor:pointer;" onclick="sortTable(8)">CRI</th>
+      <th style="cursor:pointer;" onclick="sortTable(10)">TWCRI</th>
+      <th style="cursor:pointer;" onclick="sortTable(11)">ARI</th>
+      <th style="cursor:pointer;" onclick="sortTable(13)">AMI</th>
+      <th>Empty</th>
+      <th>K*(TWCRI)</th>
+    </tr>
+  </thead>
+  <tbody id="metricsBody">
+<tr><td>blobs_2d</td><td>kmeans</td><td>2</td><td>0.9923</td><td>0.9898</td><td>0.9308&plusmn;0.2439</td><td>0.9439&plusmn;0.1977</td><td></td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>kmeans</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>kmeans</td><td>4</td><td>NaN</td><td>NaN</td><td>0.7893&plusmn;0.0930</td><td>0.8431&plusmn;0.0434</td><td>Y</td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>kmeans</td><td>5</td><td>0.6525</td><td>0.7023</td><td>0.6571&plusmn;0.1122</td><td>0.7602&plusmn;0.0562</td><td></td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>kmeans</td><td>6</td><td>0.6108</td><td>0.6305</td><td>0.5795&plusmn;0.1089</td><td>0.7104&plusmn;0.0616</td><td></td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_ward</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_ward</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_ward</td><td>4</td><td>0.7947</td><td>0.8545</td><td>0.7704&plusmn;0.0724</td><td>0.8336&plusmn;0.0271</td><td></td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_ward</td><td>5</td><td>0.7035</td><td>0.7323</td><td>0.6135&plusmn;0.0939</td><td>0.7403&plusmn;0.0488</td><td></td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_ward</td><td>6</td><td>0.7229</td><td>0.7340</td><td>0.5752&plusmn;0.0896</td><td>0.7087&plusmn;0.0580</td><td></td><td>3</td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_single</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td></td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_single</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td></td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_single</td><td>4</td><td>0.9086</td><td>0.9528</td><td>0.9632&plusmn;0.0206</td><td>0.9561&plusmn;0.0197</td><td></td><td></td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_single</td><td>5</td><td>0.8293</td><td>0.8658</td><td>0.9166&plusmn;0.0422</td><td>0.9065&plusmn;0.0369</td><td></td><td></td></tr>
+<tr><td>blobs_2d</td><td>agglomerative_single</td><td>6</td><td>0.8053</td><td>0.8698</td><td>0.8727&plusmn;0.0524</td><td>0.8633&plusmn;0.0429</td><td></td><td></td></tr>
+<tr style="color:#888;font-style:italic;"><td>blobs_2d</td><td>hdbscan*</td><td>modal=3</td><td></td><td></td><td>0.9993&plusmn;0.0105</td><td>0.9992&plusmn;0.0108</td><td></td><td>modal_k=3, agree=0.99</td></tr>
+<tr><td>circles_2d</td><td>kmeans</td><td>2</td><td>0.7883</td><td>0.7880</td><td>0.2433&plusmn;0.2791</td><td>0.2100&plusmn;0.2564</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>kmeans</td><td>3</td><td>0.7765</td><td>0.7764</td><td>0.4410&plusmn;0.2070</td><td>0.5040&plusmn;0.1627</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>kmeans</td><td>4</td><td>0.7480</td><td>0.7486</td><td>0.5290&plusmn;0.1625</td><td>0.6181&plusmn;0.1161</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>kmeans</td><td>5</td><td>0.7250</td><td>0.7249</td><td>0.5256&plusmn;0.1269</td><td>0.6378&plusmn;0.0899</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>kmeans</td><td>6</td><td>0.7233</td><td>0.7233</td><td>0.4762&plusmn;0.0958</td><td>0.6027&plusmn;0.0709</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>agglomerative_ward</td><td>2</td><td>0.7634</td><td>0.7629</td><td>0.2405&plusmn;0.2350</td><td>0.2184&plusmn;0.2201</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>agglomerative_ward</td><td>3</td><td>0.7501</td><td>0.7501</td><td>0.4460&plusmn;0.1687</td><td>0.5098&plusmn;0.1297</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>agglomerative_ward</td><td>4</td><td>0.7194</td><td>0.7217</td><td>0.4822&plusmn;0.1207</td><td>0.5815&plusmn;0.0872</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>agglomerative_ward</td><td>5</td><td>0.6872</td><td>0.6961</td><td>0.4710&plusmn;0.1060</td><td>0.5893&plusmn;0.0753</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>agglomerative_ward</td><td>6</td><td>0.6466</td><td>0.6533</td><td>0.4420&plusmn;0.0960</td><td>0.5712&plusmn;0.0712</td><td></td><td>2</td></tr>
+<tr><td>circles_2d</td><td>agglomerative_single</td><td>2</td><td>0.6309</td><td>0.6422</td><td>0.0344&plusmn;0.0643</td><td>0.0651&plusmn;0.0798</td><td></td><td></td></tr>
+<tr><td>circles_2d</td><td>agglomerative_single</td><td>3</td><td>0.5247</td><td>0.5591</td><td>0.0727&plusmn;0.0996</td><td>0.1340&plusmn;0.1146</td><td></td><td></td></tr>
+<tr><td>circles_2d</td><td>agglomerative_single</td><td>4</td><td>0.5314</td><td>0.6116</td><td>0.1250&plusmn;0.1128</td><td>0.2250&plusmn;0.1207</td><td></td><td></td></tr>
+<tr><td>circles_2d</td><td>agglomerative_single</td><td>5</td><td>0.5354</td><td>0.6398</td><td>0.1702&plusmn;0.0999</td><td>0.3029&plusmn;0.1084</td><td></td><td></td></tr>
+<tr><td>circles_2d</td><td>agglomerative_single</td><td>6</td><td>0.5611</td><td>0.6841</td><td>0.2067&plusmn;0.0994</td><td>0.3530&plusmn;0.1013</td><td></td><td></td></tr>
+<tr style="color:#888;font-style:italic;"><td>circles_2d</td><td>hdbscan*</td><td>modal=4</td><td></td><td></td><td>0.1902&plusmn;0.0760</td><td>0.2726&plusmn;0.0908</td><td></td><td>modal_k=4, agree=0.39</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>kmeans</td><td>2</td><td>0.9988</td><td>0.9988</td><td>0.9922&plusmn;0.0778</td><td>0.9933&plusmn;0.0672</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>kmeans</td><td>3</td><td>0.7383</td><td>0.7313</td><td>0.5948&plusmn;0.2343</td><td>0.7419&plusmn;0.1484</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>kmeans</td><td>4</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>kmeans</td><td>5</td><td>NaN</td><td>NaN</td><td>0.8629&plusmn;0.0501</td><td>0.8988&plusmn;0.0216</td><td>Y</td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>kmeans</td><td>6</td><td>NaN</td><td>NaN</td><td>0.7437&plusmn;0.0747</td><td>0.8172&plusmn;0.0278</td><td>Y</td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_ward</td><td>2</td><td>0.9584</td><td>0.9584</td><td>0.8530&plusmn;0.2663</td><td>0.8649&plusmn;0.2420</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_ward</td><td>3</td><td>0.7966</td><td>0.7728</td><td>0.4690&plusmn;0.0602</td><td>0.6620&plusmn;0.0365</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_ward</td><td>4</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_ward</td><td>5</td><td>NaN</td><td>NaN</td><td>0.8381&plusmn;0.0480</td><td>0.8899&plusmn;0.0161</td><td>Y</td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_ward</td><td>6</td><td>NaN</td><td>NaN</td><td>0.7093&plusmn;0.0638</td><td>0.8056&plusmn;0.0213</td><td>Y</td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_single</td><td>2</td><td>0.7902</td><td>0.7929</td><td>0.4435&plusmn;0.3808</td><td>0.5149&plusmn;0.3216</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_single</td><td>3</td><td>0.8852</td><td>0.8329</td><td>0.5546&plusmn;0.2152</td><td>0.7167&plusmn;0.1353</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_single</td><td>4</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_single</td><td>5</td><td>0.8691</td><td>0.9112</td><td>0.9844&plusmn;0.0031</td><td>0.9814&plusmn;0.0009</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p01</td><td>agglomerative_single</td><td>6</td><td>0.8369</td><td>0.8962</td><td>0.9684&plusmn;0.0048</td><td>0.9630&plusmn;0.0015</td><td></td><td>4</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gauss4c_sigma0p01</td><td>hdbscan*</td><td>modal=4</td><td></td><td></td><td>0.9485&plusmn;0.0990</td><td>0.9677&plusmn;0.0649</td><td></td><td>modal_k=4, agree=0.78</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>kmeans</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>kmeans</td><td>3</td><td>0.7337</td><td>0.7313</td><td>0.6006&plusmn;0.2432</td><td>0.7457&plusmn;0.1544</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>kmeans</td><td>4</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>kmeans</td><td>5</td><td>NaN</td><td>NaN</td><td>0.8543&plusmn;0.0508</td><td>0.8955&plusmn;0.0219</td><td>Y</td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>kmeans</td><td>6</td><td>NaN</td><td>NaN</td><td>0.7376&plusmn;0.0715</td><td>0.8122&plusmn;0.0284</td><td>Y</td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_ward</td><td>2</td><td>0.9498</td><td>0.9498</td><td>0.7886&plusmn;0.2779</td><td>0.7966&plusmn;0.2523</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_ward</td><td>3</td><td>0.8715</td><td>0.8211</td><td>0.4663&plusmn;0.0469</td><td>0.6603&plusmn;0.0275</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_ward</td><td>4</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_ward</td><td>5</td><td>0.8196</td><td>0.8957</td><td>0.8636&plusmn;0.0501</td><td>0.8935&plusmn;0.0187</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_ward</td><td>6</td><td>0.6973</td><td>0.7773</td><td>0.7374&plusmn;0.0660</td><td>0.8076&plusmn;0.0246</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_single</td><td>2</td><td>0.8329</td><td>0.8114</td><td>0.4249&plusmn;0.3167</td><td>0.4728&plusmn;0.2345</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_single</td><td>3</td><td>0.9135</td><td>0.8807</td><td>0.6253&plusmn;0.2567</td><td>0.7617&plusmn;0.1619</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_single</td><td>4</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_single</td><td>5</td><td>NaN</td><td>NaN</td><td>0.9843&plusmn;0.0031</td><td>0.9814&plusmn;0.0012</td><td>Y</td><td>4</td></tr>
+<tr><td>gauss4c_sigma0p1</td><td>agglomerative_single</td><td>6</td><td>0.7898</td><td>0.9138</td><td>0.9681&plusmn;0.0054</td><td>0.9627&plusmn;0.0027</td><td></td><td>4</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gauss4c_sigma0p1</td><td>hdbscan*</td><td>modal=4</td><td></td><td></td><td>0.9483&plusmn;0.0997</td><td>0.9681&plusmn;0.0628</td><td></td><td>modal_k=4, agree=0.78</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>kmeans</td><td>2</td><td>0.8983</td><td>0.8983</td><td>0.0693&plusmn;0.0962</td><td>0.0596&plusmn;0.0786</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>kmeans</td><td>3</td><td>0.6000</td><td>0.6299</td><td>0.0533&plusmn;0.0569</td><td>0.0559&plusmn;0.0557</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>kmeans</td><td>4</td><td>0.4825</td><td>0.4938</td><td>0.0488&plusmn;0.0465</td><td>0.0607&plusmn;0.0505</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>kmeans</td><td>5</td><td>0.4055</td><td>0.4185</td><td>0.0440&plusmn;0.0396</td><td>0.0618&plusmn;0.0472</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>kmeans</td><td>6</td><td>0.3361</td><td>0.3430</td><td>0.0358&plusmn;0.0325</td><td>0.0540&plusmn;0.0467</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_ward</td><td>2</td><td>0.6588</td><td>0.6587</td><td>0.0758&plusmn;0.0978</td><td>0.0718&plusmn;0.0803</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_ward</td><td>3</td><td>0.4815</td><td>0.4994</td><td>0.0630&plusmn;0.0622</td><td>0.0692&plusmn;0.0558</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_ward</td><td>4</td><td>0.4273</td><td>0.4311</td><td>0.0600&plusmn;0.0498</td><td>0.0753&plusmn;0.0518</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_ward</td><td>5</td><td>0.3892</td><td>0.3963</td><td>0.0582&plusmn;0.0424</td><td>0.0835&plusmn;0.0515</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_ward</td><td>6</td><td>0.3592</td><td>0.3621</td><td>0.0559&plusmn;0.0366</td><td>0.0880&plusmn;0.0492</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_single</td><td>2</td><td>0.8257</td><td>0.9895</td><td>0.0000</td><td>0.0000</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_single</td><td>3</td><td>0.8202</td><td>0.9770</td><td>0.0000</td><td>0.0000</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_single</td><td>4</td><td>0.7371</td><td>0.9700</td><td>0.0000</td><td>0.0000</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_single</td><td>5</td><td>0.6993</td><td>0.9551</td><td>0.0000</td><td>0.0000</td><td></td><td>2</td></tr>
+<tr><td>gauss4c_sigma10p0</td><td>agglomerative_single</td><td>6</td><td>0.6714</td><td>0.9392</td><td>0.0014&plusmn;0.0221</td><td>0.0014&plusmn;0.0225</td><td></td><td>2</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gauss4c_sigma10p0</td><td>hdbscan*</td><td>modal=1</td><td></td><td></td><td></td><td></td><td></td><td>modal_k=1, agree=0.00</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>kmeans</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>kmeans</td><td>3</td><td>0.7242</td><td>0.7124</td><td>0.6161&plusmn;0.2250</td><td>0.7279&plusmn;0.1518</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>kmeans</td><td>4</td><td>0.9571</td><td>0.9571</td><td>0.9219&plusmn;0.1479</td><td>0.9500&plusmn;0.0955</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>kmeans</td><td>5</td><td>NaN</td><td>NaN</td><td>0.8578&plusmn;0.0708</td><td>0.8968&plusmn;0.0358</td><td>Y</td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>kmeans</td><td>6</td><td>NaN</td><td>NaN</td><td>0.7372&plusmn;0.0693</td><td>0.8146&plusmn;0.0285</td><td>Y</td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_ward</td><td>2</td><td>0.9492</td><td>0.9492</td><td>0.7136&plusmn;0.2877</td><td>0.7287&plusmn;0.2652</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_ward</td><td>3</td><td>0.8309</td><td>0.8072</td><td>0.5263&plusmn;0.1680</td><td>0.6926&plusmn;0.1063</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_ward</td><td>4</td><td>0.9999</td><td>0.9999</td><td>0.9998&plusmn;0.0023</td><td>0.9998&plusmn;0.0027</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_ward</td><td>5</td><td>0.7923</td><td>0.8418</td><td>0.8481&plusmn;0.0490</td><td>0.8906&plusmn;0.0168</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_ward</td><td>6</td><td>0.6772</td><td>0.7207</td><td>0.7144&plusmn;0.0637</td><td>0.8022&plusmn;0.0186</td><td></td><td>4</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_single</td><td>2</td><td>0.6518</td><td>0.7121</td><td>0.2888&plusmn;0.3643</td><td>0.3819&plusmn;0.2883</td><td></td><td>6</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_single</td><td>3</td><td>0.7241</td><td>0.7256</td><td>0.4324&plusmn;0.2290</td><td>0.5443&plusmn;0.1841</td><td></td><td>6</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_single</td><td>4</td><td>0.6525</td><td>0.6872</td><td>0.5091&plusmn;0.1954</td><td>0.6298&plusmn;0.1621</td><td></td><td>6</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_single</td><td>5</td><td>0.5779</td><td>0.6065</td><td>0.5344&plusmn;0.1648</td><td>0.6539&plusmn;0.1466</td><td></td><td>6</td></tr>
+<tr><td>gauss4c_sigma1p0</td><td>agglomerative_single</td><td>6</td><td>0.5800</td><td>0.6373</td><td>0.5322&plusmn;0.1417</td><td>0.6507&plusmn;0.1227</td><td></td><td>6</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gauss4c_sigma1p0</td><td>hdbscan*</td><td>modal=2</td><td></td><td></td><td>0.4658&plusmn;0.1687</td><td>0.5638&plusmn;0.1245</td><td></td><td>modal_k=2, agree=0.77</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>kmeans</td><td>2</td><td>1.0000</td><td>1.0000</td><td>0.9915&plusmn;0.0846</td><td>0.9929&plusmn;0.0705</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>kmeans</td><td>3</td><td>0.7568</td><td>0.7467</td><td>0.6176&plusmn;0.2442</td><td>0.7553&plusmn;0.1553</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>kmeans</td><td>4</td><td>0.9977</td><td>0.9977</td><td>0.9898&plusmn;0.0583</td><td>0.9943&plusmn;0.0328</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>kmeans</td><td>5</td><td>NaN</td><td>NaN</td><td>0.8610&plusmn;0.0512</td><td>0.8995&plusmn;0.0210</td><td>Y</td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>kmeans</td><td>6</td><td>NaN</td><td>NaN</td><td>0.7432&plusmn;0.0617</td><td>0.8168&plusmn;0.0266</td><td>Y</td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>agglomerative_ward</td><td>2</td><td>0.9636</td><td>0.9636</td><td>0.8161&plusmn;0.2657</td><td>0.8254&plusmn;0.2464</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>agglomerative_ward</td><td>3</td><td>0.8175</td><td>0.7962</td><td>0.5029&plusmn;0.1390</td><td>0.6832&plusmn;0.0879</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>agglomerative_ward</td><td>4</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>agglomerative_ward</td><td>5</td><td>0.7834</td><td>0.8304</td><td>0.8672&plusmn;0.0508</td><td>0.9053&plusmn;0.0239</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p10</td><td>agglomerative_ward</td><td>6</td><td>0.6705</td><td>0.7129</td><td>0.7442&plusmn;0.0682</td><td>0.8214&plusmn;0.0284</td><td></td><td>4</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_4c_100d_sigma0p10</td><td>hdbscan*</td><td>modal=4</td><td></td><td></td><td>0.9472&plusmn;0.1005</td><td>0.9665&plusmn;0.0658</td><td></td><td>modal_k=4, agree=0.78</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>kmeans</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>kmeans</td><td>3</td><td>0.7700</td><td>0.7591</td><td>0.6701&plusmn;0.2530</td><td>0.7837&plusmn;0.1630</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>kmeans</td><td>4</td><td>0.5878</td><td>0.6102</td><td>0.9261&plusmn;0.1468</td><td>0.9557&plusmn;0.0893</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>kmeans</td><td>5</td><td>0.4964</td><td>0.5420</td><td>0.8682&plusmn;0.0614</td><td>0.9019&plusmn;0.0331</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>kmeans</td><td>6</td><td>NaN</td><td>NaN</td><td>0.7604&plusmn;0.0677</td><td>0.8254&plusmn;0.0304</td><td>Y</td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>agglomerative_ward</td><td>2</td><td>0.9402</td><td>0.9402</td><td>0.6099&plusmn;0.2671</td><td>0.6310&plusmn;0.2431</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>agglomerative_ward</td><td>3</td><td>0.8226</td><td>0.7933</td><td>0.4847&plusmn;0.0907</td><td>0.6709&plusmn;0.0558</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>agglomerative_ward</td><td>4</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>agglomerative_ward</td><td>5</td><td>NaN</td><td>NaN</td><td>0.8512&plusmn;0.0528</td><td>0.8948&plusmn;0.0193</td><td>Y</td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p25</td><td>agglomerative_ward</td><td>6</td><td>NaN</td><td>NaN</td><td>0.7200&plusmn;0.0667</td><td>0.8067&plusmn;0.0251</td><td>Y</td><td>4</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_4c_100d_sigma0p25</td><td>hdbscan*</td><td>modal=3</td><td></td><td></td><td>0.7069&plusmn;0.2292</td><td>0.8140&plusmn;0.1554</td><td></td><td>modal_k=3, agree=0.46</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>kmeans</td><td>2</td><td>0.9997</td><td>0.9997</td><td>0.9950&plusmn;0.0150</td><td>0.9914&plusmn;0.0257</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>kmeans</td><td>3</td><td>0.7905</td><td>0.7765</td><td>0.6003&plusmn;0.2098</td><td>0.6840&plusmn;0.1510</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>kmeans</td><td>4</td><td>0.9235</td><td>0.9235</td><td>0.7741&plusmn;0.1982</td><td>0.8255&plusmn;0.1467</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>kmeans</td><td>5</td><td>NaN</td><td>NaN</td><td>0.7237&plusmn;0.1520</td><td>0.7764&plusmn;0.1108</td><td>Y</td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>kmeans</td><td>6</td><td>NaN</td><td>NaN</td><td>0.6282&plusmn;0.1314</td><td>0.7095&plusmn;0.0931</td><td>Y</td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>agglomerative_ward</td><td>2</td><td>0.8915</td><td>0.8915</td><td>0.5866&plusmn;0.2939</td><td>0.6089&plusmn;0.2466</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>agglomerative_ward</td><td>3</td><td>0.8804</td><td>0.8448</td><td>0.5906&plusmn;0.2135</td><td>0.7029&plusmn;0.1354</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>agglomerative_ward</td><td>4</td><td>0.9704</td><td>0.9704</td><td>0.9211&plusmn;0.0520</td><td>0.9175&plusmn;0.0516</td><td></td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>agglomerative_ward</td><td>5</td><td>NaN</td><td>NaN</td><td>0.8083&plusmn;0.0645</td><td>0.8351&plusmn;0.0486</td><td>Y</td><td>4</td></tr>
+<tr><td>gmm_4c_100d_sigma0p50</td><td>agglomerative_ward</td><td>6</td><td>NaN</td><td>NaN</td><td>0.7010&plusmn;0.0667</td><td>0.7612&plusmn;0.0447</td><td>Y</td><td>4</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_4c_100d_sigma0p50</td><td>hdbscan*</td><td>modal=2</td><td></td><td></td><td></td><td></td><td></td><td>modal_k=2, agree=0.01</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>kmeans</td><td>2</td><td>0.9996</td><td>0.9996</td><td>0.9420&plusmn;0.1041</td><td>0.9216&plusmn;0.1147</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>kmeans</td><td>3</td><td>0.9121</td><td>0.9079</td><td>0.5036&plusmn;0.1505</td><td>0.5602&plusmn;0.1117</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>kmeans</td><td>4</td><td>0.8820</td><td>0.8834</td><td>0.4741&plusmn;0.0972</td><td>0.5565&plusmn;0.0759</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>kmeans</td><td>5</td><td>NaN</td><td>NaN</td><td>0.4124&plusmn;0.0917</td><td>0.5000&plusmn;0.0661</td><td>Y</td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>kmeans</td><td>6</td><td>0.5438</td><td>0.5765</td><td>0.3512&plusmn;0.0812</td><td>0.4503&plusmn;0.0588</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>agglomerative_ward</td><td>2</td><td>0.9012</td><td>0.9012</td><td>0.5928&plusmn;0.2215</td><td>0.5845&plusmn;0.1645</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>agglomerative_ward</td><td>3</td><td>0.7923</td><td>0.7895</td><td>0.5336&plusmn;0.1308</td><td>0.5844&plusmn;0.0818</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>agglomerative_ward</td><td>4</td><td>0.7600</td><td>0.7690</td><td>0.5533&plusmn;0.0850</td><td>0.6055&plusmn;0.0619</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>agglomerative_ward</td><td>5</td><td>0.6359</td><td>0.6807</td><td>0.4900&plusmn;0.0870</td><td>0.5500&plusmn;0.0592</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma0p75</td><td>agglomerative_ward</td><td>6</td><td>0.5478</td><td>0.6063</td><td>0.4303&plusmn;0.0861</td><td>0.5032&plusmn;0.0577</td><td></td><td>2</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_4c_100d_sigma0p75</td><td>hdbscan*</td><td>modal=1</td><td></td><td></td><td></td><td></td><td></td><td>modal_k=1, agree=0.00</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>kmeans</td><td>2</td><td>0.9918</td><td>0.9918</td><td>0.7759&plusmn;0.1974</td><td>0.7319&plusmn;0.1852</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>kmeans</td><td>3</td><td>0.9212</td><td>0.9190</td><td>0.4577&plusmn;0.1109</td><td>0.5000&plusmn;0.0761</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>kmeans</td><td>4</td><td>0.7139</td><td>0.7472</td><td>0.3579&plusmn;0.0895</td><td>0.4232&plusmn;0.0669</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>kmeans</td><td>5</td><td>0.5263</td><td>0.5725</td><td>0.2822&plusmn;0.0697</td><td>0.3612&plusmn;0.0549</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>kmeans</td><td>6</td><td>0.4556</td><td>0.5040</td><td>0.2312&plusmn;0.0690</td><td>0.3203&plusmn;0.0566</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>agglomerative_ward</td><td>2</td><td>0.8879</td><td>0.8880</td><td>0.5665&plusmn;0.1855</td><td>0.5390&plusmn;0.1281</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>agglomerative_ward</td><td>3</td><td>0.7285</td><td>0.7432</td><td>0.4863&plusmn;0.0976</td><td>0.5063&plusmn;0.0699</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>agglomerative_ward</td><td>4</td><td>0.6361</td><td>0.6730</td><td>0.4013&plusmn;0.0818</td><td>0.4486&plusmn;0.0610</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>agglomerative_ward</td><td>5</td><td>0.5310</td><td>0.5482</td><td>0.3257&plusmn;0.0723</td><td>0.3962&plusmn;0.0537</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p00</td><td>agglomerative_ward</td><td>6</td><td>0.4483</td><td>0.4995</td><td>0.2815&plusmn;0.0682</td><td>0.3609&plusmn;0.0514</td><td></td><td>2</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_4c_100d_sigma1p00</td><td>hdbscan*</td><td>modal=1</td><td></td><td></td><td></td><td></td><td></td><td>modal_k=1, agree=0.00</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>kmeans</td><td>2</td><td>0.9674</td><td>0.9674</td><td>0.4837&plusmn;0.2550</td><td>0.4395&plusmn;0.2223</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>kmeans</td><td>3</td><td>0.6946</td><td>0.7220</td><td>0.2976&plusmn;0.1357</td><td>0.3053&plusmn;0.1233</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>kmeans</td><td>4</td><td>0.5690</td><td>0.6113</td><td>0.2152&plusmn;0.0961</td><td>0.2470&plusmn;0.0834</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>kmeans</td><td>5</td><td>0.4552</td><td>0.5058</td><td>0.1459&plusmn;0.0664</td><td>0.1942&plusmn;0.0651</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>kmeans</td><td>6</td><td>0.3678</td><td>0.3798</td><td>0.1207&plusmn;0.0611</td><td>0.1708&plusmn;0.0617</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>agglomerative_ward</td><td>2</td><td>0.8480</td><td>0.8483</td><td>0.4347&plusmn;0.1543</td><td>0.3938&plusmn;0.1176</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>agglomerative_ward</td><td>3</td><td>0.6279</td><td>0.6889</td><td>0.3285&plusmn;0.0938</td><td>0.3257&plusmn;0.0750</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>agglomerative_ward</td><td>4</td><td>0.5192</td><td>0.5648</td><td>0.2549&plusmn;0.0779</td><td>0.2783&plusmn;0.0614</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>agglomerative_ward</td><td>5</td><td>0.4567</td><td>0.4769</td><td>0.2068&plusmn;0.0662</td><td>0.2510&plusmn;0.0543</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma1p50</td><td>agglomerative_ward</td><td>6</td><td>0.4052</td><td>0.4287</td><td>0.1723&plusmn;0.0559</td><td>0.2291&plusmn;0.0504</td><td></td><td>2</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_4c_100d_sigma1p50</td><td>hdbscan*</td><td>modal=1</td><td></td><td></td><td></td><td></td><td></td><td>modal_k=1, agree=0.00</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>kmeans</td><td>2</td><td>0.9516</td><td>0.9515</td><td>0.1533&plusmn;0.1758</td><td>0.1372&plusmn;0.1494</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>kmeans</td><td>3</td><td>0.6319</td><td>0.6703</td><td>0.1227&plusmn;0.1081</td><td>0.1190&plusmn;0.0942</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>kmeans</td><td>4</td><td>0.5188</td><td>0.5454</td><td>0.0802&plusmn;0.0657</td><td>0.0926&plusmn;0.0636</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>kmeans</td><td>5</td><td>0.4383</td><td>0.4794</td><td>0.0665&plusmn;0.0466</td><td>0.0862&plusmn;0.0520</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>kmeans</td><td>6</td><td>0.3779</td><td>0.4045</td><td>0.0573&plusmn;0.0447</td><td>0.0821&plusmn;0.0520</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>agglomerative_ward</td><td>2</td><td>0.7563</td><td>0.7575</td><td>0.2296&plusmn;0.1168</td><td>0.2126&plusmn;0.0878</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>agglomerative_ward</td><td>3</td><td>0.5495</td><td>0.6024</td><td>0.1661&plusmn;0.0793</td><td>0.1651&plusmn;0.0591</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>agglomerative_ward</td><td>4</td><td>0.4588</td><td>0.5027</td><td>0.1296&plusmn;0.0658</td><td>0.1467&plusmn;0.0558</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>agglomerative_ward</td><td>5</td><td>0.3840</td><td>0.4264</td><td>0.1073&plusmn;0.0498</td><td>0.1356&plusmn;0.0476</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p00</td><td>agglomerative_ward</td><td>6</td><td>0.3631</td><td>0.3755</td><td>0.0891&plusmn;0.0401</td><td>0.1267&plusmn;0.0445</td><td></td><td>2</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_4c_100d_sigma2p00</td><td>hdbscan*</td><td>modal=1</td><td></td><td></td><td></td><td></td><td></td><td>modal_k=1, agree=0.00</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>kmeans</td><td>2</td><td>0.8956</td><td>0.8957</td><td>0.0546&plusmn;0.0947</td><td>0.0498&plusmn;0.0807</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>kmeans</td><td>3</td><td>0.5638</td><td>0.5774</td><td>0.0467&plusmn;0.0636</td><td>0.0476&plusmn;0.0556</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>kmeans</td><td>4</td><td>0.4743</td><td>0.4986</td><td>0.0336&plusmn;0.0366</td><td>0.0438&plusmn;0.0381</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>kmeans</td><td>5</td><td>0.3864</td><td>0.3926</td><td>0.0294&plusmn;0.0308</td><td>0.0450&plusmn;0.0381</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>kmeans</td><td>6</td><td>0.3082</td><td>0.3138</td><td>0.0294&plusmn;0.0339</td><td>0.0468&plusmn;0.0439</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>agglomerative_ward</td><td>2</td><td>0.6663</td><td>0.6705</td><td>0.0932&plusmn;0.1063</td><td>0.0826&plusmn;0.0788</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>agglomerative_ward</td><td>3</td><td>0.5088</td><td>0.5258</td><td>0.0732&plusmn;0.0614</td><td>0.0773&plusmn;0.0565</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>agglomerative_ward</td><td>4</td><td>0.4118</td><td>0.4339</td><td>0.0604&plusmn;0.0460</td><td>0.0735&plusmn;0.0459</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>agglomerative_ward</td><td>5</td><td>0.3669</td><td>0.3832</td><td>0.0588&plusmn;0.0431</td><td>0.0795&plusmn;0.0477</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma2p50</td><td>agglomerative_ward</td><td>6</td><td>0.3402</td><td>0.3447</td><td>0.0532&plusmn;0.0355</td><td>0.0794&plusmn;0.0469</td><td></td><td>2</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_4c_100d_sigma2p50</td><td>hdbscan*</td><td>modal=1</td><td></td><td></td><td></td><td></td><td></td><td>modal_k=1, agree=0.00</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>kmeans</td><td>2</td><td>0.7635</td><td>0.7635</td><td>0.0166&plusmn;0.0416</td><td>0.0165&plusmn;0.0308</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>kmeans</td><td>3</td><td>0.5024</td><td>0.5102</td><td>0.0219&plusmn;0.0362</td><td>0.0215&plusmn;0.0329</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>kmeans</td><td>4</td><td>0.4187</td><td>0.4219</td><td>0.0193&plusmn;0.0285</td><td>0.0226&plusmn;0.0289</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>kmeans</td><td>5</td><td>0.3425</td><td>0.3568</td><td>0.0166&plusmn;0.0276</td><td>0.0252&plusmn;0.0355</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>kmeans</td><td>6</td><td>0.2918</td><td>0.2991</td><td>0.0175&plusmn;0.0270</td><td>0.0271&plusmn;0.0362</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>agglomerative_ward</td><td>2</td><td>0.6330</td><td>0.6335</td><td>0.0261&plusmn;0.0564</td><td>0.0267&plusmn;0.0440</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>agglomerative_ward</td><td>3</td><td>0.4615</td><td>0.4881</td><td>0.0296&plusmn;0.0414</td><td>0.0372&plusmn;0.0379</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>agglomerative_ward</td><td>4</td><td>0.3946</td><td>0.4082</td><td>0.0293&plusmn;0.0364</td><td>0.0404&plusmn;0.0373</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>agglomerative_ward</td><td>5</td><td>0.3594</td><td>0.3643</td><td>0.0297&plusmn;0.0314</td><td>0.0454&plusmn;0.0379</td><td></td><td>2</td></tr>
+<tr><td>gmm_4c_100d_sigma3p00</td><td>agglomerative_ward</td><td>6</td><td>0.3411</td><td>0.3409</td><td>0.0305&plusmn;0.0284</td><td>0.0490&plusmn;0.0395</td><td></td><td>2</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_4c_100d_sigma3p00</td><td>hdbscan*</td><td>modal=1</td><td></td><td></td><td></td><td></td><td></td><td>modal_k=1, agree=0.00</td></tr>
+<tr><td>gmm_anisotropic</td><td>kmeans</td><td>2</td><td>0.9999</td><td>0.9998</td><td>0.9674&plusmn;0.1398</td><td>0.9610&plusmn;0.1241</td><td></td><td>4</td></tr>
+<tr><td>gmm_anisotropic</td><td>kmeans</td><td>3</td><td>0.6776</td><td>0.6785</td><td>0.9800&plusmn;0.0848</td><td>0.9825&plusmn;0.0576</td><td></td><td>4</td></tr>
+<tr><td>gmm_anisotropic</td><td>kmeans</td><td>4</td><td>0.7540</td><td>0.8298</td><td>0.7985&plusmn;0.1129</td><td>0.8534&plusmn;0.0656</td><td></td><td>4</td></tr>
+<tr><td>gmm_anisotropic</td><td>kmeans</td><td>5</td><td>0.7028</td><td>0.7424</td><td>0.7292&plusmn;0.1270</td><td>0.8219&plusmn;0.0680</td><td></td><td>4</td></tr>
+<tr><td>gmm_anisotropic</td><td>kmeans</td><td>6</td><td>0.8024</td><td>0.8219</td><td>0.6888&plusmn;0.1090</td><td>0.7981&plusmn;0.0601</td><td></td><td>4</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_ward</td><td>2</td><td>0.9995</td><td>0.9995</td><td>0.9973&plusmn;0.0151</td><td>0.9955&plusmn;0.0238</td><td></td><td>2</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_ward</td><td>3</td><td>0.9981</td><td>0.9981</td><td>0.9866&plusmn;0.0198</td><td>0.9823&plusmn;0.0256</td><td></td><td>2</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_ward</td><td>4</td><td>0.8934</td><td>0.9182</td><td>0.8891&plusmn;0.0948</td><td>0.8970&plusmn;0.0633</td><td></td><td>2</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_ward</td><td>5</td><td>0.8467</td><td>0.8647</td><td>0.7778&plusmn;0.1103</td><td>0.8315&plusmn;0.0613</td><td></td><td>2</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_ward</td><td>6</td><td>0.8228</td><td>0.8226</td><td>0.6923&plusmn;0.1033</td><td>0.8004&plusmn;0.0580</td><td></td><td>2</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_single</td><td>2</td><td>0.8765</td><td>0.8567</td><td>0.6368&plusmn;0.4366</td><td>0.7029&plusmn;0.3550</td><td></td><td>3</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_single</td><td>3</td><td>0.9638</td><td>0.9638</td><td>0.9444&plusmn;0.1320</td><td>0.9558&plusmn;0.0889</td><td></td><td>3</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_single</td><td>4</td><td>0.8484</td><td>0.9287</td><td>0.9285&plusmn;0.0433</td><td>0.9202&plusmn;0.0407</td><td></td><td>3</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_single</td><td>5</td><td>NaN</td><td>NaN</td><td>0.8695&plusmn;0.0542</td><td>0.8590&plusmn;0.0468</td><td>Y</td><td>3</td></tr>
+<tr><td>gmm_anisotropic</td><td>agglomerative_single</td><td>6</td><td>NaN</td><td>NaN</td><td>0.8354&plusmn;0.0649</td><td>0.8257&plusmn;0.0546</td><td>Y</td><td>3</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_anisotropic</td><td>hdbscan*</td><td>modal=3</td><td></td><td></td><td>0.9849&plusmn;0.0216</td><td>0.9798&plusmn;0.0275</td><td></td><td>modal_k=3, agree=1.00</td></tr>
+<tr><td>gmm_five_clusters</td><td>kmeans</td><td>2</td><td>0.6639</td><td>0.6650</td><td>0.3194&plusmn;0.3668</td><td>0.3713&plusmn;0.3221</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>kmeans</td><td>3</td><td>0.6205</td><td>0.6003</td><td>0.4304&plusmn;0.2731</td><td>0.5971&plusmn;0.1918</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>kmeans</td><td>4</td><td>0.9379</td><td>0.9341</td><td>0.7396&plusmn;0.1286</td><td>0.8010&plusmn;0.0861</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>kmeans</td><td>5</td><td>1.0000</td><td>1.0000</td><td>0.9918&plusmn;0.0218</td><td>0.9918&plusmn;0.0193</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>kmeans</td><td>6</td><td>0.7938</td><td>0.8372</td><td>0.8751&plusmn;0.0610</td><td>0.9110&plusmn;0.0352</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>kmeans</td><td>7</td><td>0.7627</td><td>0.7917</td><td>0.7776&plusmn;0.0758</td><td>0.8538&plusmn;0.0402</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_ward</td><td>2</td><td>0.7833</td><td>0.7834</td><td>0.4226&plusmn;0.3659</td><td>0.4175&plusmn;0.3482</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_ward</td><td>3</td><td>0.7183</td><td>0.7241</td><td>0.4541&plusmn;0.3321</td><td>0.6039&plusmn;0.2257</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_ward</td><td>4</td><td>0.9090</td><td>0.8818</td><td>0.6563&plusmn;0.1244</td><td>0.7746&plusmn;0.0741</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_ward</td><td>5</td><td>0.9902</td><td>0.9905</td><td>0.9780&plusmn;0.0313</td><td>0.9792&plusmn;0.0278</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_ward</td><td>6</td><td>0.8502</td><td>0.8804</td><td>0.8779&plusmn;0.0583</td><td>0.9121&plusmn;0.0341</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_ward</td><td>7</td><td>0.8125</td><td>0.8325</td><td>0.8356&plusmn;0.0830</td><td>0.8864&plusmn;0.0473</td><td></td><td>5</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_single</td><td>2</td><td>0.6659</td><td>0.8193</td><td>0.1565&plusmn;0.4070</td><td>0.2447&plusmn;0.3059</td><td></td><td>7</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_single</td><td>3</td><td>0.5273</td><td>0.5864</td><td>0.2375&plusmn;0.2777</td><td>0.4061&plusmn;0.2276</td><td></td><td>7</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_single</td><td>4</td><td>0.5890</td><td>0.6189</td><td>0.4759&plusmn;0.1883</td><td>0.6391&plusmn;0.1411</td><td></td><td>7</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_single</td><td>5</td><td>0.8200</td><td>0.7478</td><td>0.6528&plusmn;0.1451</td><td>0.7491&plusmn;0.0992</td><td></td><td>7</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_single</td><td>6</td><td>0.6866</td><td>0.6638</td><td>0.6944&plusmn;0.1135</td><td>0.7767&plusmn;0.0748</td><td></td><td>7</td></tr>
+<tr><td>gmm_five_clusters</td><td>agglomerative_single</td><td>7</td><td>0.6568</td><td>0.6776</td><td>0.7467&plusmn;0.1055</td><td>0.8076&plusmn;0.0686</td><td></td><td>7</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_five_clusters</td><td>hdbscan*</td><td>modal=4</td><td></td><td></td><td>0.7800&plusmn;0.1933</td><td>0.8514&plusmn;0.1302</td><td></td><td>modal_k=4, agree=0.53</td></tr>
+<tr><td>gmm_high_dim_32</td><td>kmeans</td><td>2</td><td>0.8539</td><td>0.8536</td><td>0.5546&plusmn;0.4385</td><td>0.6304&plusmn;0.3576</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>kmeans</td><td>3</td><td>0.9949</td><td>0.9949</td><td>0.9834&plusmn;0.0947</td><td>0.9889&plusmn;0.0633</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>kmeans</td><td>4</td><td>0.7289</td><td>0.7820</td><td>0.8079&plusmn;0.0743</td><td>0.8376&plusmn;0.0278</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>kmeans</td><td>5</td><td>0.5973</td><td>0.6724</td><td>0.6916&plusmn;0.0910</td><td>0.7324&plusmn;0.0377</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>kmeans</td><td>6</td><td>0.5812</td><td>0.6404</td><td>0.6298&plusmn;0.1088</td><td>0.6631&plusmn;0.0432</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_ward</td><td>2</td><td>0.9039</td><td>0.8781</td><td>0.5943&plusmn;0.4528</td><td>0.6680&plusmn;0.3693</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_ward</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_ward</td><td>4</td><td>0.8131</td><td>0.8733</td><td>0.8681&plusmn;0.0518</td><td>0.8501&plusmn;0.0346</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_ward</td><td>5</td><td>0.7093</td><td>0.8275</td><td>0.8543&plusmn;0.0674</td><td>0.7902&plusmn;0.0459</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_ward</td><td>6</td><td>0.6486</td><td>0.7792</td><td>0.8165&plusmn;0.0929</td><td>0.7480&plusmn;0.0547</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_single</td><td>2</td><td>0.8958</td><td>0.8777</td><td>0.6667&plusmn;0.4384</td><td>0.7279&plusmn;0.3570</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_single</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_single</td><td>4</td><td>0.8895</td><td>0.9831</td><td>0.9739&plusmn;0.0080</td><td>0.9672&plusmn;0.0073</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_single</td><td>5</td><td>0.8130</td><td>0.9591</td><td>0.9483&plusmn;0.0124</td><td>0.9351&plusmn;0.0101</td><td></td><td>3</td></tr>
+<tr><td>gmm_high_dim_32</td><td>agglomerative_single</td><td>6</td><td>NaN</td><td>NaN</td><td>0.9240&plusmn;0.0179</td><td>0.9052&plusmn;0.0129</td><td>Y</td><td>3</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_high_dim_32</td><td>hdbscan*</td><td>modal=3</td><td></td><td></td><td>1.0000</td><td>1.0000</td><td></td><td>modal_k=3, agree=1.00</td></tr>
+<tr><td>gmm_mixed_variance</td><td>kmeans</td><td>2</td><td>0.9987</td><td>0.9986</td><td>0.8683&plusmn;0.1581</td><td>0.8462&plusmn;0.1553</td><td></td><td>2</td></tr>
+<tr><td>gmm_mixed_variance</td><td>kmeans</td><td>3</td><td>0.9930</td><td>0.9927</td><td>0.8134&plusmn;0.1984</td><td>0.8233&plusmn;0.1561</td><td></td><td>2</td></tr>
+<tr><td>gmm_mixed_variance</td><td>kmeans</td><td>4</td><td>0.9768</td><td>0.9776</td><td>0.7946&plusmn;0.1181</td><td>0.8088&plusmn;0.0924</td><td></td><td>2</td></tr>
+<tr><td>gmm_mixed_variance</td><td>kmeans</td><td>5</td><td>0.9033</td><td>0.9178</td><td>0.7171&plusmn;0.1035</td><td>0.7570&plusmn;0.0763</td><td></td><td>2</td></tr>
+<tr><td>gmm_mixed_variance</td><td>kmeans</td><td>6</td><td>0.8316</td><td>0.8610</td><td>0.6807&plusmn;0.1025</td><td>0.7264&plusmn;0.0688</td><td></td><td>2</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_ward</td><td>2</td><td>0.9080</td><td>0.9045</td><td>0.5926&plusmn;0.2981</td><td>0.5935&plusmn;0.2207</td><td></td><td>3</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_ward</td><td>3</td><td>0.9232</td><td>0.9135</td><td>0.7273&plusmn;0.1513</td><td>0.7548&plusmn;0.1095</td><td></td><td>3</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_ward</td><td>4</td><td>0.8798</td><td>0.8809</td><td>0.7175&plusmn;0.1268</td><td>0.7544&plusmn;0.0918</td><td></td><td>3</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_ward</td><td>5</td><td>0.8017</td><td>0.8314</td><td>0.6824&plusmn;0.0943</td><td>0.7343&plusmn;0.0690</td><td></td><td>3</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_ward</td><td>6</td><td>0.7103</td><td>0.7449</td><td>0.6696&plusmn;0.0955</td><td>0.7173&plusmn;0.0632</td><td></td><td>3</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_single</td><td>2</td><td>0.8042</td><td>0.9595</td><td>0.1759&plusmn;0.1982</td><td>0.1378&plusmn;0.1564</td><td></td><td>2</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_single</td><td>3</td><td>0.7804</td><td>0.8953</td><td>0.1956&plusmn;0.2048</td><td>0.1942&plusmn;0.1561</td><td></td><td>2</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_single</td><td>4</td><td>0.6729</td><td>0.8832</td><td>0.1845&plusmn;0.1843</td><td>0.2058&plusmn;0.1254</td><td></td><td>2</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_single</td><td>5</td><td>0.6461</td><td>0.8279</td><td>0.1921&plusmn;0.2015</td><td>0.2414&plusmn;0.1363</td><td></td><td>2</td></tr>
+<tr><td>gmm_mixed_variance</td><td>agglomerative_single</td><td>6</td><td>0.5741</td><td>0.7621</td><td>0.2129&plusmn;0.2054</td><td>0.2833&plusmn;0.1339</td><td></td><td>2</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_mixed_variance</td><td>hdbscan*</td><td>modal=2</td><td></td><td></td><td>0.5280&plusmn;0.2178</td><td>0.6285&plusmn;0.1245</td><td></td><td>modal_k=2, agree=0.79</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>kmeans</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>kmeans</td><td>3</td><td>0.9975</td><td>0.9970</td><td>0.9508&plusmn;0.0512</td><td>0.9464&plusmn;0.0494</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>kmeans</td><td>4</td><td>0.7812</td><td>0.7955</td><td>0.6841&plusmn;0.1584</td><td>0.7550&plusmn;0.1003</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>kmeans</td><td>5</td><td>0.9196</td><td>0.9175</td><td>0.6777&plusmn;0.1301</td><td>0.7608&plusmn;0.0852</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>kmeans</td><td>6</td><td>0.7843</td><td>0.8016</td><td>0.6184&plusmn;0.1081</td><td>0.7236&plusmn;0.0687</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_ward</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_ward</td><td>3</td><td>0.9694</td><td>0.9640</td><td>0.8688&plusmn;0.1059</td><td>0.8768&plusmn;0.0776</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_ward</td><td>4</td><td>0.7468</td><td>0.7732</td><td>0.7122&plusmn;0.1427</td><td>0.7759&plusmn;0.0873</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_ward</td><td>5</td><td>0.7975</td><td>0.8011</td><td>0.6720&plusmn;0.1075</td><td>0.7557&plusmn;0.0689</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_ward</td><td>6</td><td>0.7330</td><td>0.7445</td><td>0.6474&plusmn;0.1022</td><td>0.7340&plusmn;0.0648</td><td></td><td>5</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_single</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>4</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_single</td><td>3</td><td>0.8378</td><td>0.8835</td><td>0.7894&plusmn;0.0756</td><td>0.7913&plusmn;0.0533</td><td></td><td>4</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_single</td><td>4</td><td>0.9036</td><td>0.9372</td><td>0.6943&plusmn;0.0966</td><td>0.6956&plusmn;0.0648</td><td></td><td>4</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_single</td><td>5</td><td>0.8740</td><td>0.9084</td><td>0.5990&plusmn;0.1099</td><td>0.6179&plusmn;0.0704</td><td></td><td>4</td></tr>
+<tr><td>gmm_overlapping_pair</td><td>agglomerative_single</td><td>6</td><td>0.6008</td><td>0.8458</td><td>0.5229&plusmn;0.1182</td><td>0.5654&plusmn;0.0728</td><td></td><td>4</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_overlapping_pair</td><td>hdbscan*</td><td>modal=2</td><td></td><td></td><td>1.0000</td><td>1.0000</td><td></td><td>modal_k=2, agree=1.00</td></tr>
+<tr><td>gmm_spherical</td><td>kmeans</td><td>2</td><td>0.8517</td><td>0.8517</td><td>0.4974&plusmn;0.4454</td><td>0.5898&plusmn;0.3604</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>kmeans</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>kmeans</td><td>4</td><td>NaN</td><td>NaN</td><td>0.7894&plusmn;0.0981</td><td>0.8467&plusmn;0.0448</td><td>Y</td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>kmeans</td><td>5</td><td>0.6678</td><td>0.7194</td><td>0.6497&plusmn;0.1127</td><td>0.7633&plusmn;0.0542</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>kmeans</td><td>6</td><td>0.6932</td><td>0.7115</td><td>0.5770&plusmn;0.0977</td><td>0.7200&plusmn;0.0545</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_ward</td><td>2</td><td>0.8642</td><td>0.8566</td><td>0.3539&plusmn;0.4111</td><td>0.4749&plusmn;0.3332</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_ward</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_ward</td><td>4</td><td>0.7759</td><td>0.8199</td><td>0.7791&plusmn;0.0833</td><td>0.8405&plusmn;0.0318</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_ward</td><td>5</td><td>0.7150</td><td>0.7437</td><td>0.6199&plusmn;0.0898</td><td>0.7454&plusmn;0.0423</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_ward</td><td>6</td><td>0.6598</td><td>0.6688</td><td>0.5640&plusmn;0.0799</td><td>0.7042&plusmn;0.0502</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_single</td><td>2</td><td>0.8969</td><td>0.8719</td><td>0.3388&plusmn;0.4053</td><td>0.4636&plusmn;0.3279</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_single</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_single</td><td>4</td><td>0.8294</td><td>0.9176</td><td>0.9671&plusmn;0.0180</td><td>0.9585&plusmn;0.0187</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_single</td><td>5</td><td>0.8242</td><td>0.8556</td><td>0.9379&plusmn;0.0279</td><td>0.9247&plusmn;0.0272</td><td></td><td>3</td></tr>
+<tr><td>gmm_spherical</td><td>agglomerative_single</td><td>6</td><td>0.7477</td><td>0.8804</td><td>0.9041&plusmn;0.0378</td><td>0.8888&plusmn;0.0351</td><td></td><td>3</td></tr>
+<tr style="color:#888;font-style:italic;"><td>gmm_spherical</td><td>hdbscan*</td><td>modal=3</td><td></td><td></td><td>1.0000</td><td>1.0000</td><td></td><td>modal_k=3, agree=1.00</td></tr>
+<tr><td>high_dim</td><td>kmeans</td><td>2</td><td>0.9166</td><td>0.9148</td><td>0.6257&plusmn;0.4488</td><td>0.6915&plusmn;0.3687</td><td></td><td>3</td></tr>
+<tr><td>high_dim</td><td>kmeans</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>high_dim</td><td>kmeans</td><td>4</td><td>NaN</td><td>NaN</td><td>0.7946&plusmn;0.0811</td><td>0.8389&plusmn;0.0369</td><td>Y</td><td>3</td></tr>
+<tr><td>high_dim</td><td>kmeans</td><td>5</td><td>NaN</td><td>NaN</td><td>0.6397&plusmn;0.0963</td><td>0.7221&plusmn;0.0482</td><td>Y</td><td>3</td></tr>
+<tr><td>high_dim</td><td>kmeans</td><td>6</td><td>NaN</td><td>NaN</td><td>0.5343&plusmn;0.0963</td><td>0.6381&plusmn;0.0522</td><td>Y</td><td>3</td></tr>
+<tr><td>high_dim</td><td>agglomerative_ward</td><td>2</td><td>0.8062</td><td>0.8095</td><td>0.7039&plusmn;0.4245</td><td>0.7530&plusmn;0.3534</td><td></td><td>3</td></tr>
+<tr><td>high_dim</td><td>agglomerative_ward</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>high_dim</td><td>agglomerative_ward</td><td>4</td><td>0.7657</td><td>0.8061</td><td>0.7800&plusmn;0.0860</td><td>0.8296&plusmn;0.0340</td><td></td><td>3</td></tr>
+<tr><td>high_dim</td><td>agglomerative_ward</td><td>5</td><td>0.6719</td><td>0.7168</td><td>0.6094&plusmn;0.0869</td><td>0.7027&plusmn;0.0376</td><td></td><td>3</td></tr>
+<tr><td>high_dim</td><td>agglomerative_ward</td><td>6</td><td>0.6069</td><td>0.6361</td><td>0.4888&plusmn;0.0814</td><td>0.6095&plusmn;0.0458</td><td></td><td>3</td></tr>
+<tr><td>high_dim</td><td>agglomerative_single</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td></td></tr>
+<tr><td>high_dim</td><td>agglomerative_single</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td></td></tr>
+<tr><td>high_dim</td><td>agglomerative_single</td><td>4</td><td>0.8355</td><td>0.9291</td><td>0.9632&plusmn;0.0080</td><td>0.9570&plusmn;0.0036</td><td></td><td></td></tr>
+<tr><td>high_dim</td><td>agglomerative_single</td><td>5</td><td>NaN</td><td>NaN</td><td>0.9272&plusmn;0.0133</td><td>0.9159&plusmn;0.0054</td><td>Y</td><td></td></tr>
+<tr><td>high_dim</td><td>agglomerative_single</td><td>6</td><td>0.6849</td><td>0.8193</td><td>0.8893&plusmn;0.0184</td><td>0.8751&plusmn;0.0081</td><td></td><td></td></tr>
+<tr style="color:#888;font-style:italic;"><td>high_dim</td><td>hdbscan*</td><td>modal=3</td><td></td><td></td><td>0.9050&plusmn;0.1569</td><td>0.9287&plusmn;0.1183</td><td></td><td>modal_k=3, agree=0.72</td></tr>
+<tr><td>moons_2d</td><td>kmeans</td><td>2</td><td>0.9937</td><td>0.9937</td><td>0.8659&plusmn;0.1388</td><td>0.8355&plusmn;0.1400</td><td></td><td>4</td></tr>
+<tr><td>moons_2d</td><td>kmeans</td><td>3</td><td>0.9249</td><td>0.9188</td><td>0.5590&plusmn;0.2132</td><td>0.6238&plusmn;0.1636</td><td></td><td>4</td></tr>
+<tr><td>moons_2d</td><td>kmeans</td><td>4</td><td>0.9582</td><td>0.9514</td><td>0.6115&plusmn;0.1665</td><td>0.6907&plusmn;0.1221</td><td></td><td>4</td></tr>
+<tr><td>moons_2d</td><td>kmeans</td><td>5</td><td>0.7680</td><td>0.7679</td><td>0.5739&plusmn;0.1348</td><td>0.6776&plusmn;0.0946</td><td></td><td>4</td></tr>
+<tr><td>moons_2d</td><td>kmeans</td><td>6</td><td>0.9214</td><td>0.9186</td><td>0.6406&plusmn;0.1317</td><td>0.7338&plusmn;0.0901</td><td></td><td>4</td></tr>
+<tr><td>moons_2d</td><td>agglomerative_ward</td><td>2</td><td>0.8650</td><td>0.8653</td><td>0.4570&plusmn;0.2726</td><td>0.4935&plusmn;0.1942</td><td></td><td>2</td></tr>
+<tr><td>moons_2d</td><td>agglomerative_ward</td><td>3</td><td>0.8048</td><td>0.7969</td><td>0.5694&plusmn;0.1804</td><td>0.6361&plusmn;0.1263</td><td></td><td>2</td></tr>
+<tr><td>moons_2d</td><td>agglomerative_ward</td><td>4</td><td>0.7515</td><td>0.7380</td><td>0.5346&plusmn;0.1377</td><td>0.6388&plusmn;0.0948</td><td></td><td>2</td></tr>
+<tr><td>moons_2d</td><td>agglomerative_ward</td><td>5</td><td>0.7522</td><td>0.7360</td><td>0.5528&plusmn;0.1118</td><td>0.6707&plusmn;0.0773</td><td></td><td>2</td></tr>
+<tr><td>moons_2d</td><td>agglomerative_ward</td><td>6</td><td>0.8270</td><td>0.8247</td><td>0.6373&plusmn;0.1184</td><td>0.7394&plusmn;0.0798</td><td></td><td>2</td></tr>
+<tr><td>moons_2d</td><td>agglomerative_single</td><td>2</td><td>0.8606</td><td>0.8606</td><td>0.2617&plusmn;0.1751</td><td>0.2377&plusmn;0.1468</td><td></td><td></td></tr>
+<tr><td>moons_2d</td><td>agglomerative_single</td><td>3</td><td>0.6929</td><td>0.7478</td><td>0.3682&plusmn;0.1453</td><td>0.4130&plusmn;0.1155</td><td></td><td></td></tr>
+<tr><td>moons_2d</td><td>agglomerative_single</td><td>4</td><td>0.6273</td><td>0.6788</td><td>0.4054&plusmn;0.1395</td><td>0.5077&plusmn;0.1084</td><td></td><td></td></tr>
+<tr><td>moons_2d</td><td>agglomerative_single</td><td>5</td><td>0.6051</td><td>0.6300</td><td>0.4522&plusmn;0.1420</td><td>0.5812&plusmn;0.1087</td><td></td><td></td></tr>
+<tr><td>moons_2d</td><td>agglomerative_single</td><td>6</td><td>0.6384</td><td>0.6425</td><td>0.4722&plusmn;0.1291</td><td>0.6210&plusmn;0.0964</td><td></td><td></td></tr>
+<tr style="color:#888;font-style:italic;"><td>moons_2d</td><td>hdbscan*</td><td>modal=2</td><td></td><td></td><td>0.5660&plusmn;0.2368</td><td>0.5534&plusmn;0.2060</td><td></td><td>modal_k=2, agree=0.93</td></tr>
+<tr><td>overlapping</td><td>kmeans</td><td>2</td><td>1.0000</td><td>1.0000</td><td>0.9647&plusmn;0.1559</td><td>0.9683&plusmn;0.1341</td><td></td><td>4</td></tr>
+<tr><td>overlapping</td><td>kmeans</td><td>3</td><td>0.8727</td><td>0.8755</td><td>0.7949&plusmn;0.2561</td><td>0.8578&plusmn;0.1712</td><td></td><td>4</td></tr>
+<tr><td>overlapping</td><td>kmeans</td><td>4</td><td>0.9787</td><td>0.9787</td><td>0.9520&plusmn;0.1213</td><td>0.9704&plusmn;0.0724</td><td></td><td>4</td></tr>
+<tr><td>overlapping</td><td>kmeans</td><td>5</td><td>0.7447</td><td>0.8053</td><td>0.8346&plusmn;0.0748</td><td>0.8802&plusmn;0.0340</td><td></td><td>4</td></tr>
+<tr><td>overlapping</td><td>kmeans</td><td>6</td><td>NaN</td><td>NaN</td><td>0.7286&plusmn;0.0839</td><td>0.7997&plusmn;0.0362</td><td>Y</td><td>4</td></tr>
+<tr><td>overlapping</td><td>agglomerative_ward</td><td>2</td><td>0.9987</td><td>0.9987</td><td>0.9843&plusmn;0.0410</td><td>0.9765&plusmn;0.0549</td><td></td><td>4</td></tr>
+<tr><td>overlapping</td><td>agglomerative_ward</td><td>3</td><td>0.9598</td><td>0.9574</td><td>0.9395&plusmn;0.1569</td><td>0.9543&plusmn;0.1039</td><td></td><td>4</td></tr>
+<tr><td>overlapping</td><td>agglomerative_ward</td><td>4</td><td>0.9961</td><td>0.9961</td><td>0.9896&plusmn;0.0238</td><td>0.9895&plusmn;0.0230</td><td></td><td>4</td></tr>
+<tr><td>overlapping</td><td>agglomerative_ward</td><td>5</td><td>0.7997</td><td>0.8524</td><td>0.8390&plusmn;0.0570</td><td>0.8810&plusmn;0.0259</td><td></td><td>4</td></tr>
+<tr><td>overlapping</td><td>agglomerative_ward</td><td>6</td><td>0.7001</td><td>0.7468</td><td>0.7126&plusmn;0.0748</td><td>0.7955&plusmn;0.0311</td><td></td><td>4</td></tr>
+<tr><td>overlapping</td><td>agglomerative_single</td><td>2</td><td>0.9010</td><td>0.8944</td><td>0.5474&plusmn;0.3128</td><td>0.5700&plusmn;0.2529</td><td></td><td></td></tr>
+<tr><td>overlapping</td><td>agglomerative_single</td><td>3</td><td>0.9503</td><td>0.9506</td><td>0.9305&plusmn;0.1658</td><td>0.9477&plusmn;0.1127</td><td></td><td></td></tr>
+<tr><td>overlapping</td><td>agglomerative_single</td><td>4</td><td>0.7975</td><td>0.8630</td><td>0.8207&plusmn;0.1190</td><td>0.8647&plusmn;0.0663</td><td></td><td></td></tr>
+<tr><td>overlapping</td><td>agglomerative_single</td><td>5</td><td>NaN</td><td>NaN</td><td>0.7407&plusmn;0.1008</td><td>0.7981&plusmn;0.0542</td><td>Y</td><td></td></tr>
+<tr><td>overlapping</td><td>agglomerative_single</td><td>6</td><td>NaN</td><td>NaN</td><td>0.6820&plusmn;0.0902</td><td>0.7486&plusmn;0.0461</td><td>Y</td><td></td></tr>
+<tr style="color:#888;font-style:italic;"><td>overlapping</td><td>hdbscan*</td><td>modal=3</td><td></td><td></td><td>0.8151&plusmn;0.2027</td><td>0.8525&plusmn;0.1512</td><td></td><td>modal_k=3, agree=0.57</td></tr>
+<tr><td>vdx_3gene</td><td>kmeans</td><td>2</td><td>0.9930</td><td>0.9939</td><td>0.8928&plusmn;0.2230</td><td>0.8651&plusmn;0.2288</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>kmeans</td><td>3</td><td>0.9753</td><td>0.9797</td><td>0.8717&plusmn;0.1498</td><td>0.8588&plusmn;0.1297</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>kmeans</td><td>4</td><td>0.8671</td><td>0.8683</td><td>0.6233&plusmn;0.1240</td><td>0.6978&plusmn;0.0883</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>kmeans</td><td>5</td><td>0.7709</td><td>0.7873</td><td>0.6016&plusmn;0.1197</td><td>0.6793&plusmn;0.0820</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>kmeans</td><td>6</td><td>0.8293</td><td>0.8341</td><td>0.5922&plusmn;0.1342</td><td>0.6849&plusmn;0.0923</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_ward</td><td>2</td><td>0.9415</td><td>0.9440</td><td>0.7078&plusmn;0.1809</td><td>0.6655&plusmn;0.1729</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_ward</td><td>3</td><td>0.9379</td><td>0.9507</td><td>0.8450&plusmn;0.1014</td><td>0.8141&plusmn;0.0969</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_ward</td><td>4</td><td>0.7843</td><td>0.8019</td><td>0.7144&plusmn;0.1476</td><td>0.7603&plusmn;0.0952</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_ward</td><td>5</td><td>0.7718</td><td>0.7529</td><td>0.6551&plusmn;0.1133</td><td>0.7271&plusmn;0.0762</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_ward</td><td>6</td><td>0.7837</td><td>0.7803</td><td>0.6543&plusmn;0.1157</td><td>0.7248&plusmn;0.0776</td><td></td><td>6</td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_single</td><td>2</td><td>0.7950</td><td>0.8329</td><td>0.2224&plusmn;0.3607</td><td>0.2089&plusmn;0.3458</td><td></td><td></td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_single</td><td>3</td><td>0.6305</td><td>0.7638</td><td>0.3684&plusmn;0.3317</td><td>0.3784&plusmn;0.2748</td><td></td><td></td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_single</td><td>4</td><td>0.6050</td><td>0.7503</td><td>0.3837&plusmn;0.2159</td><td>0.4168&plusmn;0.1793</td><td></td><td></td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_single</td><td>5</td><td>0.6889</td><td>0.7542</td><td>0.4100&plusmn;0.2131</td><td>0.4654&plusmn;0.1688</td><td></td><td></td></tr>
+<tr><td>vdx_3gene</td><td>agglomerative_single</td><td>6</td><td>0.6430</td><td>0.7672</td><td>0.4515&plusmn;0.1856</td><td>0.5139&plusmn;0.1296</td><td></td><td></td></tr>
+<tr style="color:#888;font-style:italic;"><td>vdx_3gene</td><td>hdbscan*</td><td>modal=2</td><td></td><td></td><td>0.7646&plusmn;0.0978</td><td>0.7006&plusmn;0.1038</td><td></td><td>modal_k=2, agree=0.60</td></tr>
+<tr><td>well_separated</td><td>kmeans</td><td>2</td><td>1.0000</td><td>1.0000</td><td>0.9900&plusmn;0.0993</td><td>0.9919&plusmn;0.0805</td><td></td><td>3</td></tr>
+<tr><td>well_separated</td><td>kmeans</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>well_separated</td><td>kmeans</td><td>4</td><td>NaN</td><td>NaN</td><td>0.7758&plusmn;0.0814</td><td>0.8317&plusmn;0.0281</td><td>Y</td><td>3</td></tr>
+<tr><td>well_separated</td><td>kmeans</td><td>5</td><td>NaN</td><td>NaN</td><td>0.6265&plusmn;0.0990</td><td>0.7272&plusmn;0.0379</td><td>Y</td><td>3</td></tr>
+<tr><td>well_separated</td><td>kmeans</td><td>6</td><td>0.5337</td><td>0.5580</td><td>0.5176&plusmn;0.0899</td><td>0.6503&plusmn;0.0430</td><td></td><td>3</td></tr>
+<tr><td>well_separated</td><td>agglomerative_ward</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>well_separated</td><td>agglomerative_ward</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td>3</td></tr>
+<tr><td>well_separated</td><td>agglomerative_ward</td><td>4</td><td>0.7578</td><td>0.8046</td><td>0.7667&plusmn;0.0737</td><td>0.8303&plusmn;0.0282</td><td></td><td>3</td></tr>
+<tr><td>well_separated</td><td>agglomerative_ward</td><td>5</td><td>0.6634</td><td>0.6787</td><td>0.5955&plusmn;0.0815</td><td>0.7160&plusmn;0.0332</td><td></td><td>3</td></tr>
+<tr><td>well_separated</td><td>agglomerative_ward</td><td>6</td><td>0.6844</td><td>0.6841</td><td>0.4952&plusmn;0.0629</td><td>0.6403&plusmn;0.0439</td><td></td><td>3</td></tr>
+<tr><td>well_separated</td><td>agglomerative_single</td><td>2</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td></td></tr>
+<tr><td>well_separated</td><td>agglomerative_single</td><td>3</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td></td><td></td></tr>
+<tr><td>well_separated</td><td>agglomerative_single</td><td>4</td><td>0.8334</td><td>0.9383</td><td>0.9606&plusmn;0.0200</td><td>0.9514&plusmn;0.0199</td><td></td><td></td></tr>
+<tr><td>well_separated</td><td>agglomerative_single</td><td>5</td><td>0.7871</td><td>0.8490</td><td>0.9113&plusmn;0.0344</td><td>0.8969&plusmn;0.0311</td><td></td><td></td></tr>
+<tr><td>well_separated</td><td>agglomerative_single</td><td>6</td><td>0.7187</td><td>0.8385</td><td>0.8720&plusmn;0.0415</td><td>0.8539&plusmn;0.0368</td><td></td><td></td></tr>
+<tr style="color:#888;font-style:italic;"><td>well_separated</td><td>hdbscan*</td><td>modal=3</td><td></td><td></td><td>1.0000</td><td>1.0000</td><td></td><td>modal_k=3, agree=1.00</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="clam">
+<h2>1. CLAM Matrix Heatmaps</h2>
+<p class="section-intro">The Cluster Labels Alignment Matrix (CLAM) records, for each sample, how many times it was assigned to each cluster across B Monte Carlo iterations. Rows sorted by primary cluster (argmax), then by assignment confidence within each cluster.</p>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/clam_sorted_vdx_3gene_kmeans_k3.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 1a</div>
+      <div class="fig-title">Sorted CLAM &mdash; VDX, K-Means, K=3</div>
+      <div class="fig-desc">344 samples, 3 genes (ESR1, ERBB2, AURKA) from Parmigiani et al. Sorted by primary cluster then confidence. Viridis colormap, assignment counts 0 to B.</div>
+      <div class="fig-method">clam_matrices[(3, 'kmeans')]</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/clam_raw_vdx_3gene_kmeans_k3.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 1b</div>
+      <div class="fig-title">Unsorted CLAM &mdash; VDX, K-Means, K=3</div>
+      <div class="fig-desc">Same data, original sample order. Block structure obscured without sorting.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/clam_multipanel_vdx_3gene_kmeans.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 1c</div>
+    <div class="fig-title">CLAM across K=2, 3, 4 &mdash; VDX, K-Means</div>
+    <div class="fig-desc">Progression of sorted CLAM heatmaps as K increases. Shows how existing clusters subdivide and where off-diagonal assignments appear.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/clam_sorted_vdx_3gene_hdbscan.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 1d</div>
+    <div class="fig-title">HDBSCAN CLAM &mdash; VDX, modal K=2 <sup style="color:#c44;font-size:10px;">*experimental</sup></div>
+    <div class="fig-desc">CLAM from iterations where HDBSCAN discovered K=2. Noise points reassigned to nearest centroid. Shape: (344, 2). <em>Note: HDBSCAN integration is under validation.</em></div>
+    <div class="fig-method">get_auto_k_results('hdbscan')['clam_matrix']</div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="stability">
+<h2>2. Sample Stability Profiles</h2>
+<p class="section-intro">CLAM rows normalized to proportions and displayed as horizontal stacked bars. Sorted by Shannon entropy: stable samples (entropy &asymp; 0) at top, ambiguous samples (entropy &asymp; log<sub>2</sub>K) at bottom. Subsampled to 100 for display.</p>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/stability_vdx_3gene_kmeans_k3.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 2a</div>
+      <div class="fig-title">Stability Strips &mdash; VDX, K-Means, K=3</div>
+      <div class="fig-desc">VDX dataset, 344 samples. Colors represent cluster assignment proportions per sample.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/stability_vdx_3gene_agglomerative_ward_k3.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 2b</div>
+      <div class="fig-title">Stability Strips &mdash; VDX, Ward, K=3</div>
+      <div class="fig-desc">Same dataset, Agglomerative Ward linkage. Compare boundary sample distributions with Figure 2a.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="metrics">
+<h2>3. Replicability Metric Curves</h2>
+<p class="section-intro">Left panels: CRI, WCRI, TWCRI vs K with K* indicated by vertical dashed lines. Right panels: ARI and AMI (mean &plusmn; std) across 200 iterations. Disqualified K values (empty clusters) marked with &times;.</p>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/metrics_vdx_3gene_kmeans.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 3a</div>
+    <div class="fig-title">Metrics vs K &mdash; VDX, K-Means</div>
+    <div class="fig-desc">VDX 3-gene dataset. ERICA metrics (left) and Parmigiani ARI/AMI (right) for K=2..6.</div>
+    <div class="fig-method">metrics[k]['kmeans'] &mdash; k_star['TWCRI']['kmeans']</div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/metrics_well_separated_kmeans.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 3b</div>
+      <div class="fig-title">Metrics &mdash; Well-separated, K-Means</div>
+      <div class="fig-desc">300 samples, 5D, 3 true clusters (std=0.8). K=4,5 disqualified (empty clusters).</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/metrics_overlapping_kmeans.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 3c</div>
+      <div class="fig-title">Metrics &mdash; Overlapping, K-Means</div>
+      <div class="fig-desc">300 samples, 5D, 4 true clusters (std=2.0). Higher variance in ARI at true K.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="methods">
+<h2>4. Method Comparison</h2>
+<p class="section-intro">ERICA metrics across methods for the same dataset. K-based methods shown as lines; HDBSCAN as a marker at its modal K. Grouped bar charts show K* per method per metric.</p>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/method_vdx_3gene.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 4a</div>
+      <div class="fig-title">Method Comparison &mdash; VDX</div>
+      <div class="fig-desc">K-Means (orange), Ward (blue), HDBSCAN (star) across CRI, WCRI, TWCRI.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/kstar_vdx_3gene.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 4b</div>
+      <div class="fig-title">K* Selection &mdash; VDX</div>
+      <div class="fig-desc">Grouped bar chart of optimal K* per method per ERICA metric.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/method_well_separated.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 4c</div>
+      <div class="fig-title">Method Comparison &mdash; Well-separated</div>
+      <div class="fig-desc">300 samples, 5D, true K=3.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/method_overlapping.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 4d</div>
+      <div class="fig-title">Method Comparison &mdash; Overlapping</div>
+      <div class="fig-desc">300 samples, 5D, true K=4.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="scatter">
+<h2>5. Cluster Assignment Scatter Plots</h2>
+<p class="section-intro">For 2D datasets: points colored by primary CLAM cluster, sized by assignment confidence. Confidence maps show green (stable) to red (ambiguous). Only applicable to datasets with n_features=2.</p>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/scatter_compare_moons_2d_k2.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 5a</div>
+    <div class="fig-title">Method Comparison at K=2 &mdash; Two Moons</div>
+    <div class="fig-desc">300 samples from make_moons(noise=0.05). K-Means, Ward, and HDBSCAN assignments side by side. Point size scales with CLAM confidence.</div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/scatter_moons_2d_kmeans_k4.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 5b</div>
+      <div class="fig-title">K-Means at K*=4 &mdash; Moons</div>
+      <div class="fig-desc">K-Means' selected K*. Each crescent bisected into two segments.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/confidence_moons_2d_kmeans_k2.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 5c</div>
+      <div class="fig-title">Confidence Map &mdash; Moons, K-Means, K=2</div>
+      <div class="fig-desc">Green = high confidence, red = low confidence. Boundary region between moons shows lowest stability.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/scatter_compare_circles_2d_k2.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 5d</div>
+    <div class="fig-title">Method Comparison at K=2 &mdash; Concentric Circles</div>
+    <div class="fig-desc">300 samples from make_circles(noise=0.05, factor=0.5). All methods produce spatial bisections rather than radial separations.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/scatter_compare_blobs_2d_k3.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 5e</div>
+    <div class="fig-title">Method Comparison at K=3 &mdash; 2D Blobs</div>
+    <div class="fig-desc">300 samples from make_blobs(centers=3, std=0.5). All methods produce identical assignments at the true K.</div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="progressions">
+<h2>6. K-Value Progression Series</h2>
+<p class="section-intro">3 rows (K-Means, Ward, Single Linkage) &times; 5 columns (K=2..6). For 2D data: scatter plots. For higher-dimensional data: sorted CLAM heatmaps. Orange borders mark the K* selected by TWCRI. True K indicated with asterisk. Click any figure to expand.</p>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/k_progressions/k_progression_moons_2d.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 6a</div>
+    <div class="fig-title">K Progression &mdash; Two Moons (true K=2)</div>
+    <div class="fig-desc">make_moons, 300 samples, noise=0.05. Three methods &times; K=2..6.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/k_progressions/k_progression_circles_2d.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 6b</div>
+    <div class="fig-title">K Progression &mdash; Concentric Circles (true K=2)</div>
+    <div class="fig-desc">make_circles, 300 samples, noise=0.05, factor=0.5.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/k_progressions/k_progression_vdx_3gene.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 6c</div>
+    <div class="fig-title">K Progression &mdash; VDX Breast Cancer (true K unknown)</div>
+    <div class="fig-desc">Parmigiani VDX 3-gene subset, 344 samples. Sorted CLAM heatmaps.</div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/k_progressions/k_progression_gmm_anisotropic.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 6d</div>
+      <div class="fig-title">Anisotropic GMM (true K=3)</div>
+      <div class="fig-desc">450 samples, 2D. Elongated ellipses at different orientations.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/k_progressions/k_progression_gmm_five_clusters.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 6e</div>
+      <div class="fig-title">Five-Cluster GMM (true K=5)</div>
+      <div class="fig-desc">400 samples, 2D. Five Gaussians with varied covariances.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/k_progressions/k_progression_well_separated.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 6f</div>
+      <div class="fig-title">Well-separated (true K=3)</div>
+      <div class="fig-desc">300 samples, 5D. CLAM heatmaps.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/k_progressions/k_progression_high_dim.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 6g</div>
+      <div class="fig-title">High-dimensional (true K=3)</div>
+      <div class="fig-desc">200 samples, 50D. CLAM heatmaps.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="surfaces">
+<h2>7. 3D Surfaces &amp; Parameter Sensitivity</h2>
+<p class="section-intro">Alternative views of CLAM structure and the HDBSCAN parameter space. 2D heatmaps are publication-ready; 3D surfaces are supplementary.</p>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/landscape_twcri_vdx_3gene_2d.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 7a</div>
+      <div class="fig-title">TWCRI Landscape (2D) &mdash; VDX</div>
+      <div class="fig-desc">TWCRI across K (columns) and methods (rows). Cell annotations show values.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/landscape_twcri_vdx_3gene_3d.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 7b</div>
+      <div class="fig-title">TWCRI Landscape (3D) &mdash; VDX</div>
+      <div class="fig-desc">Same data as 7a rendered as surface plot.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/hdbscan_sensitivity_2d.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 7c</div>
+      <div class="fig-title">HDBSCAN Sensitivity (2D) &mdash; VDX</div>
+      <div class="fig-desc">K agreement rate across min_cluster_size (5..50) &times; min_samples (None, 3, 5, 10). 24 ERICA runs, 100 iterations each.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/surface_clam_vdx_3gene_kmeans_k3.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 7d</div>
+      <div class="fig-title">CLAM Topography &mdash; VDX, K-Means, K=3</div>
+      <div class="fig-desc">Sorted CLAM matrix as 3D surface. X=cluster, Y=sample (sorted), Z=assignment count.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="gaussian">
+<h2>8. Gaussian Mixture Sigma Study</h2>
+<p class="section-intro">4 isotropic Gaussian centers in 50 dimensions, 100 samples per center. Centers separated by 9.49 (Euclidean) in the first 10 dimensions. Standard deviation &sigma; swept from 0.01 to 10.0, yielding radius/spacing ratios from 0.01 (trivially separated) to 7.45 (indistinguishable). K=2..6 tested with all four methods.</p>
+
+<div class="figure" onclick="openLightbox(this)">
+  <img src="figures/gaussian_study/sigma_twcri_curves.png" alt="">
+  <div class="caption">
+    <div class="fig-id">Figure 8a</div>
+    <div class="fig-title">TWCRI at K=4 vs &sigma;</div>
+    <div class="fig-desc">TWCRI evaluated at the true K=4 across four sigma levels (log scale). One line per K-based method; HDBSCAN shown as discrete markers at its modal K's TWCRI.</div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/sigma_ari_ami_curves.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8b</div>
+      <div class="fig-title">ARI/AMI at K=4 vs &sigma;</div>
+      <div class="fig-desc">ARI (solid) and AMI (dashed) at true K across sigma levels.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/sigma_hdbscan_noise.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8c</div>
+      <div class="fig-title">HDBSCAN Noise Fraction vs &sigma;</div>
+      <div class="fig-desc">Mean fraction of test samples classified as noise by HDBSCAN at each sigma level.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/sigma_kstar_summary.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8d</div>
+      <div class="fig-title">K* Selection Across &sigma;</div>
+      <div class="fig-desc">Grouped bars showing K* per method at each sigma. Horizontal line at true K=4.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/vdx_gaussian_comparison.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8e</div>
+      <div class="fig-title">VDX vs Gaussian (&sigma;=1.0)</div>
+      <div class="fig-desc">Side-by-side TWCRI and ARI curves. VDX (left) vs 50D Gaussian at &sigma;=1.0 (right).</div>
+    </div>
+  </div>
+</div>
+
+<h3 style="font-size: 15px; font-weight: 400; margin: 28px 0 12px;">K Progression by Sigma Level</h3>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/k_progression_gauss4c_sigma0p01.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8f</div>
+      <div class="fig-title">&sigma; = 0.01</div>
+      <div class="fig-desc">Radius/spacing = 0.01. 400 samples, 50D, 4 centers.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/k_progression_gauss4c_sigma0p1.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8g</div>
+      <div class="fig-title">&sigma; = 0.1</div>
+      <div class="fig-desc">Radius/spacing = 0.07. Well-separated.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/k_progression_gauss4c_sigma1p0.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8h</div>
+      <div class="fig-title">&sigma; = 1.0</div>
+      <div class="fig-desc">Radius/spacing = 0.75. Overlap region.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/k_progression_gauss4c_sigma10p0.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8i</div>
+      <div class="fig-title">&sigma; = 10.0</div>
+      <div class="fig-desc">Radius/spacing = 7.45. Structure collapsed.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+
+<footer>
+  ERICA: Evaluating Replicability via Iterative Clustering Assignments<br>
+  Sorooshyari &amp; Shirazi &middot; 2026
+</footer>
+
+<script>
+// Lightbox
+function openLightbox(el) {
+  const img = el.querySelector('img');
+  const title = el.querySelector('.fig-title');
+  const desc = el.querySelector('.fig-desc');
+  document.getElementById('lb-img').src = img.src;
+  document.getElementById('lb-caption').textContent = (title ? title.textContent : '') + (desc ? ' — ' + desc.textContent : '');
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+
+// Sticky nav active state
+const sections = document.querySelectorAll('.figure-group');
+const navLinks = document.querySelectorAll('.nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const id = entry.target.id;
+      const link = document.querySelector('.nav a[href="#' + id + '"]');
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-40% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// Filter table
+document.getElementById('tableFilter').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#metricsBody tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+// Sort table
+let sortDir = {};
+function sortTable(colIdx) {
+  const tbody = document.getElementById('metricsBody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  sortDir[colIdx] = !sortDir[colIdx];
+  rows.sort((a, b) => {
+    const av = a.children[colIdx]?.textContent || '';
+    const bv = b.children[colIdx]?.textContent || '';
+    const an = parseFloat(av), bn = parseFloat(bv);
+    if (!isNaN(an) && !isNaN(bn)) return sortDir[colIdx] ? an - bn : bn - an;
+    return sortDir[colIdx] ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+
+// Smooth scroll
+navLinks.forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>
