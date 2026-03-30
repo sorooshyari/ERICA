@@ -272,7 +272,7 @@ def check_dependencies() -> Dict[str, bool]:
             dependencies[dep] = False
     
     # Optional dependencies
-    #optional = ['plotly', 'matplotlib', 'gradio']
+    optional = ['plotly', 'matplotlib']
     for dep in optional:
         try:
             __import__(dep)

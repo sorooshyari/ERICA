@@ -30,11 +30,12 @@ from erica.data import load_data
 data = load_data('expression_data.csv')
 
 # Initialize and run analysis
+# method='both' runs K-Means, Agglomerative (Single), and Agglomerative (Ward)
 erica = ERICA(
     data=data,
     k_range=[2, 3, 4, 5, 6, 7, 8],
     n_iterations=200,
-    method='both'
+    method='both'  # K-Means + Agglomerative (Single & Ward)
 )
 results = erica.run()
 

@@ -35,7 +35,7 @@ erica = ERICA(
     data=data,
     k_range=[2, 3, 4, 5, 6, 7, 8],  # Test K=2 through K=8
     n_iterations=200,               # 200 Monte Carlo iterations
-    method='both'                   # Test K-Means and Hierarchical
+    method='both'                   # K-Means + Agglomerative (Single & Ward linkage)
 )
 
 results = erica.run()
@@ -119,9 +119,10 @@ if 5 in disqualified.get('kmeans', []):
 | Method | Characteristics |
 |--------|-----------------|
 | K-Means | Faster; assumes spherical clusters |
-| Agglomerative (Ward) | Handles hierarchical structure; more flexible cluster shapes |
+| Agglomerative (Single linkage) | Sensitive to elongated/chained clusters |
+| Agglomerative (Ward linkage) | Minimizes within-cluster variance; more flexible cluster shapes |
 
-Use `method='both'` to compare approaches empirically.
+Use `method='both'` to run all three: K-Means, Agglomerative (Single), and Agglomerative (Ward). For finer control, pass a list: `method=['kmeans', 'agglomerative_ward']`.
 
 ## Contact
 

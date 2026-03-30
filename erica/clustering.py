@@ -639,7 +639,6 @@ def hdbscan_clustering(
             all_predicted_labels.append(np.array([]))
             all_true_labels.append(np.array([]))
             discovered_ks.append(n_clusters_train)
-            noise_counts.append(n_noise)
             continue
         else:
             n_clusters_test = max(unique_test) + 1
