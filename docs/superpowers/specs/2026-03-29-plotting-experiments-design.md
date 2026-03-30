@@ -82,7 +82,7 @@ Style settings (matching Parmigiani et al., with colorblind-safe updates):
 All datasets saved to `plotting_experiments/data/` via `np.save` or `np.savez`.
 
 ### Real data
-- **VDX 3-gene subset**: Copy from `examples/data/VDX_3_SV.csv`. Load with `erica.data.load_data()`, save as numpy array. 344 samples, 3 features (ESR1, ERBB2, AURKA).
+- **VDX 3-gene subset**: Copy from `examples/data/VDX_3_SV.csv`. **Important:** This CSV has NO header row and NO sample_id column — it is 344 rows x 3 columns of pure float data. Load with `np.loadtxt(path, delimiter=',')` (NOT `erica.data.load_data()`, which would misinterpret the first row as column headers and lose one sample). Result: 344 samples, 3 features (ESR1, ERBB2, AURKA).
 
 ### Synthetic data (sklearn-generated, matching Parmigiani's categories)
 - **Well-separated blobs**: `make_blobs(n_samples=300, centers=3, cluster_std=0.8, random_state=42)` — 5 features. Easy clustering baseline.
@@ -90,7 +90,7 @@ All datasets saved to `plotting_experiments/data/` via `np.save` or `np.savez`.
 - **2D shape datasets** (replacing Lorenzo's Frantti files, which aren't accessible):
   - `make_moons(n_samples=300, noise=0.05)` — non-convex clusters
   - `make_circles(n_samples=300, noise=0.05, factor=0.5)` — nested rings
-  - `make_blobs(n_samples=300, centers=3, cluster_std=0.5)` in 2D — well-separated 2D
+  - `make_blobs(n_samples=300, centers=3, cluster_std=0.5, n_features=2)` in 2D — well-separated 2D
 - **High-dimensional**: `make_blobs(n_samples=200, centers=3, n_features=50, random_state=42)` — tests ERICA on higher-dimensional data
 
 Each dataset saved as `data/{name}.npz` with keys `X` (data array) and `meta` (dict with `n_samples`, `n_features`, `true_k`, `description`, `transpose` flag).
@@ -105,7 +105,7 @@ Runs ERICA on each dataset and saves full results via `joblib.dump`.
 
 This script validates the recently shipped flattened method API + HDBSCAN support:
 - **Flattened `method` parameter**: Uses `method=['kmeans', 'agglomerative_ward', 'hdbscan']` (list-of-strings API, not the old `method='both'` + `linkages`)
-- **HDBSCAN auto-K**: Exercises `hdbscan_params` dict, verifies `auto_k_results` in output
+- **HDBSCAN auto-K**: Exercises `hdbscan_params` dict, verifies `auto_k` key in `get_results()` output
 - **ARI/AMI metrics**: Verifies `ARI_mean`, `ARI_std`, `AMI_mean`, `AMI_std` appear in K-based metric dicts
 - **`get_auto_k_results()`**: Calls accessor to retrieve HDBSCAN modal_k, k_distribution, k_agreement_rate, metrics_at_modal_k
 - **Mixed K-based + auto-K**: Runs both paths in a single ERICA instance, validates results dict contains both `metrics` (K-based) and `auto_k` (HDBSCAN) keys
@@ -130,7 +130,7 @@ For VDX 3-gene only, run a grid sweep:
 - `min_cluster_size`: [5, 10, 15, 20, 30, 50]
 - `min_samples`: [None, 3, 5, 10]
 
-Each combination is a separate ERICA run with `method=['hdbscan']`, K=2..6, 50 iterations. Save as `results/vdx_hdbscan_sweep.joblib`.
+Each combination is a separate ERICA run with `method=['hdbscan']`, 50 iterations. Note: HDBSCAN is auto-K so `k_range` is irrelevant for HDBSCAN-only runs, but ERICA requires it — use a dummy `k_range=[2]` (it will be ignored for HDBSCAN). Save as `results/vdx_hdbscan_sweep.joblib`.
 
 ### Output format
 
@@ -138,11 +138,20 @@ Each result saved as `results/{dataset_name}.joblib` containing:
 ```python
 {
     'erica_results': erica.get_results(),   # full results dict
-    'iteration_labels': {                    # per-(k, method) label pairs for ARI recomputation
-        (k, method): result['iteration_labels']
-        for (k, method), result in erica.results_.items()
-    },
-    'auto_k_results': erica.auto_k_results_,  # HDBSCAN results with CLAM, labels, etc.
+    # NOTE: erica.get_results() returns dict with these top-level keys:
+    #   'clam_matrices' -> {(k, method): np.ndarray}  (tuple keys!)
+    #   'metrics'       -> {k: {method: {metric_name: value}}}
+    #   'k_star'        -> {metric_name: {method: k_value}}
+    #   'disqualified_k'-> {method: [k_values]}
+    #   'auto_k'        -> {method_name: hdbscan_result_dict}  (NOTE: key is 'auto_k', NOT 'auto_k_results')
+    #   'config'        -> {k_range, n_iterations, ...}
+    #   'output_folders' -> [paths]
+    #   'results'       -> {(k, method): raw_result_dict_with_iteration_labels}
+    #
+    # iteration_labels are already inside erica_results['results'][(k, method)]['iteration_labels']
+    # for K-based methods, and inside erica_results['auto_k']['hdbscan']['iteration_labels']
+    # for HDBSCAN. No need to duplicate them.
+    'auto_k_results': erica.get_auto_k_results('hdbscan'),  # convenience shortcut; validates accessor
     'config': {                               # dataset metadata
         'dataset_name': name,
         'n_samples': n,
@@ -153,13 +162,15 @@ Each result saved as `results/{dataset_name}.joblib` containing:
 }
 ```
 
-Per-iteration ARI/AMI scores are recomputable from `iteration_labels` stored here. This avoids storing redundant aggregated-only values.
+Per-iteration ARI/AMI scores are recomputable from `iteration_labels` stored in the raw results. K-based labels: `erica_results['results'][(k, method)]['iteration_labels']`. HDBSCAN labels: `erica_results['auto_k']['hdbscan']['iteration_labels']`.
 
 ### Runtime estimate
 
 At 100 iterations per dataset, ~7 datasets: expect ~5-10 minutes total on a modern laptop. The HDBSCAN sweep (24 param combos x 50 iterations) adds ~5 more minutes. Total: ~15 minutes.
 
 Script prints progress per dataset with elapsed time.
+
+**Note:** ERICA's `compute_metrics_for_clam()` prints a "Cluster Index Summary" block to stdout for every (K, method) combination. With 7 datasets x ~5 K-values x 2-3 methods, expect ~100+ summary blocks. Consider redirecting stdout or noting this is expected behavior.
 
 ---
 
@@ -184,7 +195,7 @@ Two figures per dataset/method/K combination:
 
 **B) Sorted CLAM heatmap**: Same data but samples sorted by primary cluster assignment (argmax of each row), then within each cluster by assignment strength (descending). Produces clean diagonal blocks for stable clusterings, scattered patterns for unstable ones. This is the more informative view.
 
-Access pattern: K-based CLAMs from `results['erica_results']['clam_matrices'][(k, method)]`. HDBSCAN CLAM from `results['auto_k_results']['hdbscan']['clam_matrix']`.
+Access pattern: K-based CLAMs from `results['erica_results']['clam_matrices'][(k, method)]` (note: tuple keys). HDBSCAN CLAM from `results['erica_results']['auto_k']['hdbscan']['clam_matrix']` (or equivalently `results['auto_k_results']['clam_matrix']` via the convenience shortcut).
 
 Default output: sorted heatmap for VDX 3-gene, K=3, kmeans. Generate a multi-panel figure showing K=2,3,4 side by side.
 
@@ -202,7 +213,9 @@ Two panels per dataset:
 
 **Panel 1: ERICA metrics** — `errorbar` plot of CRI, WCRI, TWCRI vs K. Vertical dashed lines at K* for each metric (color-matched). X-axis = K, Y-axis = metric value.
 
-**Panel 2: Parmigiani metrics** — `errorbar` plot of ARI mean +/- std and AMI mean +/- std vs K. Error bars computed by reloading `iteration_labels` from the saved results and calling `compute_parmigiani_metrics` per iteration.
+Access pattern for ERICA metrics: `results['erica_results']['metrics'][k][method]['CRI']` (nested as `{k: {method: {metric_name: value}}}`). K* values: `results['erica_results']['k_star']['TWCRI'][method]`.
+
+**Panel 2: Parmigiani metrics** — `errorbar` plot of ARI mean +/- std and AMI mean +/- std vs K. ARI/AMI are already aggregated in the metrics dict: `results['erica_results']['metrics'][k][method]['ARI_mean']`, `['ARI_std']`, etc. For per-iteration recomputation, labels are in `results['erica_results']['results'][(k, method)]['iteration_labels']`.
 
 K* lines: one per metric, color-matched to the metric's line. TWCRI K* gets the thickest dashed line (primary recommendation).
 
@@ -224,7 +237,7 @@ Three surface types, each with a primary 2D heatmap and an optional 3D `plot_sur
 
 **B) Metric landscape**: X = K values, Y = methods (indexed 0..N), Z = TWCRI. Primary: 2D heatmap with K on x-axis, method on y-axis, color = TWCRI. 3D: surface interpolated across K and method.
 
-**C) HDBSCAN parameter sensitivity**: X = `min_cluster_size`, Y = `min_samples`, Z = `k_agreement_rate`. Loads from `results/vdx_hdbscan_sweep.joblib`. Primary: 2D heatmap. 3D: parameter sensitivity surface.
+**C) HDBSCAN parameter sensitivity**: X = `min_cluster_size`, Y = `min_samples`, Z = `k_agreement_rate`. Loads from `results/vdx_hdbscan_sweep.joblib`. Primary: 2D heatmap. 3D: parameter sensitivity surface. **Edge case:** Some param combos may yield `modal_k=0` (all noise) — handle as NaN cells in the heatmap.
 
 For all 3D plots: export both the 2D and 3D versions. 2D heatmaps are the paper-ready defaults; 3D surfaces are for exploration and supplementary materials.
 
