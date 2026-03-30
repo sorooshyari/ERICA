@@ -160,5 +160,8 @@ COPILOT.md
 # Benchmarks
 .benchmarks/
 
+# Superpowers dev artifacts (plans, sanity checks, specs)
+docs/superpowers/
+
 # R history
 .Rhistory
