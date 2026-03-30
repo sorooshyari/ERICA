@@ -8,10 +8,70 @@ This module provides helper functions for:
 
 import os
 import random
+import warnings
 import numpy as np
 import json
 from hashlib import sha256
-from typing import Dict, Any
+from typing import Dict, Any, Union
+
+
+VALID_METHODS = [
+    'kmeans',
+    'agglomerative_ward',
+    'agglomerative_single',
+    'agglomerative_complete',
+    'agglomerative_average',
+    'hdbscan',
+]
+
+K_BASED_METHODS = [
+    'kmeans',
+    'agglomerative_ward',
+    'agglomerative_single',
+    'agglomerative_complete',
+    'agglomerative_average',
+]
+
+AUTO_K_METHODS = [
+    'hdbscan',
+]
+
+_DEPRECATED_METHOD_ALIASES = {
+    'both': ['kmeans', 'agglomerative_single', 'agglomerative_ward'],
+    'agglomerative': ['agglomerative_single', 'agglomerative_ward'],
+}
+
+
+def normalize_method(method: Union[str, list]) -> list:
+    """Normalize method parameter to a list of valid method strings."""
+    if isinstance(method, str):
+        if method == 'all':
+            return list(VALID_METHODS)
+        if method in _DEPRECATED_METHOD_ALIASES:
+            warnings.warn(
+                f"method='{method}' is deprecated. "
+                f"Use method={_DEPRECATED_METHOD_ALIASES[method]} instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return list(_DEPRECATED_METHOD_ALIASES[method])
+        if method in VALID_METHODS:
+            return [method]
+        raise ValueError(
+            f"Unknown method '{method}'. Valid methods: {VALID_METHODS}"
+        )
+
+    if isinstance(method, list):
+        for m in method:
+            if m not in VALID_METHODS:
+                raise ValueError(
+                    f"Unknown method '{m}'. Valid methods: {VALID_METHODS}"
+                )
+        return list(method)
+
+    raise TypeError(
+        f"method must be a string or list of strings, got {type(method).__name__}"
+    )
 
 
 def set_deterministic_mode(seed: int) -> None:
@@ -267,19 +327,24 @@ def validate_config(config: Dict[str, Any]) -> None:
     
     # Validate method
     if 'method' in config:
-        valid_methods = ['kmeans', 'agglomerative', 'both']
-        if config['method'] not in valid_methods:
-            raise ValueError(f"method must be one of {valid_methods}")
-    
-    # Validate linkages
+        method = config['method']
+        if isinstance(method, str):
+            valid = list(VALID_METHODS) + list(_DEPRECATED_METHOD_ALIASES.keys()) + ['all']
+            if method not in valid:
+                raise ValueError(f"method must be one of {valid}")
+        elif isinstance(method, list):
+            for m in method:
+                if m not in VALID_METHODS:
+                    raise ValueError(
+                        f"Invalid method '{m}'. Must be one of {VALID_METHODS}"
+                    )
+
     if 'linkages' in config:
-        valid_linkages = ['single', 'complete', 'average', 'ward']
-        linkages = config['linkages']
-        if not isinstance(linkages, list):
-            raise ValueError("linkages must be a list")
-        for linkage in linkages:
-            if linkage not in valid_linkages:
-                raise ValueError(f"Invalid linkage '{linkage}'. Must be one of {valid_linkages}")
+        raise TypeError(
+            "The 'linkages' parameter has been removed. "
+            "Use method=['agglomerative_ward'] instead. "
+            "See the migration guide for details."
+        )
 
 
 def create_run_directory(base_dir: str, prefix: str = 'erica_run') -> str:

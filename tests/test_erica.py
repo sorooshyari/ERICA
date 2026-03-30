@@ -476,5 +476,74 @@ def test_get_disqualified_k():
         assert all(isinstance(k, int) for k in disqualified['kmeans'])
 
 
+import warnings
+from erica.utils import (
+    VALID_METHODS, K_BASED_METHODS, AUTO_K_METHODS,
+    normalize_method,
+)
+
+
+def test_method_constants():
+    assert 'kmeans' in VALID_METHODS
+    assert 'agglomerative_ward' in VALID_METHODS
+    assert 'agglomerative_single' in VALID_METHODS
+    assert 'agglomerative_complete' in VALID_METHODS
+    assert 'agglomerative_average' in VALID_METHODS
+    assert 'hdbscan' in VALID_METHODS
+    assert set(VALID_METHODS) == set(K_BASED_METHODS) | set(AUTO_K_METHODS)
+    assert 'hdbscan' in AUTO_K_METHODS
+    assert 'hdbscan' not in K_BASED_METHODS
+
+
+def test_normalize_method_single_string():
+    assert normalize_method('kmeans') == ['kmeans']
+    assert normalize_method('hdbscan') == ['hdbscan']
+    assert normalize_method('agglomerative_ward') == ['agglomerative_ward']
+
+
+def test_normalize_method_list():
+    result = normalize_method(['kmeans', 'hdbscan'])
+    assert result == ['kmeans', 'hdbscan']
+
+
+def test_normalize_method_all():
+    result = normalize_method('all')
+    assert set(result) == set(VALID_METHODS)
+
+
+def test_normalize_method_both_deprecated():
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        result = normalize_method('both')
+        assert len(w) == 1
+        assert issubclass(w[0].category, DeprecationWarning)
+        assert 'deprecated' in str(w[0].message).lower()
+    assert result == ['kmeans', 'agglomerative_single', 'agglomerative_ward']
+
+
+def test_normalize_method_agglomerative_deprecated():
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        result = normalize_method('agglomerative')
+        assert len(w) == 1
+        assert issubclass(w[0].category, DeprecationWarning)
+    assert result == ['agglomerative_single', 'agglomerative_ward']
+
+
+def test_normalize_method_invalid_string():
+    with pytest.raises(ValueError, match="Unknown method"):
+        normalize_method('invalid_method')
+
+
+def test_normalize_method_invalid_in_list():
+    with pytest.raises(ValueError, match="Unknown method"):
+        normalize_method(['kmeans', 'invalid_method'])
+
+
+def test_normalize_method_wrong_type():
+    with pytest.raises(TypeError):
+        normalize_method(123)
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
