@@ -10,9 +10,12 @@
 
 ERICA has `erica/plotting.py` with plotly-based interactive plots, but no publication-quality matplotlib figures matching Parmigiani et al.'s style. We need a playground to generate test data, run ERICA, and experiment with different plot types (CLAM heatmaps, metric curves, 3D surfaces, etc.) for paper figures.
 
+Additionally, the ERICA package was just updated with a flattened method API and HDBSCAN support. These plotting experiments serve as an end-to-end validation of the new implementation — exercising the new `method` list API, `hdbscan` method, `auto_k_results`, ARI/AMI metrics, and `get_auto_k_results()` accessor against real and synthetic data.
+
 ## Constraints
 
-- All scripts import ERICA via `from erica import ERICA` (pip-installed package, not relative imports)
+- All scripts import ERICA via `from erica import ERICA` (pip-installed package via `pip install -e .`)
+- Scripts must exercise the new API features: list-of-strings `method` parameter, `hdbscan_params`, `get_auto_k_results()`, and ARI/AMI metrics in results
 - No remote downloads required at runtime. Use local data (`examples/data/VDX_3_SV.csv`) and sklearn-generated synthetics
 - All matplotlib, no plotly. Publication-quality PDFs matching Parmigiani et al.'s style
 - Data generation and ERICA pipeline run separately from plot scripts (fast plot iteration)
@@ -97,6 +100,17 @@ Each dataset saved as `data/{name}.npz` with keys `X` (data array) and `meta` (d
 ## 4. ERICA Pipeline (`02_run_erica_pipeline.py`)
 
 Runs ERICA on each dataset and saves full results via `joblib.dump`.
+
+### New API features exercised
+
+This script validates the recently shipped flattened method API + HDBSCAN support:
+- **Flattened `method` parameter**: Uses `method=['kmeans', 'agglomerative_ward', 'hdbscan']` (list-of-strings API, not the old `method='both'` + `linkages`)
+- **HDBSCAN auto-K**: Exercises `hdbscan_params` dict, verifies `auto_k_results` in output
+- **ARI/AMI metrics**: Verifies `ARI_mean`, `ARI_std`, `AMI_mean`, `AMI_std` appear in K-based metric dicts
+- **`get_auto_k_results()`**: Calls accessor to retrieve HDBSCAN modal_k, k_distribution, k_agreement_rate, metrics_at_modal_k
+- **Mixed K-based + auto-K**: Runs both paths in a single ERICA instance, validates results dict contains both `metrics` (K-based) and `auto_k` (HDBSCAN) keys
+
+Script prints a validation summary after each dataset run confirming all expected keys/structures are present.
 
 ### Per-dataset configuration
 
