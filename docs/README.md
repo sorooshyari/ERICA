@@ -17,7 +17,7 @@ Welcome to the ERICA documentation. This guide covers everything you need to ass
 ### 1. Installation
 
 ```bash
-pip install erica-clustering
+pip install erica
 ```
 
 ### 2. Basic Analysis
@@ -126,7 +126,7 @@ Use `method='both'` to run all three: K-Means, Agglomerative (Single), and Agglo
 
 ## Contact
 
-- **Issues:** [GitHub Issues](https://github.com/sorooshyari/ERICA/issues)
+- **Issues:** [GitHub Issues](https://github.com/PhenomML/ERICA/issues)
 - **Email:** s.shirazi@berkeley.edu (Shawn Shirazi), siamak_sorooshyari@yahoo.com (Siamak Sorooshyari)
 
 ---

@@ -470,7 +470,7 @@ If you use ERICA in your research, please cite:
   title = {ERICA: Evaluating Replicability via Iterative Clustering Assignments},
   author = {Sorooshyari, Siamak and Shirazi, Shawn},
   year = {2025},
-  url = {https://github.com/sorooshyari/ERICA}
+  url = {https://github.com/PhenomML/ERICA}
 }
 ```
 

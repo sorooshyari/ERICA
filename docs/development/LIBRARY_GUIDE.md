@@ -306,7 +306,7 @@ python -m build
 python -m twine upload --repository testpypi dist/*
 
 # Test installation
-pip install --index-url https://test.pypi.org/simple/ erica-clustering
+pip install --index-url https://test.pypi.org/simple/ erica
 
 # If all good, upload to PyPI
 python -m twine upload dist/*

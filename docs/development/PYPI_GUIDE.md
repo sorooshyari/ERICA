@@ -116,7 +116,7 @@ This creates:
 python -m twine upload --repository testpypi dist/*
 
 # Test installation
-pip install --index-url https://test.pypi.org/simple/ erica-clustering
+pip install --index-url https://test.pypi.org/simple/ erica
 ```
 
 ### 5. Publish to PyPI
@@ -130,7 +130,7 @@ python -m twine upload dist/*
 
 ### 6. Verify Installation
 ```bash
-pip install erica-clustering
+pip install erica
 python -c "import erica; print(erica.__version__)"
 ```
 

@@ -5,31 +5,31 @@
 ### Basic Installation
 
 ```bash
-pip install erica-clustering
+pip install erica
 ```
 
 ### With Plotting Support
 
 ```bash
-pip install erica-clustering[plots]
+pip install erica[plots]
 ```
 
 ### With GUI Support
 
 ```bash
-pip install erica-clustering[gui]
+pip install erica[gui]
 ```
 
 ### Full Installation (All Features)
 
 ```bash
-pip install erica-clustering[all]
+pip install erica[all]
 ```
 
 ### Development Installation
 
 ```bash
-git clone https://github.com/sorooshyari/ERICA.git
+git clone https://github.com/PhenomML/ERICA.git
 cd ERICA
 pip install -e .[dev]
 ```
@@ -407,7 +407,7 @@ data = np.nan_to_num(data)  # Replace NaN with 0
 **Issue: Plots not showing**
 - Solution: Make sure plotly is installed
 ```bash
-pip install erica-clustering[plots]
+pip install erica[plots]
 ```
 
 **Issue: Very slow for large datasets**
@@ -421,6 +421,6 @@ pip install erica-clustering[plots]
 - Read the [API Reference](API_REFERENCE.md) for detailed function documentation
 - Check out [Examples](../examples/) for more use cases
 - See [Methodology](METHODOLOGY.md) for theoretical background
-- Visit the [GitHub repository](https://github.com/sorooshyari/ERICA) for issues and contributions
+- Visit the [GitHub repository](https://github.com/PhenomML/ERICA) for issues and contributions
 
 

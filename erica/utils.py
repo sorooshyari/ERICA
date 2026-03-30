@@ -258,7 +258,7 @@ def check_dependencies() -> Dict[str, bool]:
     --------
     >>> deps = check_dependencies()
     >>> if not deps['plotly']:
-    ...     print("Install plotly for plotting: pip install erica-clustering[plots]")
+    ...     print("Install plotly for plotting: pip install erica[plots]")
     """
     dependencies = {}
     

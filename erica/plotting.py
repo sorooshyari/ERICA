@@ -25,7 +25,7 @@ def _check_plotly():
     if not _PLOTLY_AVAILABLE:
         raise ImportError(
             "Plotting requires plotly. Install with: "
-            "pip install erica-clustering[plots]"
+            "pip install erica[plots]"
         )
 
 

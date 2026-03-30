@@ -49,7 +49,7 @@ def install_erica():
     
     subprocess.check_call([
         sys.executable, "-m", "pip", "install",
-        "--upgrade", "erica-clustering[all]"
+        "--upgrade", "erica[all]"
     ])
     
     print("✅ ERICA library installed!")
@@ -117,7 +117,7 @@ def main():
         print("   Run these commands in separate cells:")
         print("   !pip uninstall -y numpy pandas scikit-learn")
         print("   !pip install 'numpy<2.0.0' 'pandas>=1.3.0' 'scikit-learn>=1.0.0'")
-        print("   !pip install erica-clustering[all]")
+        print("   !pip install erica[all]")
         return False
 
 

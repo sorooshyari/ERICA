@@ -145,7 +145,7 @@ def main():
         print(f"   ✓ CLAM heatmap saved to: advanced_clam_k{optimal_k}.html")
     except ImportError:
         print("   ⚠ Plotly not installed, skipping visualization")
-        print("     Install with: pip install erica-clustering[plots]")
+        print("     Install with: pip install erica[plots]")
     
     # Save CLAM matrices
     print(f"\n10. Saving CLAM matrices...")

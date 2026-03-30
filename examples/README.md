@@ -6,7 +6,7 @@ This folder contains executable example scripts demonstrating ERICA for clusteri
 
 ```bash
 # Install ERICA
-pip install erica-clustering
+pip install erica
 
 # Run the basic example
 cd examples
@@ -156,7 +156,7 @@ For users who prefer graphical interfaces:
 **Launch:**
 ```bash
 # Install GUI dependencies
-pip install erica-clustering[gui]
+pip install erica[gui]
 
 # Start web interface
 python gradio_app.py
@@ -177,7 +177,7 @@ erica = ERICA(data=data, transpose=False, ...)
 
 Install visualization dependencies:
 ```bash
-pip install erica-clustering[plots]
+pip install erica[plots]
 ```
 
 ### Slow execution
@@ -193,4 +193,4 @@ erica = ERICA(..., n_iterations=50)  # Default is 200
 
 - [Documentation](../docs/README.md)
 - [API Reference](../docs/API_REFERENCE.md)
-- [GitHub Issues](https://github.com/sorooshyari/ERICA/issues)
+- [GitHub Issues](https://github.com/PhenomML/ERICA/issues)

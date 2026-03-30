@@ -2,7 +2,7 @@
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PyPI version](https://badge.fury.io/py/erica-clustering.svg)](https://badge.fury.io/py/erica-clustering)
+[![PyPI version](https://badge.fury.io/py/erica.svg)](https://badge.fury.io/py/erica)
 
 **ERICA** is a Python implementation for assessing clustering replicability using Monte Carlo subsampling (MCSS). Because finding clusters is easy—finding clusters that *actually exist* is the hard part.
 
@@ -11,13 +11,13 @@ The method evaluates whether cluster structures identified in a dataset are stab
 ## Installation
 
 ```bash
-pip install erica-clustering
+pip install erica
 
 # With visualization support
-pip install erica-clustering[plots]
+pip install erica[plots]
 
 # With graphical interface (for those who prefer clicking)
-pip install erica-clustering[gui]
+pip install erica[gui]
 ```
 
 ## Basic Usage
@@ -130,7 +130,7 @@ If you use ERICA in your research, please cite:
   title = {ERICA: Evaluating Replicability via Iterative Clustering Assignments},
   author = {Sorooshyari, Siamak and Shirazi, Shawn},
   year = {2025},
-  url = {https://github.com/sorooshyari/ERICA}
+  url = {https://github.com/PhenomML/ERICA}
 }
 ```
 
@@ -140,5 +140,5 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## Contact
 
-- **Issues:** [GitHub Issues](https://github.com/sorooshyari/ERICA/issues)
+- **Issues:** [GitHub Issues](https://github.com/PhenomML/ERICA/issues)
 - **Email:** s.shirazi@berkeley.edu, siamak_sorooshyari@yahoo.com

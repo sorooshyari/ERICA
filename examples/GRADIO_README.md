@@ -19,7 +19,7 @@ This folder contains a streamlined Gradio-based web interface for the ERICA (Eva
 ### Option 1: Install with GUI extras
 
 ```bash
-pip install erica-clustering[gui]
+pip install erica[gui]
 ```
 
 ### Option 2: Install Gradio separately
@@ -265,7 +265,7 @@ Here's a streamlined workflow for analyzing a dataset:
 ```
 ImportError: No module named 'gradio'
 ```
-**Solution**: Install Gradio with `pip install gradio>=4.0.0` or `pip install erica-clustering[gui]`
+**Solution**: Install Gradio with `pip install gradio>=4.0.0` or `pip install erica[gui]`
 
 **Problem: Data Loading Errors**
 ```

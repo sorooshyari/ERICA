@@ -2,7 +2,7 @@
 
 ## 📦 Package Information
 
-**Name**: `erica-clustering`  
+**Name**: `erica`  
 **Version**: 0.1.0 (initial release)  
 **Description**: ERICA - Evaluating Replicability via Iterative Clustering Assignments  
 **License**: MIT  
@@ -10,7 +10,7 @@
 ## 🎯 Project Goal
 
 Create a professional Python package for ERICA that can be:
-1. Installed via PyPI: `pip install erica-clustering`
+1. Installed via PyPI: `pip install erica`
 2. Used as a Python library with clean API
 3. Run from command-line with intuitive CLI
 4. Launched as GUI application (optional)
@@ -216,7 +216,7 @@ Following Semantic Versioning:
 
 ## 🔗 Resources
 
-- **PyPI Package**: https://pypi.org/project/erica-clustering/ (when published)
+- **PyPI Package**: https://pypi.org/project/erica/ (when published)
 - **GitHub Repository**: [TO BE CREATED]
 - **Documentation**: [TO BE CREATED]
 - **HuggingFace Space**: https://huggingface.co/spaces/astrosight/ERICA

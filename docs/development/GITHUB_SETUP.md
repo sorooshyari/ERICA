@@ -82,16 +82,16 @@ After publishing, users can install with:
 
 ```bash
 # Basic installation
-pip install erica-clustering
+pip install erica
 
 # With plotting support
-pip install erica-clustering[plots]
+pip install erica[plots]
 
 # With GUI support
-pip install erica-clustering[gui]
+pip install erica[gui]
 
 # Full installation
-pip install erica-clustering[all]
+pip install erica[all]
 ```
 
 ## 🔄 Updating the Package
@@ -108,7 +108,7 @@ To publish a new version:
 ### Common Issues:
 
 1. **PyPI API Token**: Make sure it's correctly set in GitHub Secrets
-2. **Package Name**: Ensure `erica-clustering` is available on PyPI
+2. **Package Name**: Ensure `erica` is available on PyPI
 3. **Version**: Each version can only be published once
 4. **Dependencies**: Check that all dependencies are available
 

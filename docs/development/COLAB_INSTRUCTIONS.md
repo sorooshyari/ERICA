@@ -8,7 +8,7 @@ ERICA v0.1.3+ is fully compatible with modern NumPy 2.x, pandas 2.x, and scikit-
 
 ```python
 # Install ERICA clustering library with all features
-!pip install --upgrade erica-clustering[all]
+!pip install --upgrade erica[all]
 
 # Verify installation
 import numpy as np
@@ -33,7 +33,7 @@ If you're using ERICA v0.1.2 or earlier and see: `ValueError: numpy.dtype size c
 #### Cell 1: Upgrade to Latest Version
 ```python
 # Upgrade to the latest ERICA version (recommended)
-!pip install --upgrade erica-clustering[all]
+!pip install --upgrade erica[all]
 ```
 
 #### Cell 3: Restart Runtime
@@ -70,7 +70,7 @@ If you want an automated fix, run this:
 
 ```python
 !pip install --upgrade --force-reinstall 'numpy<2.0.0' pandas scikit-learn
-!pip install erica-clustering[all]
+!pip install erica[all]
 
 # Then restart runtime: Runtime > Restart runtime
 ```
@@ -147,7 +147,7 @@ If the above doesn't work, try this nuclear option:
 !pip install 'gradio>=4.0.0'
 
 # Then install ERICA
-!pip install erica-clustering
+!pip install erica
 
 # Restart runtime: Runtime > Restart runtime
 ```
@@ -156,7 +156,7 @@ If the above doesn't work, try this nuclear option:
 
 ## 📚 Additional Resources
 
-- **PyPI Package**: https://pypi.org/project/erica-clustering/
+- **PyPI Package**: https://pypi.org/project/erica/
 - **GitHub**: https://github.com/astrocyte/ERICA_clustering
 - **Documentation**: See README.md for full API reference
 
