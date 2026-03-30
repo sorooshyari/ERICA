@@ -41,7 +41,7 @@ def main():
         data=data,
         k_range=[2, 3, 4, 5, 6, 7],  # Test K=2 to K=7
         n_iterations=200,            # 200 iterations for stability
-        method='both',               # both means KMeans + Agglomerative
+        method='both',               # K-Means + Agglomerative (Single & Ward linkage)
         random_seed=123,             # Deterministic for reproducibility
         verbose=True
     )

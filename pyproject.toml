@@ -47,10 +47,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/shawnshirazi/ERICA_PyPI"
-Documentation = "https://github.com/shawnshirazi/ERICA_PyPI/blob/main/docs/"
-Repository = "https://github.com/shawnshirazi/ERICA_PyPI"
-"Bug Tracker" = "https://github.com/shawnshirazi/ERICA_PyPI/issues"
+Homepage = "https://github.com/PhenomML/ERICA"
+Documentation = "https://github.com/PhenomML/ERICA/blob/main/docs/"
+Repository = "https://github.com/PhenomML/ERICA"
+"Bug Tracker" = "https://github.com/PhenomML/ERICA/issues"
 
 [project.scripts]
 erica = "erica.cli:main"

@@ -9,18 +9,18 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='erica-clustering',
+    name='erica',
     version='0.1.3',
     author='Siamak Sorooshyari, Shawn Shirazi',
     author_email='shawn.shirazi@example.com',
     description='ERICA - A robust clustering replicability analysis tool using iterative clustering assignments',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/shawnshirazi/ERICA_PyPI',
+    url='https://github.com/PhenomML/ERICA',
     project_urls={
-        'Bug Tracker': 'https://github.com/shawnshirazi/ERICA_PyPI/issues',
-        'Documentation': 'https://github.com/shawnshirazi/ERICA_PyPI/blob/main/docs/',
-        'Source Code': 'https://github.com/shawnshirazi/ERICA_PyPI',
+        'Bug Tracker': 'https://github.com/PhenomML/ERICA/issues',
+        'Documentation': 'https://github.com/PhenomML/ERICA/blob/main/docs/',
+        'Source Code': 'https://github.com/PhenomML/ERICA',
     },
     packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'examples', 'examples.*']),
     classifiers=[
