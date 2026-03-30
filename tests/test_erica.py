@@ -349,14 +349,13 @@ def test_erica_k_star_multiple_methods():
     """Test K* computation with multiple clustering methods."""
     # Create sample data
     data = np.random.rand(30, 5)
-    
+
     # Initialize and run ERICA with both methods
     erica = ERICA(
         data=data,
         k_range=[2, 3],
         n_iterations=3,
-        method='both',
-        linkages=['ward'],
+        method=['kmeans', 'agglomerative_ward'],
         verbose=False
     )
     
@@ -683,6 +682,70 @@ def test_agglomerative_returns_iteration_labels():
     assert 'true' in result['iteration_labels']
     assert len(result['iteration_labels']['predicted']) == 5
     assert len(result['iteration_labels']['true']) == 5
+
+
+def test_erica_init_list_method():
+    data = np.random.rand(50, 10)
+    erica = ERICA(
+        data=data, k_range=[2, 3], n_iterations=10,
+        method=['kmeans', 'agglomerative_ward'],
+    )
+    assert erica.k_based_methods == ['kmeans', 'agglomerative_ward']
+    assert erica.auto_k_methods == []
+
+
+def test_erica_init_hdbscan():
+    data = np.random.rand(50, 10)
+    erica = ERICA(
+        data=data, k_range=[2, 3], n_iterations=10,
+        method=['kmeans', 'hdbscan'],
+    )
+    assert 'kmeans' in erica.k_based_methods
+    assert 'hdbscan' in erica.auto_k_methods
+
+
+def test_erica_init_all_method():
+    data = np.random.rand(50, 10)
+    erica = ERICA(
+        data=data, k_range=[2, 3], n_iterations=10,
+        method='all',
+    )
+    assert len(erica.k_based_methods) == 5
+    assert len(erica.auto_k_methods) == 1
+
+
+def test_erica_init_both_deprecated():
+    data = np.random.rand(50, 10)
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        erica = ERICA(
+            data=data, k_range=[2, 3], n_iterations=10,
+            method='both',
+        )
+        dep_warnings = [x for x in w if issubclass(x.category, DeprecationWarning)]
+        assert len(dep_warnings) >= 1
+    assert set(erica.k_based_methods) == {
+        'kmeans', 'agglomerative_single', 'agglomerative_ward'
+    }
+
+
+def test_erica_init_linkages_rejected():
+    data = np.random.rand(50, 10)
+    with pytest.raises(TypeError, match="linkages.*removed"):
+        ERICA(
+            data=data, k_range=[2, 3], n_iterations=10,
+            method='kmeans', linkages=['ward'],
+        )
+
+
+def test_erica_init_hdbscan_params():
+    data = np.random.rand(50, 10)
+    erica = ERICA(
+        data=data, k_range=[2, 3], n_iterations=10,
+        method=['hdbscan'],
+        hdbscan_params={'min_cluster_size': 10, 'min_samples': 3},
+    )
+    assert erica.hdbscan_params == {'min_cluster_size': 10, 'min_samples': 3}
 
 
 if __name__ == "__main__":

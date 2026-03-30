@@ -14,11 +14,15 @@ from datetime import datetime
 from erica.clustering import (
     kmeans_clustering,
     agglomerative_clustering,
+    hdbscan_clustering,
     iterative_clustering_subsampling,
 )
 from erica.metrics import compute_metrics_for_clam, select_optimal_k_by_method
 from erica.data import prepare_samples_array, validate_dataset
-from erica.utils import set_deterministic_mode, compute_config_hash
+from erica.utils import (
+    set_deterministic_mode, compute_config_hash,
+    normalize_method, K_BASED_METHODS, AUTO_K_METHODS,
+)
 
 
 class ERICA:
@@ -30,50 +34,37 @@ class ERICA:
         k_range: Optional[List[int]] = None,
         n_iterations: int = 200,
         train_percent: float = 0.8,
-        method: str = 'both',
-        linkages: Optional[List[str]] = None,
+        method: Union[str, List[str]] = 'both',
         random_seed: int = 123,
         output_dir: str = './erica_output',
         transpose: bool = True,
-        verbose: bool = True
+        verbose: bool = True,
+        hdbscan_params: Optional[Dict] = None,
+        **kwargs,
     ):
-        """Initialize ERICA analysis.
-        
-        Parameters
-        ----------
-        data : np.ndarray or pd.DataFrame
-            Input data for clustering analysis
-        k_range : list of int, optional
-            Range of k values to test (default: [2, 3, 4, 5])
-        n_iterations : int, optional
-            Number of subsampling iterations (default: 200)
-        train_percent : float, optional
-            Percentage of data for training (default: 0.8)
-        method : str, optional
-            Clustering method: 'kmeans', 'agglomerative', or 'both' (default: 'both')
-        linkages : list of str, optional
-            Linkage methods for agglomerative clustering (default: ['single', 'ward'])
-        random_seed : int, optional
-            Random seed for reproducibility (default: 123)
-        output_dir : str, optional
-            Directory for output files (default: './erica_output')
-        transpose : bool, optional
-            Whether to transpose the data (default: True)
-            - True: Assumes features in rows, samples in columns (genomics format - default)
-            - False: Assumes samples in rows, features in columns (standard ML format)
-        verbose : bool, optional
-            Print progress messages (default: True)
-        """
+        # Reject removed parameters
+        if 'linkages' in kwargs:
+            raise TypeError(
+                "The 'linkages' parameter has been removed. "
+                "Use method=['agglomerative_ward', 'agglomerative_single'] "
+                "instead. See the migration guide for details."
+            )
+
         self.data = data
         self.k_range = k_range or [2, 3, 4, 5]
         self.n_iterations = n_iterations
         self.train_percent = train_percent
-        self.method = method
-        self.linkages = linkages or ['single', 'ward']
         self.random_seed = random_seed
         self.output_dir = output_dir
         self.transpose = transpose
         self.verbose = verbose
+        self.hdbscan_params = hdbscan_params
+
+        # Normalize and classify methods
+        self.method_list = normalize_method(method)
+        self.method = method  # keep original for backwards compat
+        self.k_based_methods = [m for m in self.method_list if m in K_BASED_METHODS]
+        self.auto_k_methods = [m for m in self.method_list if m in AUTO_K_METHODS]
 
         # Deterministic reproducibility
         set_deterministic_mode(random_seed)
@@ -87,8 +78,9 @@ class ERICA:
         self.results_ = {}
         self.clam_matrices_ = {}
         self.metrics_ = {}
-        self.k_star_ = {}  # Store optimal K for each method and metric
-        self.disqualified_k_ = {}  # Store disqualified K values by method
+        self.k_star_ = {}
+        self.disqualified_k_ = {}
+        self.auto_k_results_ = {}
         self.output_folders_ = []
 
         os.makedirs(output_dir, exist_ok=True)
@@ -98,7 +90,7 @@ class ERICA:
             print(f"  Data shape: {self.samples_array.shape}")
             print(f"  K range: {self.k_range}")
             print(f"  Iterations: {self.n_iterations}")
-            print(f"  Method: {self.method}")
+            print(f"  Methods: {self.method_list}")
             print(f"  Random seed: {self.random_seed}")
 
     def run(self) -> Dict:
@@ -127,10 +119,9 @@ class ERICA:
         # Step 2: Clustering for each k and method
         if self.verbose:
             print(f"\n[2/3] Running clustering analysis...")
-        methods_to_run = ['kmeans', 'agglomerative'] if self.method == 'both' else [self.method]
 
         for k in self.k_range:
-            for method_name in methods_to_run:
+            for method_name in self.k_based_methods:
                 if method_name == 'kmeans':
                     if self.verbose:
                         print(f"  Running K-Means clustering for k={k}...")
@@ -145,22 +136,21 @@ class ERICA:
                     self.clam_matrices_[(k, 'kmeans')] = result['clam_matrix']
                     self.results_[(k, 'kmeans')] = result
 
-                elif method_name == 'agglomerative':
-                    for linkage in self.linkages:
-                        if self.verbose:
-                            print(f"  Running Agglomerative clustering (linkage={linkage}) for k={k}...")
-                        result = agglomerative_clustering(
-                            samples_array=self.samples_array,
-                            k=k,
-                            linkage=linkage,
-                            n_iterations=self.n_iterations,
-                            indices_folder=indices_folder,
-                            output_dir=run_dir,
-                            verbose=self.verbose
-                        )
-                        method_key = f'agglomerative_{linkage}'
-                        self.clam_matrices_[(k, method_key)] = result['clam_matrix']
-                        self.results_[(k, method_key)] = result
+                elif method_name.startswith('agglomerative_'):
+                    linkage = method_name.split('_', 1)[1]
+                    if self.verbose:
+                        print(f"  Running Agglomerative clustering (linkage={linkage}) for k={k}...")
+                    result = agglomerative_clustering(
+                        samples_array=self.samples_array,
+                        k=k,
+                        linkage=linkage,
+                        n_iterations=self.n_iterations,
+                        indices_folder=indices_folder,
+                        output_dir=run_dir,
+                        verbose=self.verbose
+                    )
+                    self.clam_matrices_[(k, method_name)] = result['clam_matrix']
+                    self.results_[(k, method_name)] = result
 
         # Step 3: Compute metrics
         if self.verbose:
@@ -351,7 +341,7 @@ class ERICA:
             'n_iterations': self.n_iterations,
             'train_percent': self.train_percent,
             'method': self.method,
-            'linkages': self.linkages,
+            'method_list': self.method_list,
             'random_seed': self.random_seed,
             'n_samples': self.n_samples,
             'n_features': self.n_features,
@@ -360,7 +350,6 @@ class ERICA:
                 'n_iterations': self.n_iterations,
                 'train_percent': self.train_percent,
                 'method': self.method,
-                'linkages': self.linkages,
                 'random_seed': self.random_seed,
             })
         }
