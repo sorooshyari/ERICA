@@ -29,37 +29,37 @@ RESULTS_DIR.mkdir(exist_ok=True)
 DATASET_CONFIGS = {
     "vdx_3gene": {
         "k_range": [2, 3, 4, 5, 6],
-        "n_iterations": 100,
+        "n_iterations": 200,
         "hdbscan_params": {"min_cluster_size": 15},
     },
     "well_separated": {
         "k_range": [2, 3, 4, 5],
-        "n_iterations": 100,
+        "n_iterations": 200,
         "hdbscan_params": {"min_cluster_size": 10},
     },
     "overlapping": {
         "k_range": [2, 3, 4, 5, 6],
-        "n_iterations": 100,
+        "n_iterations": 200,
         "hdbscan_params": {"min_cluster_size": 10},
     },
     "moons_2d": {
         "k_range": [2, 3, 4],
-        "n_iterations": 100,
+        "n_iterations": 200,
         "hdbscan_params": {"min_cluster_size": 10},
     },
     "circles_2d": {
         "k_range": [2, 3, 4],
-        "n_iterations": 100,
+        "n_iterations": 200,
         "hdbscan_params": {"min_cluster_size": 10},
     },
     "blobs_2d": {
         "k_range": [2, 3, 4, 5],
-        "n_iterations": 100,
+        "n_iterations": 200,
         "hdbscan_params": {"min_cluster_size": 10},
     },
     "high_dim": {
         "k_range": [2, 3, 4, 5],
-        "n_iterations": 100,
+        "n_iterations": 200,
         "hdbscan_params": {"min_cluster_size": 10},
     },
 }
@@ -235,7 +235,7 @@ def run_hdbscan_sweep():
             erica = ERICA(
                 data=X,
                 k_range=[2],  # dummy for hdbscan-only
-                n_iterations=50,
+                n_iterations=100,
                 method=["hdbscan"],
                 transpose=False,
                 output_dir=os.path.join(str(RESULTS_DIR), "erica_workdir"),
