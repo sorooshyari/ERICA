@@ -12,7 +12,7 @@ import random
 import numpy as np
 import pandas as pd
 from typing import Tuple, List, Optional, Dict
-from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.cluster import KMeans, AgglomerativeClustering, HDBSCAN
 
 
 def iterative_clustering_subsampling(
@@ -485,6 +485,187 @@ def agglomerative_clustering(
         'global_centroids': global_centroids_sorted,
         'aligned_predictions': aligned_predictions,
         'output_folder': output_folder
+    }
+
+
+def hdbscan_clustering(
+    samples_array: np.ndarray,
+    n_iterations: int,
+    indices_folder: str,
+    output_dir: str,
+    hdbscan_params: Optional[Dict] = None,
+    verbose: bool = False
+) -> Dict:
+    """Perform HDBSCAN auto-K clustering with ERICA analysis.
+
+    HDBSCAN discovers the number of clusters automatically. Runs HDBSCAN on
+    each train/test split, tracks discovered K values, computes a CLAM matrix
+    from iterations where K matches the mode, and returns label pairs for ARI/AMI.
+
+    Parameters
+    ----------
+    samples_array : np.ndarray
+        Input data with shape (n_samples, n_features)
+    n_iterations : int
+        Number of iterations
+    indices_folder : str
+        Path to folder with train/test indices
+    output_dir : str
+        Directory for saving outputs
+    hdbscan_params : dict, optional
+        Parameters for HDBSCAN. Defaults: min_cluster_size=15
+    verbose : bool, optional
+        Whether to print progress, default False
+
+    Returns
+    -------
+    dict
+        Results with keys: k_distribution, modal_k, k_agreement_rate,
+        clam_matrix, n_iterations_used, iteration_labels, noise_counts,
+        output_folder
+    """
+    from collections import Counter
+
+    if verbose:
+        print("Starting HDBSCAN clustering...")
+
+    n_samples = samples_array.shape[0]
+    params = {'min_cluster_size': 15}
+    if hdbscan_params:
+        params.update(hdbscan_params)
+
+    train_indices = np.load(
+        os.path.join(indices_folder, 'all_train_indices.npy'),
+        allow_pickle=True
+    )
+    test_indices = np.load(
+        os.path.join(indices_folder, 'all_test_indices.npy'),
+        allow_pickle=True
+    )
+
+    discovered_ks = []
+    all_predicted_labels = []
+    all_true_labels = []
+    noise_counts = []
+    # Store (iter_idx, reassigned_labels) for CLAM building
+    iter_label_pairs = []
+
+    for iter_idx in range(n_iterations):
+        if verbose and iter_idx % 50 == 0:
+            print(f"  Iteration {iter_idx + 1}/{n_iterations}")
+
+        train_data, test_data = load_iteration_data(
+            iter_idx, samples_array, indices_folder
+        )
+
+        # Fit HDBSCAN on train set
+        hdb_train = HDBSCAN(**params)
+        train_labels = hdb_train.fit_predict(train_data)
+
+        unique_train = set(train_labels)
+        unique_train.discard(-1)
+        if len(unique_train) == 0:
+            discovered_ks.append(0)
+            all_predicted_labels.append(np.array([]))
+            all_true_labels.append(np.array([]))
+            noise_counts.append(len(test_data))
+            continue
+
+        n_clusters_train = max(unique_train) + 1
+        train_centroids = np.zeros((n_clusters_train, train_data.shape[1]))
+        for c in range(n_clusters_train):
+            mask = train_labels == c
+            if mask.any():
+                train_centroids[c] = train_data[mask].mean(axis=0)
+
+        # Predict test labels via nearest train centroid
+        distances = np.linalg.norm(
+            test_data[:, np.newaxis, :] - train_centroids[np.newaxis, :, :],
+            axis=2
+        )
+        predicted_labels = np.argmin(distances, axis=1)
+
+        # Fit fresh HDBSCAN on test set
+        hdb_test = HDBSCAN(**params)
+        test_labels_raw = hdb_test.fit_predict(test_data)
+
+        n_noise = int(np.sum(test_labels_raw == -1))
+        noise_counts.append(n_noise)
+
+        unique_test = set(test_labels_raw)
+        unique_test.discard(-1)
+        if len(unique_test) == 0:
+            true_labels = predicted_labels.copy()
+            discovered_k = n_clusters_train
+        else:
+            n_clusters_test = max(unique_test) + 1
+            test_centroids = np.zeros((n_clusters_test, test_data.shape[1]))
+            for c in range(n_clusters_test):
+                mask = test_labels_raw == c
+                if mask.any():
+                    test_centroids[c] = test_data[mask].mean(axis=0)
+            true_labels = _assign_noise_to_nearest(
+                test_labels_raw, test_data, test_centroids
+            )
+            discovered_k = n_clusters_test
+
+        discovered_ks.append(discovered_k)
+        all_predicted_labels.append(predicted_labels)
+        all_true_labels.append(true_labels)
+        iter_label_pairs.append((iter_idx, true_labels))
+
+    # Find modal K
+    k_counts = Counter(k for k in discovered_ks if k > 0)
+    if not k_counts:
+        modal_k = 1
+        k_agreement_rate = 0.0
+        clam_matrix = np.zeros((n_samples, 1))
+        n_used = 0
+        k_distribution = {}
+    else:
+        modal_k = k_counts.most_common(1)[0][0]
+        n_modal = k_counts[modal_k]
+        k_agreement_rate = n_modal / n_iterations
+        k_distribution = dict(k_counts)
+
+        clam_matrix = np.zeros((n_samples, modal_k))
+        n_used = 0
+        for iter_idx, labels in iter_label_pairs:
+            if discovered_ks[iter_idx] != modal_k:
+                continue
+            if len(labels) == 0:
+                continue
+            if int(labels.max()) >= modal_k:
+                continue
+
+            iter_test_idx = test_indices[iter_idx].astype(int)
+            for i, sample_idx in enumerate(iter_test_idx):
+                if i < len(labels):
+                    cluster_id = int(labels[i])
+                    if 0 <= cluster_id < modal_k:
+                        clam_matrix[sample_idx, cluster_id] += 1
+            n_used += 1
+
+    output_folder = os.path.join(output_dir, 'hdbscan')
+    os.makedirs(output_folder, exist_ok=True)
+    np.save(os.path.join(output_folder, 'clam_matrix.npy'), clam_matrix)
+
+    if verbose:
+        print(f"  HDBSCAN complete. Modal K={modal_k}, "
+              f"agreement={k_agreement_rate:.2f}")
+
+    return {
+        'k_distribution': k_distribution,
+        'modal_k': modal_k,
+        'k_agreement_rate': k_agreement_rate,
+        'clam_matrix': clam_matrix,
+        'n_iterations_used': n_used,
+        'iteration_labels': {
+            'predicted': all_predicted_labels,
+            'true': all_true_labels,
+        },
+        'noise_counts': noise_counts,
+        'output_folder': output_folder,
     }
 
 

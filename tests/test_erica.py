@@ -10,7 +10,7 @@ import tempfile
 from erica import ERICA
 from erica.data import load_data, prepare_samples_array
 from erica.metrics import select_optimal_k, select_optimal_k_by_method
-from erica.clustering import _assign_noise_to_nearest
+from erica.clustering import _assign_noise_to_nearest, hdbscan_clustering
 
 
 def test_erica_import():
@@ -571,6 +571,80 @@ def test_assign_noise_to_nearest_all_noise():
     result = _assign_noise_to_nearest(labels, data, centroids)
     assert result[0] == 0
     assert result[1] == 1
+
+
+def test_hdbscan_clustering_basic():
+    from sklearn.datasets import make_blobs
+    data, _ = make_blobs(n_samples=100, n_features=5, centers=3, random_state=42)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        indices_folder = os.path.join(tmpdir, 'indices')
+        os.makedirs(indices_folder)
+        n_iterations = 10
+        n_samples = len(data)
+        train_size = int(n_samples * 0.8)
+        all_train = []
+        all_test = []
+        for _ in range(n_iterations):
+            perm = np.random.permutation(n_samples)
+            all_train.append(perm[:train_size])
+            all_test.append(perm[train_size:])
+        np.save(os.path.join(indices_folder, 'all_train_indices.npy'),
+                np.array(all_train, dtype=object))
+        np.save(os.path.join(indices_folder, 'all_test_indices.npy'),
+                np.array(all_test, dtype=object))
+
+        result = hdbscan_clustering(
+            samples_array=data, n_iterations=n_iterations,
+            indices_folder=indices_folder, output_dir=tmpdir,
+            hdbscan_params={'min_cluster_size': 5}, verbose=False,
+        )
+
+    assert 'k_distribution' in result
+    assert 'modal_k' in result
+    assert 'k_agreement_rate' in result
+    assert 'clam_matrix' in result
+    assert 'n_iterations_used' in result
+    assert 'iteration_labels' in result
+    assert 'predicted' in result['iteration_labels']
+    assert 'true' in result['iteration_labels']
+    assert 'noise_counts' in result
+    assert result['modal_k'] >= 1
+    assert 0 <= result['k_agreement_rate'] <= 1
+    assert result['n_iterations_used'] <= n_iterations
+    assert result['clam_matrix'].shape[0] == n_samples
+    assert result['clam_matrix'].shape[1] == result['modal_k']
+
+
+def test_hdbscan_clustering_noise_handling():
+    from sklearn.datasets import make_blobs
+    data, _ = make_blobs(n_samples=80, n_features=3, centers=2,
+                         cluster_std=0.5, random_state=42)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        indices_folder = os.path.join(tmpdir, 'indices')
+        os.makedirs(indices_folder)
+        n_iterations = 5
+        n_samples = len(data)
+        train_size = int(n_samples * 0.8)
+        all_train = []
+        all_test = []
+        for _ in range(n_iterations):
+            perm = np.random.permutation(n_samples)
+            all_train.append(perm[:train_size])
+            all_test.append(perm[train_size:])
+        np.save(os.path.join(indices_folder, 'all_train_indices.npy'),
+                np.array(all_train, dtype=object))
+        np.save(os.path.join(indices_folder, 'all_test_indices.npy'),
+                np.array(all_test, dtype=object))
+
+        result = hdbscan_clustering(
+            samples_array=data, n_iterations=n_iterations,
+            indices_folder=indices_folder, output_dir=tmpdir,
+            hdbscan_params={'min_cluster_size': 5}, verbose=False,
+        )
+
+    assert all(n >= 0 for n in result['noise_counts'])
 
 
 if __name__ == "__main__":
