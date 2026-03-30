@@ -647,5 +647,43 @@ def test_hdbscan_clustering_noise_handling():
     assert all(n >= 0 for n in result['noise_counts'])
 
 
+def test_kmeans_returns_iteration_labels():
+    data = np.random.rand(30, 5)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        from erica.clustering import iterative_clustering_subsampling, kmeans_clustering
+        _, indices_folder = iterative_clustering_subsampling(
+            data, 30, 5, 24, tmpdir, verbose=False
+        )
+        result = kmeans_clustering(
+            data, k=2, n_iterations=5,
+            indices_folder=indices_folder,
+            output_dir=tmpdir, verbose=False
+        )
+    assert 'iteration_labels' in result
+    assert 'predicted' in result['iteration_labels']
+    assert 'true' in result['iteration_labels']
+    assert len(result['iteration_labels']['predicted']) == 5
+    assert len(result['iteration_labels']['true']) == 5
+
+
+def test_agglomerative_returns_iteration_labels():
+    data = np.random.rand(30, 5)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        from erica.clustering import iterative_clustering_subsampling, agglomerative_clustering
+        _, indices_folder = iterative_clustering_subsampling(
+            data, 30, 5, 24, tmpdir, verbose=False
+        )
+        result = agglomerative_clustering(
+            data, k=2, linkage='ward', n_iterations=5,
+            indices_folder=indices_folder,
+            output_dir=tmpdir, verbose=False
+        )
+    assert 'iteration_labels' in result
+    assert 'predicted' in result['iteration_labels']
+    assert 'true' in result['iteration_labels']
+    assert len(result['iteration_labels']['predicted']) == 5
+    assert len(result['iteration_labels']['true']) == 5
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

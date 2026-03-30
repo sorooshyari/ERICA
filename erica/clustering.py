@@ -267,21 +267,30 @@ def kmeans_clustering(
     
     unaligned_predictions = np.zeros((n_iterations, test_size))
     iteration_centroids_list = []
-    
+    all_predicted_labels = []
+    all_true_labels = []
+
     for iter_idx in range(n_iterations):
         if verbose and iter_idx % 50 == 0:
             print(f"    Iteration {iter_idx+1}/{n_iterations}")
-        
+
         # Load data for this iteration
         train_data, test_data = load_iteration_data(
             iter_idx, samples_array, indices_folder
         )
-        
+
         # Fit on train, predict on test
         kmeans_iter = KMeans(n_clusters=k, random_state=random_state, n_init="auto")
         kmeans_iter.fit(train_data)
         predictions = kmeans_iter.predict(test_data)
-        
+
+        all_predicted_labels.append(predictions.copy())
+
+        # Fit fresh model on test data for true_labels (Parmigiani method)
+        kmeans_test = KMeans(n_clusters=k, random_state=random_state, n_init="auto")
+        true_labels = kmeans_test.fit_predict(test_data)
+        all_true_labels.append(true_labels)
+
         unaligned_predictions[iter_idx, :] = predictions
         iteration_centroids_list.append(kmeans_iter.cluster_centers_)
     
@@ -323,7 +332,11 @@ def kmeans_clustering(
         'clam_matrix': clam_matrix,
         'global_centroids': global_centroids_sorted,
         'aligned_predictions': aligned_predictions,
-        'output_folder': output_folder
+        'output_folder': output_folder,
+        'iteration_labels': {
+            'predicted': all_predicted_labels,
+            'true': all_true_labels,
+        },
     }
 
 
@@ -419,20 +432,42 @@ def agglomerative_clustering(
     
     unaligned_predictions = np.zeros((n_iterations, test_size))
     iteration_centroids_list = []
-    
+    all_predicted_labels = []
+    all_true_labels = []
+
     for iter_idx in range(n_iterations):
         if verbose and iter_idx % 50 == 0:
             print(f"    Iteration {iter_idx+1}/{n_iterations}")
-        
+
         # Load data for this iteration
-        _, test_data = load_iteration_data(
+        train_data, test_data = load_iteration_data(
             iter_idx, samples_array, indices_folder
         )
-        
+
         # Fit/predict on test data
         agg_iter = AgglomerativeClustering(n_clusters=k, linkage=linkage)
         predictions = agg_iter.fit_predict(test_data)
-        
+
+        # true_labels = test-fitted predictions (already computed above)
+        all_true_labels.append(predictions.copy())
+
+        # predicted_labels = train-fitted centroids applied to test data
+        agg_train = AgglomerativeClustering(n_clusters=k, linkage=linkage)
+        train_labels = agg_train.fit_predict(train_data)
+        train_centroids_pred = np.zeros((k, train_data.shape[1]))
+        for cidx in range(k):
+            mask = train_labels == cidx
+            if mask.any():
+                train_centroids_pred[cidx] = train_data[mask].mean(axis=0)
+            else:
+                train_centroids_pred[cidx] = train_data.mean(axis=0)
+        dists = np.linalg.norm(
+            test_data[:, np.newaxis, :] - train_centroids_pred[np.newaxis, :, :],
+            axis=2
+        )
+        pred_labels = np.argmin(dists, axis=1)
+        all_predicted_labels.append(pred_labels)
+
         unaligned_predictions[iter_idx, :] = predictions
         
         # Calculate centroids from test data
@@ -484,7 +519,11 @@ def agglomerative_clustering(
         'clam_matrix': clam_matrix,
         'global_centroids': global_centroids_sorted,
         'aligned_predictions': aligned_predictions,
-        'output_folder': output_folder
+        'output_folder': output_folder,
+        'iteration_labels': {
+            'predicted': all_predicted_labels,
+            'true': all_true_labels,
+        },
     }
 
 
