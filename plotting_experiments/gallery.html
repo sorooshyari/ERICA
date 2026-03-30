@@ -9,53 +9,58 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.7; }
 
-  /* Header */
-  .masthead { max-width: 900px; margin: 0 auto; padding: 60px 40px 40px; border-bottom: 2px solid var(--text); }
-  .masthead h1 { font-size: 32px; font-weight: 400; letter-spacing: 1px; }
-  .masthead .subtitle { font-size: 16px; color: var(--muted); margin-top: 8px; font-style: italic; }
-  .masthead .meta { font-size: 13px; color: var(--muted); margin-top: 16px; }
-  .masthead .meta span { margin-right: 24px; }
+  .masthead { max-width: 900px; margin: 0 auto; padding: 60px 40px 32px; }
+  .masthead h1 { font-size: 28px; font-weight: 400; letter-spacing: 1px; }
+  .masthead .subtitle { font-size: 15px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .masthead .meta { font-size: 13px; color: var(--muted); margin-top: 12px; }
 
-  /* Navigation */
-  .toc { max-width: 900px; margin: 0 auto; padding: 24px 40px; }
-  .toc h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 12px; }
-  .toc ol { padding-left: 20px; columns: 2; column-gap: 40px; }
-  .toc li { font-size: 14px; margin-bottom: 4px; }
-  .toc a { color: var(--accent); text-decoration: none; }
-  .toc a:hover { text-decoration: underline; }
+  /* Sticky section nav */
+  .nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-top: 2px solid var(--text); border-bottom: 1px solid var(--border); max-width: 900px; margin: 0 auto; padding: 0; display: flex; flex-wrap: wrap; }
+  .nav a { padding: 10px 14px; font-size: 12px; text-decoration: none; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+  .nav a:hover, .nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* Content */
   .content { max-width: 900px; margin: 0 auto; padding: 0 40px 60px; }
 
-  /* Figures */
-  .figure-group { margin: 48px 0; padding-top: 24px; border-top: 1px solid var(--border); }
-  .figure-group h2 { font-size: 22px; font-weight: 400; margin-bottom: 6px; }
-  .figure-group .section-intro { font-size: 15px; color: var(--muted); margin-bottom: 24px; }
+  /* Dataset index table */
+  .dataset-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 32px; }
+  .dataset-table th { text-align: left; padding: 6px 10px; border-bottom: 2px solid var(--text); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .dataset-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); }
+  .dataset-table tr:hover { background: #f0f0f0; }
+  .dataset-table .cat { font-weight: 600; color: var(--accent); }
 
-  .figure { margin: 32px 0; background: var(--card-bg); border: 1px solid var(--border); }
-  .figure img { width: 100%; display: block; padding: 12px; background: #fff; }
-  .figure .caption { padding: 16px 20px; border-top: 1px solid var(--border); }
-  .figure .caption .fig-id { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
-  .figure .caption .fig-title { font-size: 16px; font-weight: 600; margin: 4px 0 8px; }
-  .figure .caption .fig-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
-  .figure .caption .fig-method { font-size: 12px; color: var(--muted); margin-top: 8px; font-family: 'SF Mono', 'Fira Code', monospace; background: var(--code-bg); padding: 6px 10px; border-radius: 3px; }
+  /* Figure groups */
+  .figure-group { margin: 40px 0; padding-top: 20px; border-top: 1px solid var(--border); }
+  .figure-group h2 { font-size: 20px; font-weight: 400; margin-bottom: 6px; }
+  .figure-group .section-intro { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
 
-  .figure-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  /* Expandable figures */
+  .figure { margin: 24px 0; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+  .figure:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .figure img { width: 100%; display: block; padding: 8px; background: #fff; }
+  .figure .caption { padding: 12px 16px; border-top: 1px solid var(--border); }
+  .figure .caption .fig-id { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .figure .caption .fig-title { font-size: 15px; font-weight: 600; margin: 3px 0 6px; }
+  .figure .caption .fig-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .figure .caption .fig-method { font-size: 11px; color: var(--muted); margin-top: 6px; font-family: 'SF Mono', 'Fira Code', monospace; background: var(--code-bg); padding: 4px 8px; border-radius: 3px; display: inline-block; }
+
+  .figure-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
   .figure-pair .figure { margin: 0; }
 
-  .highlight { background: #f0f7f4; border-left: 3px solid var(--accent); padding: 16px 20px; margin: 20px 0; font-size: 14px; }
+  /* Lightbox overlay */
+  .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; background: #fff; padding: 12px; box-shadow: 0 4px 40px rgba(0,0,0,0.5); }
+  .lightbox .lb-caption { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #ccc; font-size: 13px; text-align: center; max-width: 700px; }
+  .lightbox .lb-close { position: fixed; top: 20px; right: 24px; color: #aaa; font-size: 28px; cursor: pointer; }
+  .lightbox .lb-close:hover { color: #fff; }
 
-  .stats-bar { display: flex; gap: 32px; padding: 20px 0; margin: 20px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-  .stats-bar .stat { text-align: center; }
-  .stats-bar .stat .n { font-size: 28px; font-weight: 300; color: var(--accent); }
-  .stats-bar .stat .l { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
-
-  footer { max-width: 900px; margin: 0 auto; padding: 40px; border-top: 2px solid var(--text); text-align: center; font-size: 12px; color: var(--muted); }
+  footer { max-width: 900px; margin: 0 auto; padding: 32px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
 
   @media (max-width: 700px) {
-    .masthead, .toc, .content, footer { padding-left: 20px; padding-right: 20px; }
+    .masthead, .content, footer { padding-left: 16px; padding-right: 16px; }
     .figure-pair { grid-template-columns: 1fr; }
-    .toc ol { columns: 1; }
+    .nav { padding: 0 8px; }
+    .nav a { padding: 8px 10px; font-size: 11px; }
   }
 </style>
 </head>
@@ -63,74 +68,118 @@
 
 <div class="masthead">
   <h1>ERICA Figure Gallery</h1>
-  <div class="subtitle">Evaluating Replicability via Iterative Clustering Assignments</div>
-  <div class="meta">
-    <span>Sorooshyari &amp; Shirazi, 2026</span>
-    <span>13 datasets</span>
-    <span>4 clustering methods</span>
-    <span>200 Monte Carlo iterations</span>
-  </div>
+  <div class="subtitle">Exploring Visualizations of Clustering Replicability</div>
+  <div class="meta">Internal working document for CMAC &mdash; Sorooshyari &amp; Shirazi, 2026</div>
 </div>
 
-<div class="toc">
-  <h2>Contents</h2>
-  <ol>
-    <li><a href="#clam">CLAM Matrix Heatmaps</a></li>
-    <li><a href="#stability">Sample Stability Profiles</a></li>
-    <li><a href="#metrics">Replicability Metric Curves</a></li>
-    <li><a href="#methods">Method Comparison</a></li>
-    <li><a href="#scatter">Cluster Assignment Scatter Plots</a></li>
-    <li><a href="#progressions">K-Value Progression Series</a></li>
-    <li><a href="#surfaces">3D Surfaces &amp; Parameter Sensitivity</a></li>
-    <li><a href="#gaussian">Gaussian Mixture Sigma Study</a></li>
-  </ol>
+<div class="nav" id="topnav">
+  <a href="#datasets">Datasets</a>
+  <a href="#clam">CLAM Heatmaps</a>
+  <a href="#stability">Stability</a>
+  <a href="#metrics">Metrics</a>
+  <a href="#methods">Methods</a>
+  <a href="#scatter">Scatter</a>
+  <a href="#progressions">K Progressions</a>
+  <a href="#surfaces">Surfaces</a>
+  <a href="#gaussian">Gaussian Study</a>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lb-close" onclick="closeLightbox()">&times;</span>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-caption" id="lb-caption"></div>
 </div>
 
 <div class="content">
 
-<p style="font-size: 15px; color: var(--muted); margin: 20px 0;">All analyses performed using ERICA v0.1.4 with B=200 Monte Carlo iterations, 80/20 train-test split, and K-Means, Agglomerative (Ward and Single linkage), and HDBSCAN clustering. Figures generated with matplotlib using the viridis (sequential) and Okabe-Ito (categorical) colorblind-accessible palettes.</p>
+<p style="font-size: 14px; color: var(--muted); margin: 20px 0 4px;">This gallery explores which visualizations of the CLAM matrix and ERICA's replicability metrics are most useful for understanding internal cluster structure. All analyses use ERICA v0.1.4 with B=200 MC iterations, 80/20 train-test split. Primary methods: K-Means and Agglomerative Clustering (Ward and Single linkage). Figures generated with matplotlib; viridis and Okabe-Ito colorblind-accessible palettes.</p>
+<p style="font-size: 12px; color: #888; margin: 0 0 24px;"><sup>*</sup>HDBSCAN integration is under active development and not yet fully validated. HDBSCAN figures are included for exploratory purposes only.</p>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="datasets">
+<h2>Datasets</h2>
+<p class="section-intro">Index of all datasets used across these experiments. Click any section in the navigation bar above to jump to the corresponding figures.</p>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Real Data</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>Source</th></tr>
+  <tr><td class="cat">vdx_3gene</td><td>344</td><td>3</td><td>Unknown</td><td>Parmigiani et al. VDX breast cancer (ESR1, ERBB2, AURKA)</td></tr>
+</table>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Synthetic Data (scikit-learn)</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>Generator</th></tr>
+  <tr><td class="cat">well_separated</td><td>300</td><td>5</td><td>3</td><td>make_blobs(centers=3, std=0.8)</td></tr>
+  <tr><td class="cat">overlapping</td><td>300</td><td>5</td><td>4</td><td>make_blobs(centers=4, std=2.0)</td></tr>
+  <tr><td class="cat">moons_2d</td><td>300</td><td>2</td><td>2</td><td>make_moons(noise=0.05)</td></tr>
+  <tr><td class="cat">circles_2d</td><td>300</td><td>2</td><td>2</td><td>make_circles(noise=0.05, factor=0.5)</td></tr>
+  <tr><td class="cat">blobs_2d</td><td>300</td><td>2</td><td>3</td><td>make_blobs(centers=3, std=0.5, n_features=2)</td></tr>
+  <tr><td class="cat">high_dim</td><td>200</td><td>50</td><td>3</td><td>make_blobs(centers=3, n_features=50)</td></tr>
+</table>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Gaussian Mixtures (numpy)</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>Parameters</th></tr>
+  <tr><td class="cat">gmm_spherical</td><td>450</td><td>2</td><td>3</td><td>Isotropic, equal variance</td></tr>
+  <tr><td class="cat">gmm_anisotropic</td><td>450</td><td>2</td><td>3</td><td>Elongated ellipses, different orientations</td></tr>
+  <tr><td class="cat">gmm_mixed_variance</td><td>450</td><td>2</td><td>3</td><td>Tight (0.1) / medium (1.0) / spread (4.0)</td></tr>
+  <tr><td class="cat">gmm_overlapping_pair</td><td>500</td><td>2</td><td>3</td><td>Two overlapping + one isolated</td></tr>
+  <tr><td class="cat">gmm_five_clusters</td><td>400</td><td>2</td><td>5</td><td>Five varied covariances</td></tr>
+  <tr><td class="cat">gmm_high_dim_32</td><td>300</td><td>32</td><td>3</td><td>Isotropic in 32D</td></tr>
+</table>
+
+<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 8px;">Gaussian Sigma Sweep (50D, 4 centers)</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>&sigma;</th><th>Radius/Spacing</th></tr>
+  <tr><td class="cat">gauss4c_sigma0p01</td><td>400</td><td>50</td><td>4</td><td>0.01</td><td>0.01</td></tr>
+  <tr><td class="cat">gauss4c_sigma0p1</td><td>400</td><td>50</td><td>4</td><td>0.1</td><td>0.07</td></tr>
+  <tr><td class="cat">gauss4c_sigma1p0</td><td>400</td><td>50</td><td>4</td><td>1.0</td><td>0.75</td></tr>
+  <tr><td class="cat">gauss4c_sigma10p0</td><td>400</td><td>50</td><td>4</td><td>10.0</td><td>7.45</td></tr>
+</table>
+</div>
 
 <!-- ============================================================ -->
 <div class="figure-group" id="clam">
 <h2>1. CLAM Matrix Heatmaps</h2>
-<p class="section-intro">The Cluster Labels Alignment Matrix (CLAM) is the fundamental output of the ERICA analysis. Each row represents a sample, each column a cluster, and each entry the number of times that sample was assigned to that cluster across B = 200 Monte Carlo train/test iterations. Sorting rows by primary cluster assignment reveals the block-diagonal structure characteristic of stable clusterings.</p>
+<p class="section-intro">The Cluster Labels Alignment Matrix (CLAM) records, for each sample, how many times it was assigned to each cluster across B Monte Carlo iterations. Rows sorted by primary cluster (argmax), then by assignment confidence within each cluster.</p>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/clam_sorted_vdx_3gene_kmeans_k3.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 1a</div>
-      <div class="fig-title">Sorted CLAM Heatmap &mdash; VDX Breast Cancer, K-Means, K=3</div>
-      <div class="fig-desc">Samples sorted by primary cluster assignment (argmax), then by assignment confidence (descending) within each cluster. Clean diagonal blocks indicate stable cluster membership. Off-diagonal entries reveal samples that oscillate between clusters across iterations. VDX data: 344 samples, 3 genes (ESR1, ERBB2, AURKA) from Parmigiani et al.</div>
-      <div class="fig-method">ERICA(data, method='kmeans', k_range=[2..6], n_iterations=200) &rarr; get_results()['clam_matrices'][(3, 'kmeans')]</div>
+      <div class="fig-title">Sorted CLAM &mdash; VDX, K-Means, K=3</div>
+      <div class="fig-desc">344 samples, 3 genes (ESR1, ERBB2, AURKA) from Parmigiani et al. Sorted by primary cluster then confidence. Viridis colormap, assignment counts 0 to B.</div>
+      <div class="fig-method">clam_matrices[(3, 'kmeans')]</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/clam_raw_vdx_3gene_kmeans_k3.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 1b</div>
-      <div class="fig-title">Unsorted CLAM Heatmap &mdash; VDX Breast Cancer, K-Means, K=3</div>
-      <div class="fig-desc">Same data as Figure 1a but with samples in their original order. Without sorting, the block structure is obscured. Comparison with the sorted view demonstrates the value of the CLAM sort as a diagnostic tool.</div>
+      <div class="fig-title">Unsorted CLAM &mdash; VDX, K-Means, K=3</div>
+      <div class="fig-desc">Same data, original sample order. Block structure obscured without sorting.</div>
     </div>
   </div>
 </div>
 
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/clam_multipanel_vdx_3gene_kmeans.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 1c</div>
-    <div class="fig-title">CLAM Evolution Across K &mdash; VDX Breast Cancer, K-Means</div>
-    <div class="fig-desc">Sorted CLAM heatmaps at K=2, 3, and 4 (left to right). As K increases, existing clusters subdivide. At K=2, two clean blocks. At K=3, a third group emerges from the larger cluster. At K=4, further fragmentation with less stable assignments (more off-diagonal entries). This progression informs optimal K selection: the K at which blocks remain clean is the last "real" division.</div>
+    <div class="fig-title">CLAM across K=2, 3, 4 &mdash; VDX, K-Means</div>
+    <div class="fig-desc">Progression of sorted CLAM heatmaps as K increases. Shows how existing clusters subdivide and where off-diagonal assignments appear.</div>
   </div>
 </div>
 
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/clam_sorted_vdx_3gene_hdbscan.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 1d</div>
-    <div class="fig-title">HDBSCAN CLAM &mdash; VDX Breast Cancer, Modal K=2</div>
-    <div class="fig-desc">HDBSCAN discovers K automatically via density-based clustering. Across 200 iterations, the modal K was 2 with 60% agreement (121/200 iterations). The CLAM matrix is constructed only from iterations where HDBSCAN found K=2. Noise points (label = -1) are reassigned to the nearest cluster centroid before CLAM computation.</div>
-    <div class="fig-method">get_auto_k_results('hdbscan')['clam_matrix'] &mdash; shape (344, 2)</div>
+    <div class="fig-title">HDBSCAN CLAM &mdash; VDX, modal K=2 <sup style="color:#c44;font-size:10px;">*experimental</sup></div>
+    <div class="fig-desc">CLAM from iterations where HDBSCAN discovered K=2. Noise points reassigned to nearest centroid. Shape: (344, 2). <em>Note: HDBSCAN integration is under validation.</em></div>
+    <div class="fig-method">get_auto_k_results('hdbscan')['clam_matrix']</div>
   </div>
 </div>
 </div>
@@ -138,23 +187,23 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="stability">
 <h2>2. Sample Stability Profiles</h2>
-<p class="section-intro">Stability strip plots normalize each sample's CLAM row to proportions and display them as horizontal stacked bars. Samples are sorted by Shannon entropy: perfectly stable samples (entropy = 0, always assigned to one cluster) appear at the top; maximally confused samples (entropy &asymp; log<sub>2</sub>K) appear at the bottom.</p>
+<p class="section-intro">CLAM rows normalized to proportions and displayed as horizontal stacked bars. Sorted by Shannon entropy: stable samples (entropy &asymp; 0) at top, ambiguous samples (entropy &asymp; log<sub>2</sub>K) at bottom. Subsampled to 100 for display.</p>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/stability_vdx_3gene_kmeans_k3.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 2a</div>
       <div class="fig-title">Stability Strips &mdash; VDX, K-Means, K=3</div>
-      <div class="fig-desc">344 samples (subsampled to 100 for display). Upper samples are unambiguously assigned; lower samples split between two clusters. The transition zone reveals the boundary population &mdash; samples whose cluster identity depends on which training subsample was drawn.</div>
+      <div class="fig-desc">VDX dataset, 344 samples. Colors represent cluster assignment proportions per sample.</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/stability_vdx_3gene_agglomerative_ward_k3.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 2b</div>
-      <div class="fig-title">Stability Strips &mdash; VDX, Ward Linkage, K=3</div>
-      <div class="fig-desc">Same dataset, different method. Ward linkage produces a longer "confused" tail compared to K-Means, suggesting its cluster boundaries are more sensitive to the particular training subsample. This is reflected in Ward's lower CRI at K=3 (0.938 vs 0.975 for K-Means).</div>
+      <div class="fig-title">Stability Strips &mdash; VDX, Ward, K=3</div>
+      <div class="fig-desc">Same dataset, Agglomerative Ward linkage. Compare boundary sample distributions with Figure 2a.</div>
     </div>
   </div>
 </div>
@@ -163,33 +212,33 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="metrics">
 <h2>3. Replicability Metric Curves</h2>
-<p class="section-intro">Two families of metrics quantify clustering replicability. ERICA metrics (CRI, WCRI, TWCRI) measure assignment consistency from the CLAM matrix. Parmigiani metrics (ARI, AMI) measure partition agreement between train-fitted and test-fitted clusterings. Both are computed per K; the optimal K* is selected by the non-decreasing TWCRI criterion (Algorithm 2).</p>
+<p class="section-intro">Left panels: CRI, WCRI, TWCRI vs K with K* indicated by vertical dashed lines. Right panels: ARI and AMI (mean &plusmn; std) across 200 iterations. Disqualified K values (empty clusters) marked with &times;.</p>
 
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/metrics_vdx_3gene_kmeans.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 3a</div>
     <div class="fig-title">Metrics vs K &mdash; VDX, K-Means</div>
-    <div class="fig-desc"><strong>Left panel:</strong> CRI (blue), WCRI (vermillion), TWCRI (green) vs K=2..6. All three metrics peak at K=2 then decline, but the non-decreasing criterion selects K*=6 because TWCRI recovers at K=6. Vertical dashed lines mark K* per metric. <strong>Right panel:</strong> ARI and AMI (mean &plusmn; std across 200 iterations). ARI declines monotonically from K=2, reflecting increasing difficulty of reproducing finer partitions on held-out data. Error bars show iteration-to-iteration variance.</div>
-    <div class="fig-method">metrics[k]['kmeans']['CRI'], ['ARI_mean'], ['ARI_std'] &mdash; K*: k_star['TWCRI']['kmeans']</div>
+    <div class="fig-desc">VDX 3-gene dataset. ERICA metrics (left) and Parmigiani ARI/AMI (right) for K=2..6.</div>
+    <div class="fig-method">metrics[k]['kmeans'] &mdash; k_star['TWCRI']['kmeans']</div>
   </div>
 </div>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/metrics_well_separated_kmeans.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 3b</div>
-      <div class="fig-title">Well-Separated Blobs &mdash; K-Means</div>
-      <div class="fig-desc">300 samples, 5 features, 3 true clusters (std=0.8). CRI/TWCRI = 1.000 at K=3 with ARI = 1.000 &plusmn; 0.000. K=4 and K=5 are disqualified (NaN, marked with &times;) due to empty clusters. K*=3, perfectly matching the ground truth.</div>
+      <div class="fig-title">Metrics &mdash; Well-separated, K-Means</div>
+      <div class="fig-desc">300 samples, 5D, 3 true clusters (std=0.8). K=4,5 disqualified (empty clusters).</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/metrics_overlapping_kmeans.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 3c</div>
-      <div class="fig-title">Overlapping Blobs &mdash; K-Means</div>
-      <div class="fig-desc">300 samples, 5 features, 4 true clusters (std=2.0). TWCRI peaks at K=4 (0.979), correctly identifying the true K despite substantial cluster overlap. ARI = 0.952 &plusmn; 0.121 at K=4 &mdash; high mean but wide variance reflecting the difficulty of the boundary cases.</div>
+      <div class="fig-title">Metrics &mdash; Overlapping, K-Means</div>
+      <div class="fig-desc">300 samples, 5D, 4 true clusters (std=2.0). Higher variance in ARI at true K.</div>
     </div>
   </div>
 </div>
@@ -198,23 +247,42 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="methods">
 <h2>4. Method Comparison</h2>
-<p class="section-intro">ERICA supports multiple clustering methods in a single run: K-Means, Agglomerative (Ward and Single linkage), and HDBSCAN. Comparing methods on the same data reveals which aspects of cluster structure each method captures &mdash; and which it misses.</p>
+<p class="section-intro">ERICA metrics across methods for the same dataset. K-based methods shown as lines; HDBSCAN as a marker at its modal K. Grouped bar charts show K* per method per metric.</p>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/method_vdx_3gene.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 4a</div>
       <div class="fig-title">Method Comparison &mdash; VDX</div>
-      <div class="fig-desc">CRI, WCRI, TWCRI for K-Means (orange) and Ward (blue) across K=2..6. HDBSCAN appears as a star marker at its modal K=2. K-Means consistently outperforms Ward on ERICA metrics for this dataset, suggesting more stable centroid-based boundaries for these three genes.</div>
+      <div class="fig-desc">K-Means (orange), Ward (blue), HDBSCAN (star) across CRI, WCRI, TWCRI.</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/kstar_vdx_3gene.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 4b</div>
       <div class="fig-title">K* Selection &mdash; VDX</div>
-      <div class="fig-desc">Grouped bar chart of K* per method per metric. Both K-Means and Ward select K*=6 across all three ERICA metrics, suggesting the K range should be extended to test larger values. The consistent K*=6 at the range boundary is a signal, not an answer.</div>
+      <div class="fig-desc">Grouped bar chart of optimal K* per method per ERICA metric.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/method_well_separated.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 4c</div>
+      <div class="fig-title">Method Comparison &mdash; Well-separated</div>
+      <div class="fig-desc">300 samples, 5D, true K=3.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/method_overlapping.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 4d</div>
+      <div class="fig-title">Method Comparison &mdash; Overlapping</div>
+      <div class="fig-desc">300 samples, 5D, true K=4.</div>
     </div>
   </div>
 </div>
@@ -223,106 +291,122 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="scatter">
 <h2>5. Cluster Assignment Scatter Plots</h2>
-<p class="section-intro">For two-dimensional datasets, we can directly visualize cluster assignments in the feature space. Points are colored by their primary CLAM cluster (argmax of each row). Point size scales with assignment confidence: larger dots were more consistently assigned across iterations. Confidence maps (green = stable, red = confused) highlight the boundary regions.</p>
+<p class="section-intro">For 2D datasets: points colored by primary CLAM cluster, sized by assignment confidence. Confidence maps show green (stable) to red (ambiguous). Only applicable to datasets with n_features=2.</p>
 
-<div class="highlight">
-  <strong>Key finding:</strong> K-Means selected K*=4 for the moons dataset, splitting each crescent in half. This is not a bug &mdash; it is K-Means being honest about its geometric assumptions. Centroid-based methods cannot represent non-convex clusters. Ward linkage (K*=2) and HDBSCAN (modal K=2, 93% agreement) correctly identify the two-moon structure.
-</div>
-
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/scatter_compare_moons_2d_k2.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 5a</div>
     <div class="fig-title">Method Comparison at K=2 &mdash; Two Moons</div>
-    <div class="fig-desc">300 samples from <code>make_moons(noise=0.05)</code>. Left: K-Means draws a vertical decision boundary, splitting each moon. Center: Ward linkage does the same. Right: HDBSCAN separates the moons correctly. Point sizes reflect CLAM confidence &mdash; note the smaller (less confident) points near the inter-moon gap across all methods.</div>
+    <div class="fig-desc">300 samples from make_moons(noise=0.05). K-Means, Ward, and HDBSCAN assignments side by side. Point size scales with CLAM confidence.</div>
   </div>
 </div>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/scatter_moons_2d_kmeans_k4.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 5b</div>
       <div class="fig-title">K-Means at K*=4 &mdash; Moons</div>
-      <div class="fig-desc">K-Means' selected K*=4. Each crescent is bisected into two segments. The TWCRI is higher at K=4 than K=3 because the four-piece partition is actually more stable than the three-piece one &mdash; but it doesn't match the generative structure.</div>
+      <div class="fig-desc">K-Means' selected K*. Each crescent bisected into two segments.</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/confidence_moons_2d_kmeans_k2.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 5c</div>
       <div class="fig-title">Confidence Map &mdash; Moons, K-Means, K=2</div>
-      <div class="fig-desc">Green = high confidence (always same cluster), red = low confidence. The inter-moon boundary lights up red. The tips of each crescent, farthest from the boundary, are the most stable. This confidence gradient is a direct readout of the CLAM matrix normalized by row sums.</div>
+      <div class="fig-desc">Green = high confidence, red = low confidence. Boundary region between moons shows lowest stability.</div>
     </div>
   </div>
 </div>
 
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/scatter_compare_circles_2d_k2.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 5d</div>
     <div class="fig-title">Method Comparison at K=2 &mdash; Concentric Circles</div>
-    <div class="fig-desc">300 samples from <code>make_circles(noise=0.05, factor=0.5)</code>. All methods struggle: K-Means and Ward split vertically (ignoring the radial structure), HDBSCAN finds 4 clusters with only 39% agreement. Concentric rings require topology-aware methods that none of these algorithms provide. The uniformly low CRI (~0.78) across methods correctly flags this as an unreliable clustering.</div>
+    <div class="fig-desc">300 samples from make_circles(noise=0.05, factor=0.5). All methods produce spatial bisections rather than radial separations.</div>
   </div>
 </div>
 
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/scatter_compare_blobs_2d_k3.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 5e</div>
-    <div class="fig-title">Method Comparison at K=3 &mdash; Well-Separated 2D Blobs</div>
-    <div class="fig-desc">The control case. 300 samples, 3 isotropic Gaussian clusters (std=0.5). All three methods produce identical assignments with perfect confidence. CRI = 1.0, ARI = 1.0. When the clusters are real, every method finds them.</div>
+    <div class="fig-title">Method Comparison at K=3 &mdash; 2D Blobs</div>
+    <div class="fig-desc">300 samples from make_blobs(centers=3, std=0.5). All methods produce identical assignments at the true K.</div>
   </div>
 </div>
 </div>
 
 <!-- ============================================================ -->
-<div class="figure-group wide" id="progressions">
+<div class="figure-group" id="progressions">
 <h2>6. K-Value Progression Series</h2>
-<p class="section-intro">The definitive view: how cluster assignments evolve as K increases from 2 to 6. Each grid has 3 rows (K-Means, Ward, Single Linkage) and 5 columns (K=2 through K=6). For 2D data, cells show scatter plots; for higher-dimensional data, cells show sorted CLAM heatmaps. Orange borders mark the K* selected by TWCRI. True K is marked with an asterisk in the column header.</p>
+<p class="section-intro">3 rows (K-Means, Ward, Single Linkage) &times; 5 columns (K=2..6). For 2D data: scatter plots. For higher-dimensional data: sorted CLAM heatmaps. Orange borders mark the K* selected by TWCRI. True K indicated with asterisk. Click any figure to expand.</p>
 
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/k_progressions/k_progression_moons_2d.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 6a</div>
     <div class="fig-title">K Progression &mdash; Two Moons (true K=2)</div>
-    <div class="fig-desc">K-Means: progressively chops the moons into more pieces, selecting K*=4. Ward: similar fragmentation pattern, but selects K*=2 (correct). Single Linkage: correctly identifies 2 clusters at K=2 by following the density chain. At K&ge;3, single linkage begins isolating small outlier groups. Point sizes reflect CLAM confidence.</div>
+    <div class="fig-desc">make_moons, 300 samples, noise=0.05. Three methods &times; K=2..6.</div>
   </div>
 </div>
 
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/k_progressions/k_progression_circles_2d.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 6b</div>
     <div class="fig-title">K Progression &mdash; Concentric Circles (true K=2)</div>
-    <div class="fig-desc">No method correctly separates inner from outer ring at any K. All methods default to spatial bisection. As K increases, the circular structure is carved into pie-slice segments rather than concentric regions. This is a fundamental limitation of distance-based and linkage-based clustering for non-radial topology.</div>
+    <div class="fig-desc">make_circles, 300 samples, noise=0.05, factor=0.5.</div>
   </div>
 </div>
 
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/k_progressions/k_progression_vdx_3gene.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 6c</div>
     <div class="fig-title">K Progression &mdash; VDX Breast Cancer (true K unknown)</div>
-    <div class="fig-desc">CLAM heatmaps for real data. At K=2, clean two-block structure across all methods. At K=3, a third block emerges but with visible off-diagonal assignments. Single linkage produces a degenerate partition at K&ge;3 (one giant cluster + tiny fragments). K-Means and Ward show the most interpretable progression, with block structure degrading gradually as K increases.</div>
+    <div class="fig-desc">Parmigiani VDX 3-gene subset, 344 samples. Sorted CLAM heatmaps.</div>
   </div>
 </div>
 
-<div class="figure">
-  <img src="figures/k_progressions/k_progression_gmm_anisotropic.png" alt="">
-  <div class="caption">
-    <div class="fig-id">Figure 6d</div>
-    <div class="fig-title">K Progression &mdash; Anisotropic Gaussian Mixture (true K=3)</div>
-    <div class="fig-desc">Three elongated Gaussians at different orientations in 2D (450 samples). K-Means selects K*=4, splitting an elongated cluster. Ward selects K*=2, merging two clusters. Single Linkage selects K*=3 (correct), following the chain structure of each elongated component. Demonstrates that method selection should be informed by expected cluster geometry.</div>
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/k_progressions/k_progression_gmm_anisotropic.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 6d</div>
+      <div class="fig-title">Anisotropic GMM (true K=3)</div>
+      <div class="fig-desc">450 samples, 2D. Elongated ellipses at different orientations.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/k_progressions/k_progression_gmm_five_clusters.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 6e</div>
+      <div class="fig-title">Five-Cluster GMM (true K=5)</div>
+      <div class="fig-desc">400 samples, 2D. Five Gaussians with varied covariances.</div>
+    </div>
   </div>
 </div>
 
-<div class="figure">
-  <img src="figures/k_progressions/k_progression_gmm_five_clusters.png" alt="">
-  <div class="caption">
-    <div class="fig-id">Figure 6e</div>
-    <div class="fig-title">K Progression &mdash; Five-Cluster GMM (true K=5)</div>
-    <div class="fig-desc">Five Gaussians with varied covariances in 2D (400 samples). K-Means and Ward both reach K*=5 (correct). Single Linkage oversplits to K*=7, fragmented by its sensitivity to density variations between clusters. At K=5, all K-based methods show clean five-way assignments.</div>
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/k_progressions/k_progression_well_separated.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 6f</div>
+      <div class="fig-title">Well-separated (true K=3)</div>
+      <div class="fig-desc">300 samples, 5D. CLAM heatmaps.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/k_progressions/k_progression_high_dim.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 6g</div>
+      <div class="fig-title">High-dimensional (true K=3)</div>
+      <div class="fig-desc">200 samples, 50D. CLAM heatmaps.</div>
+    </div>
   </div>
 </div>
 </div>
@@ -330,153 +414,188 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="surfaces">
 <h2>7. 3D Surfaces &amp; Parameter Sensitivity</h2>
-<p class="section-intro">Three-dimensional visualizations provide alternative perspectives on the CLAM matrix structure and the HDBSCAN parameter landscape. The 2D heatmap versions are publication-ready; the 3D versions are supplementary material for exploration.</p>
+<p class="section-intro">Alternative views of CLAM structure and the HDBSCAN parameter space. 2D heatmaps are publication-ready; 3D surfaces are supplementary.</p>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/landscape_twcri_vdx_3gene_2d.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 7a</div>
-      <div class="fig-title">TWCRI Landscape &mdash; VDX (2D Heatmap)</div>
-      <div class="fig-desc">TWCRI values across K (columns) and methods (rows). Cell annotations show exact values. Reveals that K-Means consistently achieves higher TWCRI than Ward at every K, and that both methods show the same non-monotonic pattern (dip at K=4-5, recovery at K=6).</div>
+      <div class="fig-title">TWCRI Landscape (2D) &mdash; VDX</div>
+      <div class="fig-desc">TWCRI across K (columns) and methods (rows). Cell annotations show values.</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/landscape_twcri_vdx_3gene_3d.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 7b</div>
-      <div class="fig-title">TWCRI Landscape &mdash; VDX (3D Surface)</div>
-      <div class="fig-desc">Same data as 7a rendered as a surface. The valley at K=4-5 and the ridge at K=2 are visually prominent. The surface is interpolated across the discrete method axis for visual continuity.</div>
+      <div class="fig-title">TWCRI Landscape (3D) &mdash; VDX</div>
+      <div class="fig-desc">Same data as 7a rendered as surface plot.</div>
     </div>
   </div>
 </div>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/hdbscan_sensitivity_2d.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 7c</div>
-      <div class="fig-title">HDBSCAN Parameter Sensitivity &mdash; VDX (2D)</div>
-      <div class="fig-desc">K agreement rate across a grid of min_cluster_size (5..50) and min_samples (None, 3, 5, 10). 24 ERICA runs, 100 iterations each. Cells marked "X" indicate zero agreement (degenerate result). Higher min_cluster_size generally increases agreement but reduces the number of discovered clusters. The most stable configurations (agreement &ge; 0.95) occur at min_cluster_size=10-30.</div>
-      <div class="fig-method">HDBSCAN sweep: method=['hdbscan'], k_range=[2], n_iterations=100 per (mcs, ms) combination</div>
+      <div class="fig-title">HDBSCAN Sensitivity (2D) &mdash; VDX</div>
+      <div class="fig-desc">K agreement rate across min_cluster_size (5..50) &times; min_samples (None, 3, 5, 10). 24 ERICA runs, 100 iterations each.</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/surface_clam_vdx_3gene_kmeans_k3.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 7d</div>
       <div class="fig-title">CLAM Topography &mdash; VDX, K-Means, K=3</div>
-      <div class="fig-desc">The sorted CLAM matrix rendered as a 3D surface. X = cluster index, Y = sample index (sorted), Z = assignment count. The three "mesas" correspond to the three cluster blocks. The height of each mesa indicates assignment stability; the valleys between them represent the boundary samples.</div>
+      <div class="fig-desc">Sorted CLAM matrix as 3D surface. X=cluster, Y=sample (sorted), Z=assignment count.</div>
     </div>
   </div>
 </div>
 </div>
 
 <!-- ============================================================ -->
-<div class="figure-group wide" id="gaussian">
+<div class="figure-group" id="gaussian">
 <h2>8. Gaussian Mixture Sigma Study</h2>
-<p class="section-intro">The central experiment: 4 Gaussian centers in 50 dimensions, with the standard deviation swept from 0.01 (trivially separated) to 10.0 (indistinguishable). This recapitulates the original MCSS synthetic experiments and validates ERICA's behavior across the full spectrum of clustering difficulty. Adjacent centers are separated by 9.49 in Euclidean distance; the expected point-to-center distance is &sigma;&radic;d.</p>
+<p class="section-intro">4 isotropic Gaussian centers in 50 dimensions, 100 samples per center. Centers separated by 9.49 (Euclidean) in the first 10 dimensions. Standard deviation &sigma; swept from 0.01 to 10.0, yielding radius/spacing ratios from 0.01 (trivially separated) to 7.45 (indistinguishable). K=2..6 tested with all four methods.</p>
 
-<div class="highlight">
-  <strong>The separation equation:</strong> At &sigma;=0.01, the radius/spacing ratio is 0.01 (perfect separation). At &sigma;=1.0, it reaches 0.75 (severe overlap). At &sigma;=10.0, it hits 7.45 (complete collapse). ERICA's metrics track this transition precisely.
-</div>
-
-<div class="figure">
+<div class="figure" onclick="openLightbox(this)">
   <img src="figures/gaussian_study/sigma_twcri_curves.png" alt="">
   <div class="caption">
     <div class="fig-id">Figure 8a</div>
-    <div class="fig-title">TWCRI at True K=4 vs Standard Deviation</div>
-    <div class="fig-desc">The "replicability cliff." TWCRI = 1.0 at &sigma; &le; 0.1 (clusters are trivially separated). At &sigma;=1.0, methods diverge: K-Means and Ward maintain moderate TWCRI while Single Linkage drops. At &sigma;=10.0, all methods collapse. HDBSCAN (diamonds) tracks the trend but operates at its own modal K, which shifts from 4 to 1 as structure vanishes.</div>
+    <div class="fig-title">TWCRI at K=4 vs &sigma;</div>
+    <div class="fig-desc">TWCRI evaluated at the true K=4 across four sigma levels (log scale). One line per K-based method; HDBSCAN shown as discrete markers at its modal K's TWCRI.</div>
   </div>
 </div>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/gaussian_study/sigma_ari_ami_curves.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 8b</div>
-      <div class="fig-title">ARI/AMI at K=4 vs Sigma</div>
-      <div class="fig-desc">Parmigiani metrics tell a complementary story. ARI (solid) and AMI (dashed) both show perfect train-to-test generalization at low sigma. The ARI/AMI divergence at &sigma;=1.0 reflects information-theoretic vs pair-counting sensitivity to partial overlap.</div>
+      <div class="fig-title">ARI/AMI at K=4 vs &sigma;</div>
+      <div class="fig-desc">ARI (solid) and AMI (dashed) at true K across sigma levels.</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/gaussian_study/sigma_hdbscan_noise.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 8c</div>
-      <div class="fig-title">HDBSCAN Noise Fraction vs Sigma</div>
-      <div class="fig-desc">The fraction of test samples classified as noise by HDBSCAN. At &sigma; &le; 0.1, zero noise. As sigma increases, HDBSCAN progressively classifies more samples as noise &mdash; its way of saying "this isn't a cluster." At &sigma;=10.0, most samples are noise. HDBSCAN as a canary for cluster structure.</div>
+      <div class="fig-title">HDBSCAN Noise Fraction vs &sigma;</div>
+      <div class="fig-desc">Mean fraction of test samples classified as noise by HDBSCAN at each sigma level.</div>
     </div>
   </div>
 </div>
 
-<div class="figure">
-  <img src="figures/gaussian_study/sigma_kstar_summary.png" alt="">
-  <div class="caption">
-    <div class="fig-id">Figure 8d</div>
-    <div class="fig-title">K* Selection Across Sigma Levels</div>
-    <div class="fig-desc">At &sigma; &le; 0.1, all methods agree: K*=4 (the truth). At &sigma;=1.0, K-Means and Ward still find K*=4 but Single Linkage diverges to K*=6 (oversplitting the overlapping clusters). At &sigma;=10.0, all methods select K*=2 (the two closest centers merge last) and HDBSCAN finds modal K=1. The horizontal reference line marks the true K=4.</div>
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/sigma_kstar_summary.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8d</div>
+      <div class="fig-title">K* Selection Across &sigma;</div>
+      <div class="fig-desc">Grouped bars showing K* per method at each sigma. Horizontal line at true K=4.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox(this)">
+    <img src="figures/gaussian_study/vdx_gaussian_comparison.png" alt="">
+    <div class="caption">
+      <div class="fig-id">Figure 8e</div>
+      <div class="fig-title">VDX vs Gaussian (&sigma;=1.0)</div>
+      <div class="fig-desc">Side-by-side TWCRI and ARI curves. VDX (left) vs 50D Gaussian at &sigma;=1.0 (right).</div>
+    </div>
   </div>
 </div>
 
-<div class="figure">
-  <img src="figures/gaussian_study/vdx_gaussian_comparison.png" alt="">
-  <div class="caption">
-    <div class="fig-id">Figure 8e</div>
-    <div class="fig-title">VDX vs Gaussian (&sigma;=1.0) Comparison</div>
-    <div class="fig-desc">Where does real breast cancer data fall on the synthetic difficulty spectrum? Side-by-side metric curves for VDX (left) and the &sigma;=1.0 Gaussian (right). VDX shows higher absolute TWCRI but a similar declining pattern with K, suggesting its cluster structure is present but not dramatically separated &mdash; consistent with biological heterogeneity rather than clean molecular subtypes.</div>
-  </div>
-</div>
-
-<h3 style="margin: 32px 0 16px; font-weight: 400;">K Progression by Sigma Level</h3>
+<h3 style="font-size: 15px; font-weight: 400; margin: 28px 0 12px;">K Progression by Sigma Level</h3>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/gaussian_study/k_progression_gauss4c_sigma0p01.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 8f</div>
-      <div class="fig-title">&sigma; = 0.01 &mdash; Point Masses</div>
-      <div class="fig-desc">Razor-sharp CLAM blocks. Every sample is assigned to the same cluster in all 200 iterations. At K=4, four identical-height blocks. At K &gt; 4, empty clusters appear (disqualified). The platonic ideal of replicable clustering.</div>
+      <div class="fig-title">&sigma; = 0.01</div>
+      <div class="fig-desc">Radius/spacing = 0.01. 400 samples, 50D, 4 centers.</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/gaussian_study/k_progression_gauss4c_sigma0p1.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 8g</div>
-      <div class="fig-title">&sigma; = 0.1 &mdash; Well-Separated</div>
-      <div class="fig-desc">Still clean blocks, now with barely visible off-diagonal fuzz. Expected radius (0.71) is far below the center spacing (9.49). The first hints of boundary uncertainty appear at K=5 and K=6.</div>
+      <div class="fig-title">&sigma; = 0.1</div>
+      <div class="fig-desc">Radius/spacing = 0.07. Well-separated.</div>
     </div>
   </div>
 </div>
 
 <div class="figure-pair">
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/gaussian_study/k_progression_gauss4c_sigma1p0.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 8h</div>
-      <div class="fig-title">&sigma; = 1.0 &mdash; Severe Overlap</div>
-      <div class="fig-desc">The interesting case. Expected radius (7.07) approaches spacing (9.49). K-Means and Ward still show block structure at K=4 but with substantial off-diagonal leakage. Single Linkage produces a degenerate partition: one giant cluster absorbs most samples via the chaining effect. This is where method choice matters most.</div>
+      <div class="fig-title">&sigma; = 1.0</div>
+      <div class="fig-desc">Radius/spacing = 0.75. Overlap region.</div>
     </div>
   </div>
-  <div class="figure">
+  <div class="figure" onclick="openLightbox(this)">
     <img src="figures/gaussian_study/k_progression_gauss4c_sigma10p0.png" alt="">
     <div class="caption">
       <div class="fig-id">Figure 8i</div>
-      <div class="fig-title">&sigma; = 10.0 &mdash; Total Collapse</div>
-      <div class="fig-desc">Expected radius (70.71) dwarfs spacing (9.49). All 400 samples form a single diffuse cloud. K-Means and Ward still impose partitions (they must), but the CLAM heatmaps show no block structure &mdash; assignments are essentially random. ERICA correctly reports TWCRI near zero. The most important thing a replicability tool can do is tell you when there's nothing to replicate.</div>
+      <div class="fig-title">&sigma; = 10.0</div>
+      <div class="fig-desc">Radius/spacing = 7.45. Structure collapsed.</div>
     </div>
   </div>
 </div>
-
 </div>
 
 </div>
 
 <footer>
   ERICA: Evaluating Replicability via Iterative Clustering Assignments<br>
-  Sorooshyari &amp; Shirazi &middot; PhenomML/ERICA &middot; 2026<br><br>
-  All figures generated with matplotlib. 200 Monte Carlo iterations per analysis.<br>
-  Methods: K-Means, Agglomerative (Ward &amp; Single Linkage), HDBSCAN.
+  Sorooshyari &amp; Shirazi &middot; 2026
 </footer>
+
+<script>
+// Lightbox
+function openLightbox(el) {
+  const img = el.querySelector('img');
+  const title = el.querySelector('.fig-title');
+  const desc = el.querySelector('.fig-desc');
+  document.getElementById('lb-img').src = img.src;
+  document.getElementById('lb-caption').textContent = (title ? title.textContent : '') + (desc ? ' — ' + desc.textContent : '');
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+
+// Sticky nav active state
+const sections = document.querySelectorAll('.figure-group');
+const navLinks = document.querySelectorAll('.nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const id = entry.target.id;
+      const link = document.querySelector('.nav a[href="#' + id + '"]');
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-40% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// Smooth scroll
+navLinks.forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
 
 </body>
 </html>
