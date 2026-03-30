@@ -10,26 +10,26 @@ This also serves as a side-by-side comparison with the Parmigiani et al. real-da
 
 ### Synthetic Data: 4-Center Gaussian Mixtures
 
-Four datasets, each with **4 Gaussian components in 100 dimensions**, varying only the standard deviation (sigma). This directly mirrors the original `Gaussian_mix_gen_2-Shawn.ipynb` setup.
+Four datasets, each with **4 Gaussian components in 50 dimensions**, varying only the standard deviation (sigma). This directly mirrors the original `Gaussian_mix_gen_2-Shawn.ipynb` setup.
 
 | Dataset | Sigma | Description | Expected K* |
 |---------|-------|-------------|-------------|
 | `gauss4c_sigma0p01` | 0.01 | Extremely tight. Clusters are point masses. | 4 (trivial) |
-| `gauss4c_sigma0p1` | 0.1 | Tight. Well-separated relative to center spacing (inter/intra ratio ~9.5). | 4 (easy) |
-| `gauss4c_sigma1p0` | 1.0 | Severe overlap. In 100D, expected radius (~10) approaches inter-center distance (~9.5). | 3 or 2 |
-| `gauss4c_sigma10p0` | 10.0 | Massive overlap. Clusters indistinguishable (radius ~100 >> spacing ~9.5). | 2 (everything merges) |
+| `gauss4c_sigma0p1` | 0.1 | Tight. Well-separated relative to center spacing. | 4 (easy) |
+| `gauss4c_sigma1p0` | 1.0 | Moderate-to-severe overlap. Expected radius (~7.1) approaches inter-center distance (~9.5). | 4 or 3 |
+| `gauss4c_sigma10p0` | 10.0 | Massive overlap. Clusters indistinguishable (radius ~71 >> spacing ~9.5). | 2 (everything merges) |
 
-**Separation math:** Adjacent centers are separated by `3 * sqrt(10) = 9.49` in Euclidean distance (spacing of 3 across 10 informative dimensions). The expected distance from a cluster center is `sigma * sqrt(d)`. At sigma=1.0 in 100D, this is `1 * sqrt(100) = 10`, so clusters overlap heavily. At sigma=0.1, it is only `1.0`, giving clear separation.
+**Separation math:** Adjacent centers are separated by `3 * sqrt(10) = 9.49` in Euclidean distance (spacing of 3 across 10 informative dimensions). The expected distance from a cluster center is `sigma * sqrt(d)`. At sigma=1.0 in 50D, this is `1 * sqrt(50) = 7.07`, approaching the inter-center spacing. At sigma=0.1, it is only `0.71`, giving clear separation.
 
 **Data generation parameters:**
-- **Dimensions:** 100
+- **Dimensions:** 50
 - **Samples per cluster:** 100 (400 total per dataset)
 - **Number of centers:** 4
-- **Center placement:** Center i has value `i * 3` in dimensions 0-9, zero in dimensions 10-99. This gives inter-center Euclidean spacing of 9.49.
-- **Covariance:** Isotropic (sigma^2 * I_100) per cluster
+- **Center placement:** Center i has value `i * 3` in dimensions 0-9, zero in dimensions 10-49. This gives inter-center Euclidean spacing of 9.49.
+- **Covariance:** Isotropic (sigma^2 * I_50) per cluster
 - **Random seed:** 42 (for data generation; ERICA uses its own seed=123)
 
-**Status:** `gauss4c_sigma0p01` and `gauss4c_sigma0p1` are already generated in `data/`. The sigma=1.0 and sigma=10.0 datasets need to be created by `01_generate_gaussians.py`.
+**Visualization note:** At 50D, data cannot be scatter-plotted directly. All visualizations use CLAM heatmaps and metric curves, which are dimensionality-agnostic.
 
 ### Real Data: VDX Breast Cancer (Parmigiani)
 
