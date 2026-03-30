@@ -42,6 +42,38 @@ class ERICA:
         hdbscan_params: Optional[Dict] = None,
         **kwargs,
     ):
+        """Initialize ERICA analysis.
+
+        Parameters
+        ----------
+        data : np.ndarray or pd.DataFrame
+            Input data for clustering analysis.
+        k_range : list of int, optional
+            Range of k values to test (default: [2, 3, 4, 5]).
+        n_iterations : int, optional
+            Number of subsampling iterations (default: 200).
+        train_percent : float, optional
+            Percentage of data for training (default: 0.8).
+        method : str or list of str, optional
+            Clustering method(s). A single string, list of strings, or 'all'.
+            Valid: 'kmeans', 'agglomerative_ward', 'agglomerative_single',
+            'agglomerative_complete', 'agglomerative_average', 'hdbscan'.
+            Deprecated aliases: 'both', 'agglomerative' (emit warnings).
+            Default: 'both'.
+        random_seed : int, optional
+            Random seed for reproducibility (default: 123).
+        output_dir : str, optional
+            Directory for output files (default: './erica_output').
+        transpose : bool, optional
+            Whether to transpose the data (default: True).
+            True: input is genomics format (features x samples).
+            False: input is standard ML format (samples x features).
+        verbose : bool, optional
+            Print progress messages (default: True).
+        hdbscan_params : dict, optional
+            Parameters for HDBSCAN (min_cluster_size, min_samples).
+            Only used when 'hdbscan' is in the method list.
+        """
         # Reject removed parameters
         if 'linkages' in kwargs:
             raise TypeError(
@@ -105,7 +137,7 @@ class ERICA:
 
         # Step 1: Iterative clustering subsampling
         if self.verbose:
-            print(f"\n[1/3] Performing iterative clustering subsampling...")
+            print(f"\n[1/5] Performing iterative clustering subsampling...")
         train_size = int(self.n_samples * self.train_percent)
         subsamples_folder, indices_folder = iterative_clustering_subsampling(
             samples_array=self.samples_array,
@@ -116,9 +148,9 @@ class ERICA:
             verbose=self.verbose
         )
 
-        # Step 2: Clustering for each k and method
+        # Step 2: K-based clustering
         if self.verbose:
-            print(f"\n[2/4] Running clustering analysis...")
+            print(f"\n[2/5] Running K-based clustering...")
 
         for k in self.k_range:
             for method_name in self.k_based_methods:
@@ -155,7 +187,7 @@ class ERICA:
         # Step 3: Auto-K clustering
         if self.auto_k_methods:
             if self.verbose:
-                print(f"\n[3/4] Running auto-K clustering methods...")
+                print(f"\n[3/5] Running auto-K clustering methods...")
             for method_name in self.auto_k_methods:
                 if method_name == 'hdbscan':
                     if self.verbose:
@@ -170,15 +202,15 @@ class ERICA:
                     )
                     self.auto_k_results_[method_name] = result
 
-        # Step 3b: Compute metrics
+        # Step 4: Compute metrics
         if self.verbose:
-            print(f"\n[3/4] Computing metrics...")
+            print(f"\n[4/5] Computing metrics...")
         self.metrics_ = self._compute_all_metrics()
 
-        # Step 4: Select optimal K using Algorithm 2
+        # Step 5: Select optimal K using Algorithm 2
         if self.k_based_methods and self.metrics_:
             if self.verbose:
-                print(f"\n[4/4] Selecting optimal K* using Algorithm 2...")
+                print(f"\n[5/5] Selecting optimal K* using Algorithm 2...")
             self.k_star_ = self._select_optimal_k()
 
         # Store output folder

@@ -156,7 +156,6 @@ def compute_config_hash(config: Dict[str, Any]) -> str:
         'train_percent': config.get('train_percent'),
         'random_seed': config.get('random_seed'),
         'method': config.get('method'),
-        'linkages': config.get('linkages'),
     }
     
     # Convert to sorted JSON string

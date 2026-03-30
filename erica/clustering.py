@@ -634,8 +634,13 @@ def hdbscan_clustering(
         unique_test = set(test_labels_raw)
         unique_test.discard(-1)
         if len(unique_test) == 0:
-            true_labels = predicted_labels.copy()
-            discovered_k = n_clusters_train
+            # All test points are noise — no valid true_labels for ARI/AMI.
+            # Use empty arrays so this iteration is skipped in ARI aggregation.
+            all_predicted_labels.append(np.array([]))
+            all_true_labels.append(np.array([]))
+            discovered_ks.append(n_clusters_train)
+            noise_counts.append(n_noise)
+            continue
         else:
             n_clusters_test = max(unique_test) + 1
             test_centroids = np.zeros((n_clusters_test, test_data.shape[1]))
