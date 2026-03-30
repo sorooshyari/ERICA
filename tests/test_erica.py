@@ -818,5 +818,56 @@ def test_get_auto_k_results():
     assert erica.get_auto_k_results('nonexistent') is None
 
 
+def test_erica_full_integration_all_methods():
+    from sklearn.datasets import make_blobs
+    data, _ = make_blobs(n_samples=60, n_features=4, centers=3,
+                         cluster_std=0.8, random_state=42)
+    erica = ERICA(
+        data=data, k_range=[2, 3], n_iterations=5,
+        method=['kmeans', 'agglomerative_ward', 'hdbscan'],
+        hdbscan_params={'min_cluster_size': 5},
+        transpose=False, verbose=False,
+    )
+    results = erica.run()
+
+    for k in [2, 3]:
+        assert 'kmeans' in results['metrics'][k]
+        assert 'agglomerative_ward' in results['metrics'][k]
+        for method in ['kmeans', 'agglomerative_ward']:
+            m = results['metrics'][k][method]
+            assert 'CRI' in m
+            assert 'TWCRI' in m
+            assert 'ARI_mean' in m
+            assert 'AMI_mean' in m
+
+    assert 'TWCRI' in results['k_star']
+    assert 'kmeans' in results['k_star']['TWCRI']
+    assert 'agglomerative_ward' in results['k_star']['TWCRI']
+
+    assert 'hdbscan' in results['auto_k']
+    hdb = results['auto_k']['hdbscan']
+    assert 'modal_k' in hdb
+    assert 'k_distribution' in hdb
+    assert 'clam_matrix' in hdb
+
+    assert isinstance(results['config']['method'], list)
+    assert 'hdbscan' in results['config']['method']
+
+
+def test_erica_backwards_compat_both():
+    data = np.random.rand(30, 5)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        erica = ERICA(
+            data=data, k_range=[2, 3], n_iterations=3,
+            method='both', verbose=False,
+        )
+    results = erica.run()
+    for k in [2, 3]:
+        assert 'kmeans' in results['metrics'][k]
+        assert 'agglomerative_single' in results['metrics'][k]
+        assert 'agglomerative_ward' in results['metrics'][k]
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
