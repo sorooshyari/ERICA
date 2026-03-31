@@ -21,16 +21,14 @@ Here's how we figured out which is which.
 Before we could plot anything, we shipped a major API update:
 
 - **Flattened method parameter**: No more `method='both'` with a mysterious `linkages` list. Now it's `method=['kmeans', 'agglomerative_ward', 'hdbscan']`. You say what you mean, ERICA does what you say.
-- **HDBSCAN support**: The density-based kid on the block. Doesn't need you to tell it K. Finds it on its own. Sometimes finds nothing. (That's informative too.)
+- **HDBSCAN support**: The density-based kid on the block. Doesn't need you to tell it K. Finds it on its own. Sometimes finds nothing. (That's informative too.) *Note: HDBSCAN integration is still under validation.*
 - **ARI/AMI metrics**: Parmigiani's partition comparison metrics, baked in. Because CRI tells you if clusters are stable, but ARI tells you if the train-fitted model generalizes to held-out data. Belt and suspenders.
 
-55 tests. All passing. Zero regressions. The p-value of our confidence is... well, we're not frequentists, but it's small.
+55 tests. All passing. Zero regressions.
 
 ### The Style Module
 
 One `style.py` to rule them all. Viridis colormap (because we care about colorblind colleagues), Okabe-Ito palette for method comparisons, journal-ready figure sizes (3.5" single column, 7.0" double). Every plot script imports from the same source of truth.
-
-No more "why does Figure 3 use blue for K-Means but Figure 7 uses orange?" We've all been burned by that particular form of scientific sin.
 
 ---
 
@@ -40,7 +38,15 @@ No more "why does Figure 3 use blue for K-Means but Figure 7 uses orange?" We've
 
 From Parmigiani et al.'s replicability paper. Three genes: ESR1, ERBB2, AURKA. These aren't random genes. They're the molecular equivalent of asking someone their age, income, and whether they prefer cats or dogs. Surprisingly informative.
 
-ERICA's verdict: K*=6 for both K-Means and Ward (at K_max=6). HDBSCAN finds 2 clusters with 60% agreement. The biology says "it's complicated." The statistics agree.
+### Parmigiani et al. Complete Dataset Inventory
+
+The original paper uses 23 datasets total:
+- **3 breast cancer cohorts** (VDX 344, Mainz 200, Transbig 198 samples) with 5 feature representations each (3-gene, PAM50, PAM50+PCA, top 0.5% variable, top+PCA)
+- **8 benchmark shape datasets** (Frantti & Sieranoja 2018: aggregation, compound, d31, flame, jain, pathbased, r15, spiral)
+- **6 high-dimensional null Gaussians** (dim 32 through 1024, testing curse of dimensionality)
+- **6 additional synthetic GMMs** in the appendix
+
+We currently use VDX 3-gene. The full inventory is documented in the gallery HTML.
 
 ### Synthetic Toybox
 
@@ -53,70 +59,114 @@ ERICA's verdict: K*=6 for both K-Means and Ward (at K_max=6). HDBSCAN finds 2 cl
 | `blobs_2d` | Three tidy Gaussians in flatland | The control group |
 | `high_dim` | Three clusters in 50 dimensions | The curse of dimensionality, domesticated |
 
-Fun fact: K-Means looked at the moons dataset and said K*=4. It literally cut each moon in half. This is not a bug. This is K-Means being honest about its geometric worldview: "I only understand circles, and these aren't circles."
+K-Means looked at the moons dataset and said K*=4. It literally cut each moon in half. This is not a bug. This is K-Means being honest about its geometric worldview: "I only understand circles, and these aren't circles."
 
-Ward linkage got it right (K*=2). Single linkage got it right. HDBSCAN got it right (modal K=2, 93% agreement). The moral: when your data isn't convex, bring a density-based friend.
+### Gaussian Mixtures
 
-### Gaussian Mixtures (The Original Recipe)
+Six 2D Gaussian mixtures with varied covariance structures (spherical, anisotropic, mixed variance, overlapping pair, five clusters, 32D). Plus the main event:
 
-Four datasets, same recipe, different spice level. Each has 4 Gaussian centers in 50 dimensions:
+### Gaussian Sigma Study (The Original Recipe)
 
-| Sigma | Radius/Spacing Ratio | Translation |
-|-------|---------------------|-------------|
-| 0.01 | 0.01 | Clusters so tight they're basically delta functions. A good sneeze would separate them. |
-| 0.1 | 0.07 | Comfortably separated. The "control" of the experiment. |
+Four datasets recreating the original `Gaussian_mix_gen_2-Shawn.ipynb` experiments. Each has 4 Gaussian centers in 50 dimensions, 100 samples per center:
+
+| Sigma | Radius/Spacing | Translation |
+|-------|---------------|-------------|
+| 0.01 | 0.01 | Clusters so tight they're basically delta functions. |
+| 0.1 | 0.07 | Comfortably separated. The "control." |
 | 1.0 | 0.75 | Tails are touching. This is where things get interesting. |
-| 10.0 | 7.45 | One big diffuse blob wearing a "K=4" name tag that nobody believes. |
-
-The separation math: centers are spaced 9.49 apart (Euclidean). A point drawn from a 50D Gaussian with sigma=1.0 is expected to be 7.07 from its center. At sigma=10, it's 70.71. At that point, asking "which cluster are you from?" is like asking a molecule of water which ocean it belongs to.
+| 10.0 | 7.45 | One big diffuse blob. Asking "which cluster?" is like asking a water molecule which ocean. |
 
 ---
 
 ## Act III: The Visualizations
 
-### 80 Figures, 10 Scripts, Zero Regrets
+### 612 Figures, 17 Scripts, 3 HTML Galleries
 
-We generated figures across multiple visualization types. Here's the taxonomy:
+We generated figures across multiple visualization types, organized into three galleries.
 
-**CLAM Heatmaps** (script 03): The CLAM matrix is ERICA's soul. Each row is a sample, each column is a cluster, each entry is how many times that sample got assigned to that cluster across 200 Monte Carlo iterations. Sort the rows by primary cluster and you get beautiful diagonal blocks. Or a mess. Both are informative.
+### Gallery 1: Main Figures (`2026-03-30-gallery.html`)
 
-**Stability Strips** (script 04): Horizontal stacked bars showing each sample's cluster assignment proportions. Sorted by entropy. The stable samples (entropy near zero) sit smugly at the top. The confused ones (entropy approaching log2(K)) huddle at the bottom, unsure of their identity. We've all been there.
+Standard ERICA outputs with full dataset index and searchable metrics table (374 rows).
 
-**Metrics Curves** (script 05): CRI, WCRI, TWCRI plotted against K, with K* marked. Plus ARI/AMI with error bars. This is the "does increasing K help or hurt?" plot. When the TWCRI curve goes up, you've found more real structure. When it goes down, you're carving the turkey too thin.
+**CLAM Heatmaps**: The CLAM matrix is ERICA's soul. Sort the rows by primary cluster and you get beautiful diagonal blocks. Or a mess. Both are informative.
 
-**Method Comparison** (script 06): K-Means vs Ward vs HDBSCAN, side by side. Because the best way to evaluate a clustering method is to see what its competitors think.
+**Stability Strips**: Horizontal stacked bars showing each sample's cluster assignment proportions, sorted by entropy.
 
-**3D Surfaces** (script 07): CLAM topography, TWCRI landscapes, HDBSCAN parameter sensitivity. The 2D heatmaps are for the paper. The 3D surfaces are for the supplementary materials and/or impressing your advisor.
+**Metrics Curves**: CRI (now ERICA statistic), WCRI, TWCRI plotted against K, with K* marked. Plus ARI/AMI with error bars.
 
-**Cluster Scatter Plots** (script 08): For 2D datasets only (moons, circles, blobs). Points colored by cluster assignment, sized by confidence. The moons plots are *chef's kiss*: you can literally see K-Means drawing vertical lines through curved data.
+**Method Comparison**: K-Means vs Ward vs HDBSCAN*, side by side.
 
-**K Progressions** (scripts 09, 10): The crown jewel. A grid showing K=2 through K=6, one column per K, one row per method. Watch the clusters subdivide as K increases. At the true K, the CLAM heatmap shows clean blocks. Above it, you see fragmentation. Below it, you see forced merging.
+**3D Surfaces**: CLAM topography, TWCRI landscapes, HDBSCAN parameter sensitivity.
 
-### The Gaussian Sigma Study (gaussian_mixture_study/)
+**Cluster Scatter Plots**: For 2D datasets — points colored by cluster assignment, sized by confidence.
 
-Five dedicated scripts recreating the original Gaussian_mix_gen_2 experiments:
+**K Progressions**: The definitive view. 3 methods x 5 K values grid. Watch clusters subdivide as K increases. Available for all 26 datasets with both scatter (2D) and CLAM heatmap (high-D) versions, plus 3D surface progressions.
 
-**TWCRI vs Sigma curve**: The money plot. Perfect replicability at sigma=0.01 and 0.1. Graceful degradation at sigma=1.0. Complete collapse at sigma=10.0. This is the "replicability frontier" — the sigma at which each method can no longer distinguish signal from noise.
+### Gallery 2: Entropy & CRI Playground (`2026-03-30-playground.html`)
 
-**K* Summary**: At low sigma, everyone agrees: K*=4 (the truth). At sigma=1.0, single linkage panics and says K*=6. At sigma=10.0, everyone says K*=2 because there's nothing left to find. HDBSCAN at sigma=10 says modal_k=1. It's not wrong. There is, in fact, one big blob.
+Experimental visualizations exploring what the CLAM matrix tells us about per-sample uncertainty.
 
-**HDBSCAN Noise Fraction**: At sigma=0.01, zero noise points. At sigma=10.0, almost everything is noise. HDBSCAN is the canary in the coal mine of cluster structure.
+**Entropy Fields**: For 2D datasets, Shannon entropy of each sample's CLAM row interpolated across feature space. Shows where clustering is uncertain. Computed as H(i) = -sum(p_j * log2(p_j)) where p_j = CLAM[i,j] / sum(CLAM[i,:]).
 
-**VDX Comparison**: Where does real breast cancer data fall on the synthetic spectrum? Somewhere between sigma=0.1 (clear) and sigma=1.0 (murky). Biology is messy. Film at 11.
+**Entropy Delta Maps**: The money visualization. Shows WHERE entropy changes when going from K to K+1. Red = that region got more confused (bad split). Blue = it got clearer (good refinement). This pinpoints the optimal K better than any single metric.
+
+**Entropy Surfaces (3D)**: Raised surfaces over 2D feature space with Z = entropy. The "uncertainty mountains."
+
+**Method Entropy Comparison**: Same dataset, same K, different methods side by side. Shows where each method is uncertain.
+
+**CRI/ERICA Statistic Fields**: Same spatial interpolation but with the ERICA statistic (per-sample CRI) instead of entropy. Green = stable, red = unstable.
+
+**CRI Delta Maps**: Spatial change in per-sample replicability K to K+1. Blue = more replicable, red = less.
+
+**CRI vs Entropy Scatter**: The relationship between the two measures across 12 datasets.
+
+**Confidence Surfaces & Volatility Maps**: Additional per-sample stability views.
+
+### Gallery 3: ERICA Statistic Deep Dive (`2026-03-30-erica-statistic-playground.html`)
+
+Focused on the ERICA statistic (formerly CRI) across all datasets including VDX and the Gaussian sigma study.
+
+**The ERICA Statistic**: For sample i, ERICA_stat(i) = max(CLAM[i,:]) / sum(CLAM[i,:]). The proportion of Monte Carlo iterations in which that sample was assigned to its primary cluster. Ranges from 1/K (random) to 1.0 (perfectly stable).
+
+**Distribution Histograms**: How many samples are stable vs confused at each K, overlaid for all methods.
+
+**Per-Cluster Boxplots**: Which clusters are internally stable vs fragile.
+
+**Sample Trajectory Heatmaps**: Each sample's ERICA statistic across K=2..6. Shows how individual stability changes as K varies. Green bands = always stable. Red-green transitions = samples that lose/gain stability at specific K values.
+
+**Mean ERICA Stat vs K**: Aggregate stability decline curve per method.
+
+**Per-Cluster ERICA Stat vs K**: Which clusters hold together as K increases past the true K.
+
+**Method Comparison Profiles**: Ranked bar charts showing the full distribution of per-sample stability for each method.
+
+**Cross-Sigma Shift**: How the ERICA statistic distribution slides from a spike at 1.0 (sigma=0.01) to a uniform spread (sigma=10.0).
+
+**VDX vs Gaussian Comparison**: Where does real breast cancer data fall on the synthetic spectrum.
+
+### Gaussian Mixture Study (`gaussian_mixture_study/`)
+
+Dedicated subfolder with its own experiment plan, 5 scripts, and figures. Recreates the original MCSS experiments. Key output: TWCRI-vs-sigma curve showing the "replicability cliff."
 
 ---
 
-## Act IV: What We Learned
+## Act IV: What We Explored
 
-1. **ERICA works.** The new flattened API, HDBSCAN support, and ARI/AMI metrics all validated end-to-end across 13 datasets.
+1. **The ERICA statistic works as expected.** Perfect stability at low sigma, degradation as clusters overlap, collapse when there's no structure.
 
-2. **Method choice matters.** K-Means is fast but geometrically naive. Ward is robust but still centroid-brained. Single linkage follows chains but oversplits on noise. HDBSCAN is the wise elder who sometimes says "there are no clusters here" and is usually right.
+2. **Method choice matters.** K-Means can't do non-convex. Single linkage oversplits. Ward is a good default. HDBSCAN* sometimes says "no clusters" and may be right.
 
-3. **The CLAM matrix is more informative than K* alone.** K* gives you a number. The sorted CLAM heatmap shows you *why* that number was chosen — which samples are stable, which are confused, where the boundaries lie.
+3. **The entropy delta map is the most informative new visualization.** It shows spatially where adding a cluster helps vs hurts. The transition from red to blue pinpoints the optimal K.
 
-4. **High sigma is an honest test.** When there's no structure, ERICA should say "there's no structure." TWCRI collapsing to near-zero and HDBSCAN finding modal_k=1 at sigma=10 is not a failure. It's the correct answer. The most dangerous clustering algorithm is one that always finds clusters.
+4. **The ERICA statistic trajectory heatmap** (samples x K, color = stability) shows which samples are robust across K and which are boundary cases. This is directly useful for identifying "confident" vs "ambiguous" samples in real data.
 
-5. **200 Monte Carlo iterations is plenty.** The standard deviations on ARI/AMI are tight. The CLAM matrices are well-populated. More iterations wouldn't change the story.
+5. **Per-cluster ERICA statistic vs K** reveals which clusters are structural (hold together across K) vs artifacts (dissolve at K+1).
+
+---
+
+## Future Experiments
+
+The `future_experiments/` folder has a proposal for **Observation Dropout & Dimensionality Reduction**: randomly remove samples and reduce dimensions via PCA, then watch what happens to the CLAM matrix. Hypothesis: if clustering signal lives in a low-dimensional subspace, PCA should *improve* replicability.
 
 ---
 
@@ -124,26 +174,39 @@ Five dedicated scripts recreating the original Gaussian_mix_gen_2 experiments:
 
 ```
 plotting_experiments/
-├── 11 Python scripts (01-10 + style.py)
-├── gaussian_mixture_study/        (5 scripts + experiment plan)
-├── future_experiments/            (dropout study proposal)
-├── data/                          (13+ datasets, .npz)
-├── results/                       (13+ result bundles, .joblib)
-├── figures/                       (80+ PDFs and PNGs)
-│   ├── k_progressions/            (13 K=2..6 grids)
-│   └── gaussian_study/            (9 sigma study figures)
-├── DATA_DOCUMENTATION.md          (dataset specs and result structure)
-├── PLOTTING_GUIDE.md              (ERICA API reference for plotting)
-├── README.md                      (quick start)
-└── WHAT_WE_DID.md                 (you are here)
+├── 12 Python scripts (01-11 + style.py)
+├── gaussian_mixture_study/        5 scripts + experiment plan
+├── future_experiments/            dropout study proposal
+├── data/                          26+ datasets (.npz)
+├── results/                       26+ result bundles (.joblib)
+├── figures/                       612 PDFs + 612 PNGs
+│   ├── by_dataset/                26 subdirectories, full suite each
+│   ├── k_progressions/            13 K=2..6 grids
+│   ├── gaussian_study/            9 sigma study figures
+│   └── playground/                101 entropy/CRI experiments
+│       └── erica_statistic/       68 ERICA statistic deep dives
+├── 2026-03-30-gallery.html        Main gallery (datasets, metrics table, standard plots)
+├── 2026-03-30-playground.html     Entropy & CRI spatial experiments
+├── 2026-03-30-erica-statistic-playground.html  ERICA statistic deep dive
+├── metrics_table.tsv              374-row complete metrics export
+├── DATA_DOCUMENTATION.md          Dataset specs and result structure
+├── PLOTTING_GUIDE.md              ERICA API reference for plotting
+├── WHAT_WE_DID.md                 This file
+└── README.md                      Quick start
 ```
 
 ---
 
-## What's Next
+## Gallery Index
 
-The `future_experiments/` folder has a proposal for the **Dropout and Dimensionality Reduction Study**: randomly remove samples and reduce dimensions via PCA, then watch what happens to the CLAM matrix. The hypothesis: if the clustering signal lives in a low-dimensional subspace (spoiler: for Gaussians, it does), then PCA should *improve* replicability by stripping noise dimensions. For real data, the answer is less obvious. That's why it's an experiment and not a blog post.
+| Page | Figures | What's in it |
+|------|---------|-------------|
+| `2026-03-30-gallery.html` | ~80 | Dataset index, metrics table, CLAM heatmaps, stability, metrics curves, method comparison, scatter, K progressions, surfaces, Gaussian sigma study |
+| `2026-03-30-playground.html` | 101 | Entropy fields, entropy delta maps, entropy surfaces, method entropy comparison, CRI fields, CRI deltas, CRI vs entropy, confidence surfaces, volatility |
+| `2026-03-30-erica-statistic-playground.html` | 68 | ERICA stat distributions, per-cluster boxplots, trajectory heatmaps, mean vs K, per-cluster vs K, method profiles, cross-sigma, VDX comparison |
 
 ---
 
 *"All clusters are wrong, but some are replicable." — George Box, probably, if he'd worked on unsupervised learning.*
+
+<sub>*HDBSCAN integration is under active development and not yet fully validated.</sub>
