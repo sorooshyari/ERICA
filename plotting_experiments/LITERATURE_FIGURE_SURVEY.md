@@ -1,6 +1,6 @@
 # What Do the Papers Plot? A Survey of Standard Figures in Clustering Stability Literature
 
-*2026-03-31 — Compiled for CMAC*
+*2026-03-31 — Exploratory notes*
 
 We looked at the foundational papers in clustering replicability and validation to see which figure types are standard. The goal: make ERICA's visualizations maximally comparable with what reviewers expect to see.
 
