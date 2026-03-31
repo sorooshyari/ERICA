@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ERICA Literature Comparison</title>
 <style>
-  :root { --bg: #fafafa; --text: #1a1a2e; --muted: #555; --accent: #2d6a4f; --border: #ddd; --card-bg: #fff; --code-bg: #f4f4f4; }
+  :root { --bg: #fafafa; --text: #1a1a2e; --muted: #555; --accent: #2d6a4f; --border: #ddd; --card-bg: #fff; --code-bg: #f0f0f0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.7; }
 
@@ -33,7 +33,13 @@
   .figure .caption { padding: 12px 16px; border-top: 1px solid var(--border); }
   .figure .caption .fig-id { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
   .figure .caption .fig-title { font-size: 15px; font-weight: 600; margin: 3px 0 6px; }
-  .figure .caption .fig-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .figure .caption .fig-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+  /* Museum placard */
+  .placard { margin-top: 10px; padding: 10px 12px; background: var(--code-bg); border-left: 3px solid var(--border); }
+  .placard table { border-collapse: collapse; width: 100%; }
+  .placard td { font-family: 'Courier New', Courier, monospace; font-size: 11px; color: #333; padding: 1px 0; vertical-align: top; }
+  .placard td:first-child { color: #777; padding-right: 12px; white-space: nowrap; min-width: 110px; }
 
   .figure-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
   .figure-pair .figure { margin: 0; }
@@ -99,9 +105,8 @@
 <div class="figure-group" id="error-bands">
 <h2>Error Bands</h2>
 <p class="section-intro">
-  Metric-vs-K curves with &plusmn;1 std shaded confidence bands.
-  Left panel: ERICA metrics (per-sample std from CLAM). Right panel: ARI/AMI (per-iteration std).
-  Following Tibshirani et al. (2001) and Masoero et al. (2023).
+  Metric-vs-K curves with &plusmn;1 std shaded confidence bands, following Tibshirani et al. (2001) and Masoero et al. (2023).
+  Left panel shows ERICA metrics (band = cross-sample variability from CLAM); right panel shows Parmigiani ARI/AMI (band = cross-iteration variability).
 </p>
 
 <div class="figure-pair">
@@ -111,6 +116,16 @@
       <div class="fig-id">EB-01</div>
       <div class="fig-title">VDX 3-gene &mdash; K-Means</div>
       <div class="fig-desc">Real breast cancer gene expression data (ESR1, ERBB2, AURKA).</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>K-Means | K range: 2&ndash;6</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI. Band = &plusmn;1 std of per-sample ERICA_stat(i) = max(CLAM[i,:]) / sum(CLAM[i,:])</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI. Band = &plusmn;1 std across 200 per-iteration scores vs. true labels</td></tr>
+        <tr><td>K* line</td><td>Vertical dashed line per metric (Algorithm 2, non-decreasing TWCRI criterion)</td></tr>
+        <tr><td>Colors</td><td>CRI=#0072B2, WCRI=#D55E00, TWCRI=#009E73, ARI=#E69F00, AMI=#CC79A7</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['metrics'][k]['kmeans']['CRI'/'WCRI'/'TWCRI']</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_vdx_3gene_agglomerative_ward.png','VDX 3-gene — Agglomerative Ward')">
@@ -119,6 +134,15 @@
       <div class="fig-id">EB-02</div>
       <div class="fig-title">VDX 3-gene &mdash; Agglomerative Ward</div>
       <div class="fig-desc">Same data, hierarchical clustering with Ward linkage.</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features</td></tr>
+        <tr><td>Method</td><td>Agglomerative (Ward linkage) | K range: 2&ndash;6</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI. Band = &plusmn;1 std of per-sample ERICA_stat(i)</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI. Band = &plusmn;1 std across 200 per-iteration scores</td></tr>
+        <tr><td>K* line</td><td>Vertical dashed line (Algorithm 2, non-decreasing TWCRI)</td></tr>
+        <tr><td>Colors</td><td>METRIC_COLORS from style.py (Okabe-Ito palette)</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -129,7 +153,15 @@
     <div class="caption">
       <div class="fig-id">EB-03</div>
       <div class="fig-title">Gaussian 4c &sigma;=0.01 &mdash; K-Means</div>
-      <div class="fig-desc">Very tight clusters; replicability should saturate near 1.</div>
+      <div class="fig-desc">Very tight clusters; replicability saturates near 1.</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>gauss4c_sigma0p01 — 4 Gaussian clusters, &sigma;=0.01 (near-perfect separation)</td></tr>
+        <tr><td>Method</td><td>K-Means | true K=4 | K range: 2&ndash;7</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI. Band = &plusmn;1 std of ERICA_stat per sample</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI vs. true Gaussian labels. Band = &plusmn;1 std per iteration</td></tr>
+        <tr><td>K* line</td><td>Algorithm 2 selection on non-decreasing TWCRI</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma0p01_agglomerative_ward.png','Gaussian 4c σ=0.01 — Agglomerative Ward')">
@@ -138,6 +170,13 @@
       <div class="fig-id">EB-04</div>
       <div class="fig-title">Gaussian 4c &sigma;=0.01 &mdash; Agglomerative Ward</div>
       <div class="fig-desc">Hierarchical clustering on the same tight clusters.</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>gauss4c_sigma0p01 — 4 Gaussian clusters, &sigma;=0.01</td></tr>
+        <tr><td>Method</td><td>Agglomerative (Ward) | true K=4 | K range: 2&ndash;7</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI with &plusmn;1 std bands from CLAM</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI with &plusmn;1 std bands across iterations</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -149,6 +188,14 @@
       <div class="fig-id">EB-05</div>
       <div class="fig-title">Gaussian 4c &sigma;=0.1 &mdash; K-Means</div>
       <div class="fig-desc">Moderate separation; clear peak at K=4.</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>gauss4c_sigma0p1 — 4 Gaussian clusters, &sigma;=0.1</td></tr>
+        <tr><td>Method</td><td>K-Means | true K=4 | K range: 2&ndash;7</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI. Band = &plusmn;1 std of ERICA_stat(i) across samples</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI. Band = &plusmn;1 std across 200 iteration scores</td></tr>
+        <tr><td>K* line</td><td>Algorithm 2 — non-decreasing TWCRI selects K=4</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma0p1_agglomerative_ward.png','Gaussian 4c σ=0.1 — Agglomerative Ward')">
@@ -156,6 +203,13 @@
     <div class="caption">
       <div class="fig-id">EB-06</div>
       <div class="fig-title">Gaussian 4c &sigma;=0.1 &mdash; Agglomerative Ward</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>gauss4c_sigma0p1 — 4 Gaussian clusters, &sigma;=0.1</td></tr>
+        <tr><td>Method</td><td>Agglomerative (Ward) | true K=4 | K range: 2&ndash;7</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI with &plusmn;1 std bands from CLAM</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI with &plusmn;1 std bands across iterations</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -167,6 +221,14 @@
       <div class="fig-id">EB-07</div>
       <div class="fig-title">Gaussian 4c &sigma;=1.0 &mdash; K-Means</div>
       <div class="fig-desc">Overlapping clusters; K* selection becomes ambiguous.</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>gauss4c_sigma1p0 — 4 Gaussian clusters, &sigma;=1.0 (overlapping)</td></tr>
+        <tr><td>Method</td><td>K-Means | true K=4 | K range: 2&ndash;7</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>Wider bands expected — per-sample ERICA_stat varies more at cluster boundaries</td></tr>
+        <tr><td>Right panel</td><td>ARI/AMI depressed due to label assignment ambiguity across subsamples</td></tr>
+        <tr><td>K* line</td><td>Algorithm 2 — TWCRI plateau may cause early K* selection</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma1p0_agglomerative_ward.png','Gaussian 4c σ=1.0 — Agglomerative Ward')">
@@ -174,6 +236,13 @@
     <div class="caption">
       <div class="fig-id">EB-08</div>
       <div class="fig-title">Gaussian 4c &sigma;=1.0 &mdash; Agglomerative Ward</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>gauss4c_sigma1p0 — 4 Gaussian clusters, &sigma;=1.0</td></tr>
+        <tr><td>Method</td><td>Agglomerative (Ward) | true K=4 | K range: 2&ndash;7</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI with &plusmn;1 std bands from CLAM</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI with &plusmn;1 std bands across iterations</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -185,6 +254,14 @@
       <div class="fig-id">EB-09</div>
       <div class="fig-title">Gaussian 4c &sigma;=10.0 &mdash; K-Means</div>
       <div class="fig-desc">Heavily overlapping; near-null cluster structure.</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>gauss4c_sigma10p0 — 4 Gaussian clusters, &sigma;=10.0 (near-null structure)</td></tr>
+        <tr><td>Method</td><td>K-Means | true K=4 | K range: 2&ndash;7</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>All metrics ~1/K — random assignment. Bands wide, flat, near chance level</td></tr>
+        <tr><td>Right panel</td><td>ARI/AMI near 0 (no label agreement across subsamples)</td></tr>
+        <tr><td>K* line</td><td>Algorithm 2 — selects K=2 (first non-decrease, no meaningful signal)</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma10p0_agglomerative_ward.png','Gaussian 4c σ=10.0 — Agglomerative Ward')">
@@ -192,6 +269,13 @@
     <div class="caption">
       <div class="fig-id">EB-10</div>
       <div class="fig-title">Gaussian 4c &sigma;=10.0 &mdash; Agglomerative Ward</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>gauss4c_sigma10p0 — 4 Gaussian clusters, &sigma;=10.0</td></tr>
+        <tr><td>Method</td><td>Agglomerative (Ward) | K range: 2&ndash;7</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI — all near chance level, wide bands</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI near 0</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -203,6 +287,14 @@
       <div class="fig-id">EB-11</div>
       <div class="fig-title">Moons 2D &mdash; K-Means</div>
       <div class="fig-desc">Non-convex clusters; K-Means intrinsically misspecified.</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>moons_2d — sklearn make_moons, true K=2 (non-convex)</td></tr>
+        <tr><td>Method</td><td>K-Means | true K=2 | K range: 2&ndash;6</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>ERICA metrics depressed — K-Means cannot recover crescent geometry</td></tr>
+        <tr><td>Right panel</td><td>ARI/AMI low despite true K=2 — method misspecification captured</td></tr>
+        <tr><td>Note</td><td>Demonstrates ERICA sensitivity to algorithm-data mismatch</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_moons_2d_agglomerative_ward.png','Moons 2D — Agglomerative Ward')">
@@ -210,6 +302,13 @@
     <div class="caption">
       <div class="fig-id">EB-12</div>
       <div class="fig-title">Moons 2D &mdash; Agglomerative Ward</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>moons_2d — sklearn make_moons, true K=2</td></tr>
+        <tr><td>Method</td><td>Agglomerative (Ward) | K range: 2&ndash;6</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>Ward may recover cleaner signal than K-Means on this geometry</td></tr>
+        <tr><td>Right panel</td><td>ARI/AMI vs. true crescent labels</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -221,6 +320,14 @@
       <div class="fig-id">EB-13</div>
       <div class="fig-title">Blobs 2D &mdash; K-Means</div>
       <div class="fig-desc">Well-separated 2D blobs (true K=3); K-Means should recover clean signal.</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>blobs_2d — sklearn make_blobs, 2 features, true K=3</td></tr>
+        <tr><td>Method</td><td>K-Means | true K=3 | K range: 2&ndash;6</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>High CRI/WCRI/TWCRI at K=3, narrow bands — stable assignment</td></tr>
+        <tr><td>Right panel</td><td>ARI/AMI near 1.0 at K=3</td></tr>
+        <tr><td>K* line</td><td>Algorithm 2 expected to select K=3</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_blobs_2d_agglomerative_ward.png','Blobs 2D — Agglomerative Ward')">
@@ -228,6 +335,13 @@
     <div class="caption">
       <div class="fig-id">EB-14</div>
       <div class="fig-title">Blobs 2D &mdash; Agglomerative Ward</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>blobs_2d — sklearn make_blobs, 2 features, true K=3</td></tr>
+        <tr><td>Method</td><td>Agglomerative (Ward) | K range: 2&ndash;6</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI with &plusmn;1 std bands</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI with &plusmn;1 std bands across iterations</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -237,15 +351,30 @@
     <img src="../figures/literature_comparison/error_bands_well_separated_kmeans.png" alt="Error bands Well-Separated K-Means">
     <div class="caption">
       <div class="fig-id">EB-15</div>
-      <div class="fig-title">Well-Separated &mdash; K-Means</div>
-      <div class="fig-desc">make_blobs(centers=3, std=0.8) in 5D; tight, well-defined clusters.</div>
+      <div class="fig-title">Well-Separated 5D &mdash; K-Means</div>
+      <div class="fig-desc">make_blobs(centers=3, std=0.8, n_features=5); tight, well-defined clusters.</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>well_separated — make_blobs, 5 features, centers=3, std=0.8</td></tr>
+        <tr><td>Method</td><td>K-Means | true K=3 | K range: 2&ndash;6</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>Near-perfect TWCRI at K=3; very narrow bands</td></tr>
+        <tr><td>Right panel</td><td>ARI/AMI near 1.0; near-zero std across iterations</td></tr>
+        <tr><td>K* line</td><td>Algorithm 2 selects K=3</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_well_separated_agglomerative_ward.png','Well-Separated — Agglomerative Ward')">
     <img src="../figures/literature_comparison/error_bands_well_separated_agglomerative_ward.png" alt="Error bands Well-Separated Agglomerative Ward">
     <div class="caption">
       <div class="fig-id">EB-16</div>
-      <div class="fig-title">Well-Separated &mdash; Agglomerative Ward</div>
+      <div class="fig-title">Well-Separated 5D &mdash; Agglomerative Ward</div>
+      <div class="placard"><table>
+        <tr><td>Dataset</td><td>well_separated — make_blobs, 5 features, centers=3, std=0.8</td></tr>
+        <tr><td>Method</td><td>Agglomerative (Ward) | K range: 2&ndash;6</td></tr>
+        <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+        <tr><td>Left panel</td><td>CRI, WCRI, TWCRI with &plusmn;1 std bands from CLAM</td></tr>
+        <tr><td>Right panel</td><td>ARI, AMI with &plusmn;1 std bands across iterations</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -256,16 +385,8 @@
 <div class="figure-group" id="coassignment">
 <h2>Assignment Similarity Matrices</h2>
 <p class="section-intro">
-  Sample &times; sample matrices showing assignment profile similarity.
-  Computed as the inner product of L1-normalized CLAM rows.
-  Reordered by hierarchical clustering to reveal block-diagonal structure.
-  Inspired by Monti et al. (2003) consensus matrices.
-  <br><br>
-  <em>Note:</em> This is the CLAM-derived co-assignment similarity (inner product of normalized
-  assignment vectors), not the Monti consensus matrix. The Monti matrix conditions on pairwise
-  co-occurrence in the same test subsample (diagonal = 1.0); our computation measures similarity
-  of assignment profiles (diagonal &lt; 1.0 for uncertain samples). Both reveal block-diagonal
-  structure for well-separated clusters.
+  Sample &times; sample matrices showing assignment profile similarity, inspired by Monti et al. (2003) consensus matrices.
+  Computed as the inner product of L1-normalized CLAM rows; rows/columns reordered by hierarchical clustering.
 </p>
 
 <div class="figure" onclick="openLightbox('../figures/literature_comparison/coassignment_vdx_3gene_kmeans.png','Assignment Similarity — VDX 3-gene K-Means')">
@@ -273,7 +394,19 @@
   <div class="caption">
     <div class="fig-id">ASM-01</div>
     <div class="fig-title">VDX 3-gene &mdash; K-Means</div>
-    <div class="fig-desc">Real breast cancer gene expression data. Three panels show K=K*-1, K*, K*+1.</div>
+    <div class="fig-desc">Real breast cancer gene expression data. Three panels: K=2, 3, 4.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features. No ground-truth K; panels at K=2, 3, 4</td></tr>
+      <tr><td>Method</td><td>K-Means | panels at true_k&minus;1, true_k, true_k+1 (fallback K=3)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>X / Y axes</td><td>Samples (reordered by hierarchical clustering of 1&minus;similarity)</td></tr>
+      <tr><td>Color</td><td>Assignment profile similarity: 0=never co-assigned (white), 1=always (dark blue)</td></tr>
+      <tr><td>Computation</td><td>clam_normed = L1_normalize(CLAM); similarity = clam_normed @ clam_normed.T</td></tr>
+      <tr><td>Note</td><td>NOT the Monti consensus matrix. Diagonal &lt; 1.0 for uncertain samples</td></tr>
+      <tr><td>Reordering</td><td>scipy.cluster.hierarchy.linkage(1&minus;similarity, method='average') &rarr; leaves_list</td></tr>
+      <tr><td>Colormap</td><td>Blues (matplotlib), vmin=0.0, vmax=1.0</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, 'kmeans')]</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -282,7 +415,15 @@
   <div class="caption">
     <div class="fig-id">ASM-02</div>
     <div class="fig-title">Gaussian 4c &sigma;=0.1 &mdash; K-Means</div>
-    <div class="fig-desc">Moderate separation. Clear 4-block structure should be visible at K=4.</div>
+    <div class="fig-desc">Moderate separation. Clear 4-block structure visible at K=4.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma0p1 — 4 Gaussian clusters, &sigma;=0.1. Panels at K=3, 4, 5</td></tr>
+      <tr><td>Method</td><td>K-Means | true K=4</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Computation</td><td>clam_normed @ clam_normed.T (inner product of L1-normalized CLAM rows)</td></tr>
+      <tr><td>Reordering</td><td>scipy average linkage on 1&minus;similarity</td></tr>
+      <tr><td>Colormap</td><td>Blues, vmin=0, vmax=1</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -292,6 +433,14 @@
     <div class="fig-id">ASM-03</div>
     <div class="fig-title">Gaussian 4c &sigma;=1.0 &mdash; K-Means</div>
     <div class="fig-desc">Overlapping clusters. Block structure degrades; off-diagonal entries increase.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma1p0 — 4 Gaussian clusters, &sigma;=1.0 (overlapping). Panels at K=3, 4, 5</td></tr>
+      <tr><td>Method</td><td>K-Means | true K=4</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Computation</td><td>clam_normed @ clam_normed.T</td></tr>
+      <tr><td>Reordering</td><td>scipy average linkage on 1&minus;similarity</td></tr>
+      <tr><td>Colormap</td><td>Blues, vmin=0, vmax=1. Expect diffuse blocks vs. &sigma;=0.1</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -300,7 +449,14 @@
   <div class="caption">
     <div class="fig-id">ASM-04</div>
     <div class="fig-title">Gaussian 4c &sigma;=10.0 &mdash; K-Means</div>
-    <div class="fig-desc">Near-null structure. Matrix should appear nearly uniform.</div>
+    <div class="fig-desc">Near-null structure. Matrix appears nearly uniform.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma10p0 — 4 Gaussian clusters, &sigma;=10.0 (no structure). Panels at K=3, 4, 5</td></tr>
+      <tr><td>Method</td><td>K-Means | true K=4</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Computation</td><td>clam_normed @ clam_normed.T — all rows ~uniform; matrix ~1/K everywhere</td></tr>
+      <tr><td>Colormap</td><td>Blues — near-uniform light blue expected across entire matrix</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -310,6 +466,14 @@
     <div class="fig-id">ASM-05</div>
     <div class="fig-title">Moons 2D &mdash; K-Means</div>
     <div class="fig-desc">Non-convex clusters. K-Means assignment instability reflected in the matrix.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>moons_2d — sklearn make_moons. Panels at K=1, 2, 3 (true K=2)</td></tr>
+      <tr><td>Method</td><td>K-Means | true K=2 (non-convex geometry)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Computation</td><td>clam_normed @ clam_normed.T</td></tr>
+      <tr><td>Reordering</td><td>scipy average linkage on 1&minus;similarity</td></tr>
+      <tr><td>Note</td><td>K-Means misspecification: blurry blocks even at true K=2</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -318,7 +482,15 @@
   <div class="caption">
     <div class="fig-id">ASM-06</div>
     <div class="fig-title">Blobs 2D &mdash; K-Means</div>
-    <div class="fig-desc">Well-separated 2D blobs. Sharp block-diagonal structure expected at K=3.</div>
+    <div class="fig-desc">Well-separated 2D blobs. Sharp block-diagonal structure at K=3.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>blobs_2d — sklearn make_blobs, 2 features, true K=3. Panels at K=2, 3, 4</td></tr>
+      <tr><td>Method</td><td>K-Means | true K=3</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Computation</td><td>clam_normed @ clam_normed.T</td></tr>
+      <tr><td>Reordering</td><td>scipy average linkage on 1&minus;similarity</td></tr>
+      <tr><td>Colormap</td><td>Blues — sharp 3-block diagonal expected at K=3</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -328,8 +500,8 @@
 <div class="figure-group" id="pca-erica">
 <h2>PCA + ERICA Statistic</h2>
 <p class="section-intro">
-  High-dimensional data projected to 2D via PCA, colored by per-sample ERICA statistic
-  (green = stable, red = unstable). Following Masoero et al. (2023) Figs. 4, 6.
+  High-dimensional data projected to 2D via PCA, each point colored by its per-sample ERICA statistic (green=stable, red=unstable).
+  Following Masoero et al. (2023) Figs. 4 and 6 (which use tSNE); PCA used here for determinism.
 </p>
 
 <div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_vdx_3gene.png','PCA + ERICA — VDX 3-gene')">
@@ -337,7 +509,16 @@
   <div class="caption">
     <div class="fig-id">PE-01</div>
     <div class="fig-title">VDX 3-gene</div>
-    <div class="fig-desc">Real breast cancer data. Boundary samples (between subtypes) show lower stability.</div>
+    <div class="fig-desc">Real breast cancer data. Boundary samples between subtypes show lower stability.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+      <tr><td>Method</td><td>K-Means | K=3 (VDX fallback — no ground-truth K)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0). Variance explained shown on axis labels</td></tr>
+      <tr><td>Color</td><td>ERICA_stat(i) = CLAM[i, argmax] / sum(CLAM[i,:]). RdYlGn colormap, vmin=0, vmax=1</td></tr>
+      <tr><td>Point size</td><td>s = 10 + 40 * erica_stat (larger = more stable)</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(3, 'kmeans')]</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -347,6 +528,14 @@
     <div class="fig-id">PE-02</div>
     <div class="fig-title">Gaussian 4c &sigma;=0.1</div>
     <div class="fig-desc">Moderate separation. Cluster boundaries visible as unstable bands.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma0p1 — 4 Gaussian clusters, &sigma;=0.1</td></tr>
+      <tr><td>Method</td><td>K-Means | K=4 (true K)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. RdYlGn colormap</td></tr>
+      <tr><td>Point size</td><td>s = 10 + 40 * erica_stat</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -356,6 +545,13 @@
     <div class="fig-id">PE-03</div>
     <div class="fig-title">Gaussian 4c &sigma;=1.0</div>
     <div class="fig-desc">Overlapping clusters. Instability spreads broadly across all samples.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma1p0 — 4 Gaussian clusters, &sigma;=1.0</td></tr>
+      <tr><td>Method</td><td>K-Means | K=4 (true K)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. RdYlGn colormap — mostly red/yellow at &sigma;=1.0</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -365,6 +561,13 @@
     <div class="fig-id">PE-04</div>
     <div class="fig-title">Gaussian 4c &sigma;=10.0</div>
     <div class="fig-desc">Near-null structure. Uniform instability across all samples.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma10p0 — 4 Gaussian clusters, &sigma;=10.0 (no structure)</td></tr>
+      <tr><td>Method</td><td>K-Means | K=4 (true K, nominal)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Color</td><td>ERICA_stat ~1/K for all samples. Uniform red expected</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -373,7 +576,15 @@
   <div class="caption">
     <div class="fig-id">PE-05</div>
     <div class="fig-title">Moons 2D</div>
-    <div class="fig-desc">Non-convex clusters. K-Means instability concentrated near the moon tips and crossing region.</div>
+    <div class="fig-desc">Non-convex clusters. K-Means instability concentrated near moon tips and crossing region.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>moons_2d — sklearn make_moons. 2D: raw coordinates used (no PCA)</td></tr>
+      <tr><td>Method</td><td>K-Means | K=2 (true K)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>Raw 2D coordinates (PCA skipped for 2D datasets)</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. RdYlGn colormap</td></tr>
+      <tr><td>Point size</td><td>s = 10 + 40 * erica_stat</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -383,6 +594,13 @@
     <div class="fig-id">PE-06</div>
     <div class="fig-title">Blobs 2D</div>
     <div class="fig-desc">Well-separated blobs. Core samples highly stable; instability only at cluster edges.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>blobs_2d — sklearn make_blobs, 2 features, true K=3. Raw 2D coordinates</td></tr>
+      <tr><td>Method</td><td>K-Means | K=3 (true K)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>Raw 2D coordinates (PCA skipped for 2D datasets)</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. RdYlGn — green cores, red/yellow edges</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -392,6 +610,13 @@
     <div class="fig-id">PE-07</div>
     <div class="fig-title">Well-Separated 5D</div>
     <div class="fig-desc">make_blobs(centers=3, std=0.8, n_features=5). High stability throughout.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>well_separated — make_blobs, 5 features, centers=3, std=0.8</td></tr>
+      <tr><td>Method</td><td>K-Means | K=3 (true K)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0). Variance explained on axes</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Expect nearly all green</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -401,6 +626,13 @@
     <div class="fig-id">PE-08</div>
     <div class="fig-title">Overlapping 5D</div>
     <div class="fig-desc">make_blobs(centers=4, std=2.0, n_features=5). Low stability due to heavy overlap.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>overlapping — make_blobs, 5 features, centers=4, std=2.0</td></tr>
+      <tr><td>Method</td><td>K-Means | K=4 (true K)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Expect mostly red/yellow throughout</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -409,7 +641,14 @@
   <div class="caption">
     <div class="fig-id">PE-09</div>
     <div class="fig-title">High-Dimensional 50D</div>
-    <div class="fig-desc">make_blobs(centers=3, n_features=50). PCA projection may lose structure; instability pattern reveals it.</div>
+    <div class="fig-desc">make_blobs(centers=3, n_features=50). PCA may lose structure; ERICA statistic reveals it.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>high_dim — make_blobs, 50 features, centers=3</td></tr>
+      <tr><td>Method</td><td>K-Means | K=3 (true K)</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0). Low variance explained expected (50D &rarr; 2D)</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. RdYlGn colormap</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -419,7 +658,7 @@
 <div class="figure-group" id="triptych">
 <h2>Triptych</h2>
 <p class="section-intro">
-  Same PCA projection, three views: cluster assignment, ERICA statistic, entropy.
+  Same PCA projection, three views: primary cluster assignment, ERICA statistic, and normalized entropy.
   Provides a complete picture of how clustering stability relates to spatial structure.
 </p>
 
@@ -428,6 +667,15 @@
   <div class="caption">
     <div class="fig-id">TR-01</div>
     <div class="fig-title">VDX 3-gene</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features. K=3 (fallback)</td></tr>
+      <tr><td>Method</td><td>K-Means | K=3</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Left panel</td><td>Primary cluster: argmax(CLAM row). Colors: qualitative palette (#4477AA, #EE6677, #228833, ...)</td></tr>
+      <tr><td>Center panel</td><td>ERICA_stat(i) = CLAM[i, argmax] / sum(CLAM[i,:]). Colormap: RdYlGn, vmin=0, vmax=1</td></tr>
+      <tr><td>Right panel</td><td>Normalized entropy H(i) = &minus;sum(p_j log p_j) / log(K). Colormap: RdYlGn_r (inverted; high entropy = red)</td></tr>
+      <tr><td>Point size</td><td>Center: s = 10 + 40 * erica_stat. Left/right: s=12</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -436,6 +684,14 @@
   <div class="caption">
     <div class="fig-id">TR-02</div>
     <div class="fig-title">Gaussian 4c &sigma;=0.1</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma0p1 — 4 Gaussian clusters, &sigma;=0.1. K=4</td></tr>
+      <tr><td>Method</td><td>K-Means | K=4 (true K)</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Left panel</td><td>Primary cluster assignment. Qualitative palette</td></tr>
+      <tr><td>Center panel</td><td>ERICA_stat. RdYlGn — expect green cores, red edges</td></tr>
+      <tr><td>Right panel</td><td>Normalized entropy. RdYlGn_r — boundary samples show high entropy</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -444,6 +700,14 @@
   <div class="caption">
     <div class="fig-id">TR-03</div>
     <div class="fig-title">Gaussian 4c &sigma;=1.0</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma1p0 — 4 Gaussian clusters, &sigma;=1.0. K=4</td></tr>
+      <tr><td>Method</td><td>K-Means | K=4 (true K)</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Left panel</td><td>Primary cluster assignment. Qualitative palette</td></tr>
+      <tr><td>Center panel</td><td>ERICA_stat. RdYlGn — mostly red (unstable)</td></tr>
+      <tr><td>Right panel</td><td>Normalized entropy. RdYlGn_r — broadly elevated</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -452,6 +716,14 @@
   <div class="caption">
     <div class="fig-id">TR-04</div>
     <div class="fig-title">Gaussian 4c &sigma;=10.0</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma10p0 — 4 Gaussian clusters, &sigma;=10.0. K=4</td></tr>
+      <tr><td>Method</td><td>K-Means | K=4</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Left panel</td><td>Primary cluster — random-looking, no structure</td></tr>
+      <tr><td>Center panel</td><td>ERICA_stat ~1/K. Uniform red</td></tr>
+      <tr><td>Right panel</td><td>Normalized entropy near maximum. Uniform red</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -460,6 +732,14 @@
   <div class="caption">
     <div class="fig-id">TR-05</div>
     <div class="fig-title">Moons 2D</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>moons_2d — sklearn make_moons. 2D: raw coordinates. K=2</td></tr>
+      <tr><td>Method</td><td>K-Means | K=2 (true K)</td></tr>
+      <tr><td>Projection</td><td>Raw 2D (no PCA for 2D datasets)</td></tr>
+      <tr><td>Left panel</td><td>Primary cluster assignment. Two qualitative colors</td></tr>
+      <tr><td>Center panel</td><td>ERICA_stat. RdYlGn — unstable near tips and crossing</td></tr>
+      <tr><td>Right panel</td><td>Normalized entropy. RdYlGn_r</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -468,6 +748,14 @@
   <div class="caption">
     <div class="fig-id">TR-06</div>
     <div class="fig-title">Blobs 2D</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>blobs_2d — sklearn make_blobs, 2 features, true K=3. Raw 2D</td></tr>
+      <tr><td>Method</td><td>K-Means | K=3 (true K)</td></tr>
+      <tr><td>Projection</td><td>Raw 2D (no PCA for 2D datasets)</td></tr>
+      <tr><td>Left panel</td><td>3 primary cluster assignments. Qualitative palette</td></tr>
+      <tr><td>Center panel</td><td>ERICA_stat. RdYlGn — green cores, red edges</td></tr>
+      <tr><td>Right panel</td><td>Normalized entropy. RdYlGn_r — low entropy in cores</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -476,6 +764,14 @@
   <div class="caption">
     <div class="fig-id">TR-07</div>
     <div class="fig-title">Well-Separated 5D</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>well_separated — make_blobs, 5 features, centers=3, std=0.8</td></tr>
+      <tr><td>Method</td><td>K-Means | K=3 (true K)</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Left panel</td><td>Primary cluster. 3 qualitative colors</td></tr>
+      <tr><td>Center panel</td><td>ERICA_stat. Nearly all green expected</td></tr>
+      <tr><td>Right panel</td><td>Normalized entropy. Nearly all green (low entropy)</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -484,6 +780,14 @@
   <div class="caption">
     <div class="fig-id">TR-08</div>
     <div class="fig-title">Overlapping 5D</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>overlapping — make_blobs, 5 features, centers=4, std=2.0</td></tr>
+      <tr><td>Method</td><td>K-Means | K=4 (true K)</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0)</td></tr>
+      <tr><td>Left panel</td><td>Primary cluster assignment. 4 qualitative colors</td></tr>
+      <tr><td>Center panel</td><td>ERICA_stat. Mostly red/yellow (unstable)</td></tr>
+      <tr><td>Right panel</td><td>Normalized entropy. Mostly red (high entropy, std=2.0)</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -492,6 +796,14 @@
   <div class="caption">
     <div class="fig-id">TR-09</div>
     <div class="fig-title">High-Dimensional 50D</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>high_dim — make_blobs, 50 features, centers=3</td></tr>
+      <tr><td>Method</td><td>K-Means | K=3 (true K)</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0). Low variance explained (50D &rarr; 2D)</td></tr>
+      <tr><td>Left panel</td><td>Primary cluster assignment. 3 qualitative colors</td></tr>
+      <tr><td>Center panel</td><td>ERICA_stat. RdYlGn</td></tr>
+      <tr><td>Right panel</td><td>Normalized entropy. RdYlGn_r</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -501,8 +813,8 @@
 <div class="figure-group" id="method-compare">
 <h2>Method Comparison</h2>
 <p class="section-intro">
-  Same PCA projection, one panel per method. Shows where each method is uncertain,
-  enabling direct comparison of K-Means vs. Agglomerative clustering stability patterns.
+  Same PCA projection, one panel per method (K-Means, Ward, Single Linkage), all at the same K.
+  A shared colorbar enables direct comparison of stability patterns across algorithms.
 </p>
 
 <div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_vdx_3gene.png','Method Comparison — VDX 3-gene')">
@@ -510,6 +822,15 @@
   <div class="caption">
     <div class="fig-id">MC-01</div>
     <div class="fig-title">VDX 3-gene</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features. K=3 (fallback)</td></tr>
+      <tr><td>Methods</td><td>K-Means | Ward | Single Linkage — all at K=3</td></tr>
+      <tr><td>Iterations</td><td>200 | Train/test split: 80/20</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0) — same axes for all panels</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Shared RdYlGn colorbar, vmin=0, vmax=1</td></tr>
+      <tr><td>Point size</td><td>s = 10 + 40 * erica_stat</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for each method</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -518,6 +839,12 @@
   <div class="caption">
     <div class="fig-id">MC-02</div>
     <div class="fig-title">Gaussian 4c &sigma;=0.1</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma0p1 — 4 Gaussian clusters, &sigma;=0.1. K=4</td></tr>
+      <tr><td>Methods</td><td>K-Means | Ward | Single Linkage — all at K=4</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0) — shared axes</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Shared RdYlGn colorbar</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -526,6 +853,12 @@
   <div class="caption">
     <div class="fig-id">MC-03</div>
     <div class="fig-title">Gaussian 4c &sigma;=1.0</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma1p0 — 4 Gaussian clusters, &sigma;=1.0. K=4</td></tr>
+      <tr><td>Methods</td><td>K-Means | Ward | Single Linkage — all at K=4</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0) — shared axes</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Shared RdYlGn colorbar. All methods mostly red</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -534,6 +867,12 @@
   <div class="caption">
     <div class="fig-id">MC-04</div>
     <div class="fig-title">Gaussian 4c &sigma;=10.0</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>gauss4c_sigma10p0 — 4 Gaussian clusters, &sigma;=10.0. K=4</td></tr>
+      <tr><td>Methods</td><td>K-Means | Ward | Single Linkage — all at K=4</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0) — shared axes</td></tr>
+      <tr><td>Color</td><td>ERICA_stat ~1/K for all methods. Uniform red across all panels</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -543,6 +882,12 @@
     <div class="fig-id">MC-05</div>
     <div class="fig-title">Moons 2D</div>
     <div class="fig-desc">Both methods struggle with non-convex geometry; Ward may be more consistent.</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>moons_2d — sklearn make_moons. 2D: raw coordinates. K=2</td></tr>
+      <tr><td>Methods</td><td>K-Means | Ward | Single Linkage — all at K=2</td></tr>
+      <tr><td>Projection</td><td>Raw 2D coordinates (no PCA) — shared axes</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Shared RdYlGn colorbar</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -551,6 +896,12 @@
   <div class="caption">
     <div class="fig-id">MC-06</div>
     <div class="fig-title">Blobs 2D</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>blobs_2d — sklearn make_blobs, 2 features, true K=3. Raw 2D</td></tr>
+      <tr><td>Methods</td><td>K-Means | Ward | Single Linkage — all at K=3</td></tr>
+      <tr><td>Projection</td><td>Raw 2D coordinates (no PCA) — shared axes</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Shared RdYlGn colorbar</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -559,6 +910,12 @@
   <div class="caption">
     <div class="fig-id">MC-07</div>
     <div class="fig-title">Well-Separated 5D</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>well_separated — make_blobs, 5 features, centers=3, std=0.8</td></tr>
+      <tr><td>Methods</td><td>K-Means | Ward | Single Linkage — all at K=3</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0) — shared axes</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Shared RdYlGn — all green expected</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -567,6 +924,12 @@
   <div class="caption">
     <div class="fig-id">MC-08</div>
     <div class="fig-title">Overlapping 5D</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>overlapping — make_blobs, 5 features, centers=4, std=2.0</td></tr>
+      <tr><td>Methods</td><td>K-Means | Ward | Single Linkage — all at K=4</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0) — shared axes</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Shared RdYlGn colorbar</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -575,6 +938,12 @@
   <div class="caption">
     <div class="fig-id">MC-09</div>
     <div class="fig-title">High-Dimensional 50D</div>
+    <div class="placard"><table>
+      <tr><td>Dataset</td><td>high_dim — make_blobs, 50 features, centers=3</td></tr>
+      <tr><td>Methods</td><td>K-Means | Ward | Single Linkage — all at K=3</td></tr>
+      <tr><td>Projection</td><td>sklearn PCA(n_components=2, random_state=0) — shared axes</td></tr>
+      <tr><td>Color</td><td>ERICA_stat per sample. Shared RdYlGn colorbar</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -595,15 +964,8 @@
   </li>
   <li>
     Masoero, L., Camerlenghi, F., Favaro, S., Broderick, T., &amp; Parmigiani, G. (2023). Cross-study replicability in cluster analysis.
-    <em>Statistical Science</em>, 38(2), 303&ndash;316.
-    <a href="https://arxiv.org/pdf/2202.01910.pdf" target="_blank">arXiv:2202.01910</a>
-  </li>
-  <li>
-    Fr&auml;nti, P., &amp; Sieranoja, S. (2018). K-means properties on six clustering benchmark datasets.
-    <em>Applied Intelligence</em>, 48(12), 4743&ndash;4759.
-  </li>
-  <li>
-    Source code and reference data: <a href="https://github.com/lorenzomasoero/clustering_replicability" target="_blank">github.com/lorenzomasoero/clustering_replicability</a>
+    <em>Proceedings of the National Academy of Sciences</em>, 120(16), e2203738120.
+    <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10600961/" target="_blank">PMC10600961</a>
   </li>
 </ol>
 </div>
@@ -612,26 +974,39 @@
 </div><!-- /content -->
 
 <footer>
-  ERICA Literature Comparison &mdash; 2026
+  ERICA v0.1.4 &mdash; B=200 Monte Carlo iterations &mdash; 80/20 train&ndash;test split &mdash; 2026-03-31
 </footer>
 
-<!-- Lightbox JS -->
 <script>
 function openLightbox(src, caption) {
   document.getElementById('lb-img').src = src;
   document.getElementById('lb-caption').textContent = caption;
   document.getElementById('lightbox').classList.add('active');
-  document.body.style.overflow = 'hidden';
 }
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('active');
   document.getElementById('lb-img').src = '';
-  document.body.style.overflow = '';
 }
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeLightbox();
 });
-</script>
 
+// Nav active state on scroll
+(function() {
+  var sections = ['error-bands','coassignment','pca-erica','triptych','method-compare','references'];
+  var navLinks = document.querySelectorAll('.nav a');
+  window.addEventListener('scroll', function() {
+    var scrollY = window.scrollY + 80;
+    var active = '';
+    sections.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.offsetTop <= scrollY) active = id;
+    });
+    navLinks.forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + active);
+    });
+  });
+})();
+</script>
 </body>
 </html>
