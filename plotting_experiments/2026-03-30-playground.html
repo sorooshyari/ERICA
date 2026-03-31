@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERICA Playground — Entropy & CRI Experiments</title>
+<style>
+  :root { --bg: #fafafa; --text: #1a1a2e; --muted: #555; --accent: #2d6a4f; --border: #ddd; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Palatino Linotype', Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { max-width: 900px; margin: 0 auto; padding: 40px 40px 20px; }
+  .header h1 { font-size: 24px; font-weight: 400; }
+  .header p { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-top: 2px solid var(--text); border-bottom: 1px solid var(--border); max-width: 900px; margin: 0 auto; display: flex; flex-wrap: wrap; }
+  .nav a { padding: 8px 12px; font-size: 11px; text-decoration: none; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+  .nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .content { max-width: 900px; margin: 0 auto; padding: 0 40px 40px; }
+  .section { margin: 32px 0; padding-top: 16px; border-top: 1px solid var(--border); }
+  .section h2 { font-size: 17px; font-weight: 400; margin-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 12px; }
+  .card { background: #fff; border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+  .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .card img { width: 100%; display: block; padding: 6px; }
+  .card .lbl { padding: 6px 10px; font-size: 11px; color: var(--muted); font-family: monospace; border-top: 1px solid var(--border); }
+  .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 92vh; background: #fff; padding: 10px; }
+  .lightbox .close { position: fixed; top: 16px; right: 20px; color: #aaa; font-size: 28px; cursor: pointer; }
+  footer { max-width: 900px; margin: 0 auto; padding: 20px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>ERICA Playground — Entropy & CRI Experiments</h1>
+  <p>2026-03-30 &middot; Exploring which visualizations of per-sample replicability reveal internal cluster structure</p>
+  <p>101 figures across entropy fields, CRI maps, delta maps, and method comparisons</p>
+</div>
+<div class="nav">
+  <a href="#entropy-fields-2d-contour-k-varies">Entropy Fields</a>
+  <a href="#entropy-delta-maps-k-k+1">Entropy Delta Maps</a>
+  <a href="#entropy-delta-heatmaps-high-d">Entropy Delta Heatmaps</a>
+  <a href="#entropy-surface-progressions-3d">Entropy Surface Progressions</a>
+  <a href="#entropy-method-comparison">Entropy Method Comparison</a>
+  <a href="#entropy-distributions">Entropy Distributions</a>
+  <a href="#mean-entropy-vs-k">Mean Entropy vs K</a>
+  <a href="#entropy-profiles-bar-charts">Entropy Profiles</a>
+  <a href="#entropy-landscapes-3d-scatter">Entropy Landscapes</a>
+  <a href="#cri-fields-2d-contour-k-varies">CRI Fields</a>
+  <a href="#cri-delta-maps-k-k+1">CRI Delta Maps</a>
+  <a href="#cri-delta-heatmaps-high-d">CRI Delta Heatmaps</a>
+  <a href="#cri-method-comparison">CRI Method Comparison</a>
+  <a href="#cri-vs-entropy">CRI vs Entropy</a>
+  <a href="#confidence-surfaces">Confidence Surfaces</a>
+  <a href="#volatility-maps">Volatility Maps</a>
+</div>
+<div class="lightbox" id="lb" onclick="this.classList.remove('active')"><span class="close">&times;</span><img id="lbi" src=""></div>
+<div class="content">
+<div class="section" id="entropy-fields-2d-contour-k-varies">
+<h2>Entropy Fields (2D contour, K varies) (8)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_blobs_2d.png" loading="lazy"><div class="lbl">entropy vs k blobs 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_circles_2d.png" loading="lazy"><div class="lbl">entropy vs k circles 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_gmm_anisotropic.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_gmm_anisotropic.png" loading="lazy"><div class="lbl">entropy vs k gmm anisotropic</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_gmm_five_clusters.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_gmm_five_clusters.png" loading="lazy"><div class="lbl">entropy vs k gmm five clusters</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_gmm_mixed_variance.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_gmm_mixed_variance.png" loading="lazy"><div class="lbl">entropy vs k gmm mixed variance</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_gmm_overlapping_pair.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_gmm_overlapping_pair.png" loading="lazy"><div class="lbl">entropy vs k gmm overlapping pair</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_gmm_spherical.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_gmm_spherical.png" loading="lazy"><div class="lbl">entropy vs k gmm spherical</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_moons_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_moons_2d.png" loading="lazy"><div class="lbl">entropy vs k moons 2d</div></div>
+</div>
+</div>
+<div class="section" id="entropy-delta-maps-k-k+1">
+<h2>Entropy Delta Maps (K→K+1) (8)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_blobs_2d.png" loading="lazy"><div class="lbl">entropy delta blobs 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_circles_2d.png" loading="lazy"><div class="lbl">entropy delta circles 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_gmm_anisotropic.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_gmm_anisotropic.png" loading="lazy"><div class="lbl">entropy delta gmm anisotropic</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_gmm_five_clusters.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_gmm_five_clusters.png" loading="lazy"><div class="lbl">entropy delta gmm five clusters</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_gmm_mixed_variance.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_gmm_mixed_variance.png" loading="lazy"><div class="lbl">entropy delta gmm mixed variance</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_gmm_overlapping_pair.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_gmm_overlapping_pair.png" loading="lazy"><div class="lbl">entropy delta gmm overlapping pair</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_gmm_spherical.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_gmm_spherical.png" loading="lazy"><div class="lbl">entropy delta gmm spherical</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_moons_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_moons_2d.png" loading="lazy"><div class="lbl">entropy delta moons 2d</div></div>
+</div>
+</div>
+<div class="section" id="entropy-delta-heatmaps-high-d">
+<h2>Entropy Delta Heatmaps (high-D) (5)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_heatmap_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_heatmap_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">entropy delta heatmap gauss4c sigma0p01</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_heatmap_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_heatmap_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">entropy delta heatmap gauss4c sigma0p1</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_heatmap_gauss4c_sigma10p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_heatmap_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">entropy delta heatmap gauss4c sigma10p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_heatmap_gauss4c_sigma1p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_heatmap_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">entropy delta heatmap gauss4c sigma1p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_heatmap_vdx_3gene.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_heatmap_vdx_3gene.png" loading="lazy"><div class="lbl">entropy delta heatmap vdx 3gene</div></div>
+</div>
+</div>
+<div class="section" id="entropy-surface-progressions-3d">
+<h2>Entropy Surface Progressions (3D) (4)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_surface_progression_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_surface_progression_circles_2d.png" loading="lazy"><div class="lbl">entropy surface progression circles 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_surface_progression_gmm_anisotropic.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_surface_progression_gmm_anisotropic.png" loading="lazy"><div class="lbl">entropy surface progression gmm anisotropic</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_surface_progression_gmm_overlapping_pair.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_surface_progression_gmm_overlapping_pair.png" loading="lazy"><div class="lbl">entropy surface progression gmm overlapping pair</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_surface_progression_moons_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_surface_progression_moons_2d.png" loading="lazy"><div class="lbl">entropy surface progression moons 2d</div></div>
+</div>
+</div>
+<div class="section" id="entropy-method-comparison">
+<h2>Entropy Method Comparison (4)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_compare_circles_2d_k2.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_compare_circles_2d_k2.png" loading="lazy"><div class="lbl">entropy method compare circles 2d k2</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_compare_gmm_anisotropic_k3.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_compare_gmm_anisotropic_k3.png" loading="lazy"><div class="lbl">entropy method compare gmm anisotropic k3</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_compare_gmm_overlapping_pair_k3.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_compare_gmm_overlapping_pair_k3.png" loading="lazy"><div class="lbl">entropy method compare gmm overlapping pair k3</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_compare_moons_2d_k2.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_compare_moons_2d_k2.png" loading="lazy"><div class="lbl">entropy method compare moons 2d k2</div></div>
+</div>
+</div>
+<div class="section" id="entropy-distributions">
+<h2>Entropy Distributions (5)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_histograms_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_histograms_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">entropy histograms gauss4c sigma0p01</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_histograms_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_histograms_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">entropy histograms gauss4c sigma0p1</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_histograms_gauss4c_sigma10p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_histograms_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">entropy histograms gauss4c sigma10p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_histograms_gauss4c_sigma1p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_histograms_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">entropy histograms gauss4c sigma1p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_histograms_vdx_3gene.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_histograms_vdx_3gene.png" loading="lazy"><div class="lbl">entropy histograms vdx 3gene</div></div>
+</div>
+</div>
+<div class="section" id="mean-entropy-vs-k">
+<h2>Mean Entropy vs K (5)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_mean_vs_k_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_mean_vs_k_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">entropy mean vs k gauss4c sigma0p01</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_mean_vs_k_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_mean_vs_k_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">entropy mean vs k gauss4c sigma0p1</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_mean_vs_k_gauss4c_sigma10p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_mean_vs_k_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">entropy mean vs k gauss4c sigma10p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_mean_vs_k_gauss4c_sigma1p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_mean_vs_k_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">entropy mean vs k gauss4c sigma1p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_mean_vs_k_vdx_3gene.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_mean_vs_k_vdx_3gene.png" loading="lazy"><div class="lbl">entropy mean vs k vdx 3gene</div></div>
+</div>
+</div>
+<div class="section" id="entropy-profiles-bar-charts">
+<h2>Entropy Profiles (bar charts) (10)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_profiles_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_profiles_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">entropy method profiles gauss4c sigma0p01</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_profiles_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_profiles_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">entropy method profiles gauss4c sigma0p1</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_profiles_gauss4c_sigma10p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_profiles_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">entropy method profiles gauss4c sigma10p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_profiles_gauss4c_sigma1p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_profiles_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">entropy method profiles gauss4c sigma1p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_profiles_vdx_3gene.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_profiles_vdx_3gene.png" loading="lazy"><div class="lbl">entropy method profiles vdx 3gene</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_profile_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_profile_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">entropy profile gauss4c sigma0p01</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_profile_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_profile_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">entropy profile gauss4c sigma0p1</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_profile_gauss4c_sigma10p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_profile_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">entropy profile gauss4c sigma10p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_profile_gauss4c_sigma1p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_profile_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">entropy profile gauss4c sigma1p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_profile_vdx_3gene.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_profile_vdx_3gene.png" loading="lazy"><div class="lbl">entropy profile vdx 3gene</div></div>
+</div>
+</div>
+<div class="section" id="entropy-landscapes-3d-scatter">
+<h2>Entropy Landscapes (3D scatter) (8)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_blobs_2d.png" loading="lazy"><div class="lbl">entropy 3d blobs 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_circles_2d.png" loading="lazy"><div class="lbl">entropy 3d circles 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_gmm_anisotropic.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_gmm_anisotropic.png" loading="lazy"><div class="lbl">entropy 3d gmm anisotropic</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_gmm_five_clusters.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_gmm_five_clusters.png" loading="lazy"><div class="lbl">entropy 3d gmm five clusters</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_gmm_mixed_variance.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_gmm_mixed_variance.png" loading="lazy"><div class="lbl">entropy 3d gmm mixed variance</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_gmm_overlapping_pair.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_gmm_overlapping_pair.png" loading="lazy"><div class="lbl">entropy 3d gmm overlapping pair</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_gmm_spherical.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_gmm_spherical.png" loading="lazy"><div class="lbl">entropy 3d gmm spherical</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_moons_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_moons_2d.png" loading="lazy"><div class="lbl">entropy 3d moons 2d</div></div>
+</div>
+</div>
+<div class="section" id="cri-fields-2d-contour-k-varies">
+<h2>CRI Fields (2D contour, K varies) (8)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_blobs_2d.png" loading="lazy"><div class="lbl">cri field vs k blobs 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_circles_2d.png" loading="lazy"><div class="lbl">cri field vs k circles 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_gmm_anisotropic.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_gmm_anisotropic.png" loading="lazy"><div class="lbl">cri field vs k gmm anisotropic</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_gmm_five_clusters.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_gmm_five_clusters.png" loading="lazy"><div class="lbl">cri field vs k gmm five clusters</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_gmm_mixed_variance.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_gmm_mixed_variance.png" loading="lazy"><div class="lbl">cri field vs k gmm mixed variance</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_gmm_overlapping_pair.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_gmm_overlapping_pair.png" loading="lazy"><div class="lbl">cri field vs k gmm overlapping pair</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_gmm_spherical.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_gmm_spherical.png" loading="lazy"><div class="lbl">cri field vs k gmm spherical</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_moons_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_moons_2d.png" loading="lazy"><div class="lbl">cri field vs k moons 2d</div></div>
+</div>
+</div>
+<div class="section" id="cri-delta-maps-k-k+1">
+<h2>CRI Delta Maps (K→K+1) (8)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_blobs_2d.png" loading="lazy"><div class="lbl">cri delta blobs 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_circles_2d.png" loading="lazy"><div class="lbl">cri delta circles 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_gmm_anisotropic.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_gmm_anisotropic.png" loading="lazy"><div class="lbl">cri delta gmm anisotropic</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_gmm_five_clusters.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_gmm_five_clusters.png" loading="lazy"><div class="lbl">cri delta gmm five clusters</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_gmm_mixed_variance.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_gmm_mixed_variance.png" loading="lazy"><div class="lbl">cri delta gmm mixed variance</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_gmm_overlapping_pair.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_gmm_overlapping_pair.png" loading="lazy"><div class="lbl">cri delta gmm overlapping pair</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_gmm_spherical.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_gmm_spherical.png" loading="lazy"><div class="lbl">cri delta gmm spherical</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_moons_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_moons_2d.png" loading="lazy"><div class="lbl">cri delta moons 2d</div></div>
+</div>
+</div>
+<div class="section" id="cri-delta-heatmaps-high-d">
+<h2>CRI Delta Heatmaps (high-D) (5)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_heatmap_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_heatmap_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">cri delta heatmap gauss4c sigma0p01</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_heatmap_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_heatmap_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">cri delta heatmap gauss4c sigma0p1</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_heatmap_gauss4c_sigma10p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_heatmap_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">cri delta heatmap gauss4c sigma10p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_heatmap_gauss4c_sigma1p0.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_heatmap_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">cri delta heatmap gauss4c sigma1p0</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_heatmap_vdx_3gene.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_heatmap_vdx_3gene.png" loading="lazy"><div class="lbl">cri delta heatmap vdx 3gene</div></div>
+</div>
+</div>
+<div class="section" id="cri-method-comparison">
+<h2>CRI Method Comparison (5)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_method_compare_circles_2d_k2.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_method_compare_circles_2d_k2.png" loading="lazy"><div class="lbl">cri method compare circles 2d k2</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_method_compare_gmm_anisotropic_k3.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_method_compare_gmm_anisotropic_k3.png" loading="lazy"><div class="lbl">cri method compare gmm anisotropic k3</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_method_compare_gmm_five_clusters_k5.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_method_compare_gmm_five_clusters_k5.png" loading="lazy"><div class="lbl">cri method compare gmm five clusters k5</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_method_compare_gmm_overlapping_pair_k3.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_method_compare_gmm_overlapping_pair_k3.png" loading="lazy"><div class="lbl">cri method compare gmm overlapping pair k3</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_method_compare_moons_2d_k2.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_method_compare_moons_2d_k2.png" loading="lazy"><div class="lbl">cri method compare moons 2d k2</div></div>
+</div>
+</div>
+<div class="section" id="cri-vs-entropy">
+<h2>CRI vs Entropy (1)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_vs_entropy_all.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_vs_entropy_all.png" loading="lazy"><div class="lbl">cri vs entropy all</div></div>
+</div>
+</div>
+<div class="section" id="confidence-surfaces">
+<h2>Confidence Surfaces (8)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_blobs_2d.png" loading="lazy"><div class="lbl">confidence surface blobs 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_circles_2d.png" loading="lazy"><div class="lbl">confidence surface circles 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_gmm_anisotropic.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_gmm_anisotropic.png" loading="lazy"><div class="lbl">confidence surface gmm anisotropic</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_gmm_five_clusters.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_gmm_five_clusters.png" loading="lazy"><div class="lbl">confidence surface gmm five clusters</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_gmm_mixed_variance.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_gmm_mixed_variance.png" loading="lazy"><div class="lbl">confidence surface gmm mixed variance</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_gmm_overlapping_pair.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_gmm_overlapping_pair.png" loading="lazy"><div class="lbl">confidence surface gmm overlapping pair</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_gmm_spherical.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_gmm_spherical.png" loading="lazy"><div class="lbl">confidence surface gmm spherical</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_moons_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_moons_2d.png" loading="lazy"><div class="lbl">confidence surface moons 2d</div></div>
+</div>
+</div>
+<div class="section" id="volatility-maps">
+<h2>Volatility Maps (8)</h2>
+<div class="grid">
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_blobs_2d.png" loading="lazy"><div class="lbl">volatility blobs 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_circles_2d.png" loading="lazy"><div class="lbl">volatility circles 2d</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_gmm_anisotropic.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_gmm_anisotropic.png" loading="lazy"><div class="lbl">volatility gmm anisotropic</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_gmm_five_clusters.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_gmm_five_clusters.png" loading="lazy"><div class="lbl">volatility gmm five clusters</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_gmm_mixed_variance.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_gmm_mixed_variance.png" loading="lazy"><div class="lbl">volatility gmm mixed variance</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_gmm_overlapping_pair.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_gmm_overlapping_pair.png" loading="lazy"><div class="lbl">volatility gmm overlapping pair</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_gmm_spherical.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_gmm_spherical.png" loading="lazy"><div class="lbl">volatility gmm spherical</div></div>
+  <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_moons_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_moons_2d.png" loading="lazy"><div class="lbl">volatility moons 2d</div></div>
+</div>
+</div>
+</div>
+<footer>ERICA Playground &middot; Sorooshyari & Shirazi &middot; 2026</footer>
+<script>document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lb').classList.remove('active')});</script>
+</body></html>
