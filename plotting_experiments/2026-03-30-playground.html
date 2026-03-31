@@ -27,6 +27,10 @@
   .lightbox img { max-width: 92vw; max-height: 92vh; background: #fff; padding: 10px; }
   .lightbox .close { position: fixed; top: 16px; right: 20px; color: #aaa; font-size: 28px; cursor: pointer; }
   footer { max-width: 900px; margin: 0 auto; padding: 20px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
+  .section-placard { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; margin: 12px 0 16px; background: #f8f8f8; border-left: 3px solid var(--accent); padding: 10px 12px; }
+  .section-placard table { border-collapse: collapse; width: 100%; }
+  .section-placard td { padding: 2px 8px; vertical-align: top; border-bottom: 1px solid #eee; }
+  .section-placard td:first-child { color: var(--accent); font-weight: 600; white-space: nowrap; width: 110px; }
 </style>
 </head>
 <body>
@@ -63,6 +67,17 @@
 <div class="content">
 <div class="section" id="entropy-fields-2d-contour-k-varies">
 <h2>Entropy Fields (2D contour, K varies) (8)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Spatial entropy contour field (2D datasets only)</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>Interpolated Shannon entropy, inferno colormap; overlaid scatter colored by primary cluster (qualitative palette)</td></tr>
+    <tr><td>Computation</td><td>H(i) = -sum(p_j * log2(p_j)) where p_j = CLAM[i,j] / sum(CLAM[i,:]); one panel per K value</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → erica.clam_matrices_[k]</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_blobs_2d.png" loading="lazy"><div class="lbl">entropy vs k blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_vs_k_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_vs_k_circles_2d.png" loading="lazy"><div class="lbl">entropy vs k circles 2d</div></div>
@@ -76,6 +91,17 @@
 </div>
 <div class="section" id="entropy-delta-maps-k-k+1">
 <h2>Entropy Delta Maps (K→K+1) (8)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Spatial entropy change contour (2D datasets only)</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>Delta entropy K→K+1; RdBu_r colormap (red = more confused at K+1, blue = clearer)</td></tr>
+    <tr><td>Computation</td><td>H(i, K+1) - H(i, K), interpolated via scipy griddata cubic; one panel per K→K+1 transition</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → entropy difference across consecutive CLAM matrices</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_blobs_2d.png" loading="lazy"><div class="lbl">entropy delta blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_circles_2d.png" loading="lazy"><div class="lbl">entropy delta circles 2d</div></div>
@@ -89,6 +115,17 @@
 </div>
 <div class="section" id="entropy-delta-heatmaps-high-d">
 <h2>Entropy Delta Heatmaps (high-D) (5)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Heatmap — for high-dimensional datasets where spatial contour plots are not possible</td></tr>
+    <tr><td>X-axis</td><td>K transition (2→3, 3→4, etc.)</td></tr>
+    <tr><td>Y-axis</td><td>Samples sorted by entropy at reference K</td></tr>
+    <tr><td>Color</td><td>Delta entropy per sample; RdBu_r colormap</td></tr>
+    <tr><td>Computation</td><td>H(i, K+1) - H(i, K) for each sample i; rows sorted by H(i, K_ref)</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → entropy differences stacked across K transitions</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_heatmap_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_heatmap_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">entropy delta heatmap gauss4c sigma0p01</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_delta_heatmap_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_delta_heatmap_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">entropy delta heatmap gauss4c sigma0p1</div></div>
@@ -99,6 +136,17 @@
 </div>
 <div class="section" id="entropy-surface-progressions-3d">
 <h2>Entropy Surface Progressions (3D) (4)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>3D raised surface progression (2D datasets only)</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>Shannon entropy mapped to surface height (Z) and fill color; inferno colormap</td></tr>
+    <tr><td>Computation</td><td>H(i) interpolated onto a regular grid; one raised surface panel per K value, shown as a multi-panel progression</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → entropy per K, interpolated via scipy griddata</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_surface_progression_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_surface_progression_circles_2d.png" loading="lazy"><div class="lbl">entropy surface progression circles 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_surface_progression_gmm_anisotropic.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_surface_progression_gmm_anisotropic.png" loading="lazy"><div class="lbl">entropy surface progression gmm anisotropic</div></div>
@@ -108,6 +156,17 @@
 </div>
 <div class="section" id="entropy-method-comparison">
 <h2>Entropy Method Comparison (4)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Side-by-side spatial entropy contour fields, one panel per clustering method</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>Shannon entropy; inferno colormap; consistent scale across panels for direct comparison</td></tr>
+    <tr><td>Computation</td><td>H(i) computed independently per method at the same K; layout aligns panels for direct comparison</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=..., method=...) run separately for K-Means and Agglomerative</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_compare_circles_2d_k2.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_compare_circles_2d_k2.png" loading="lazy"><div class="lbl">entropy method compare circles 2d k2</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_compare_gmm_anisotropic_k3.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_compare_gmm_anisotropic_k3.png" loading="lazy"><div class="lbl">entropy method compare gmm anisotropic k3</div></div>
@@ -117,6 +176,17 @@
 </div>
 <div class="section" id="entropy-distributions">
 <h2>Entropy Distributions (5)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Histogram of per-sample entropy values, one panel per K; methods overlaid</td></tr>
+    <tr><td>X-axis</td><td>Entropy value H(i) in bits (0 = perfectly stable, log2(K) = maximally uncertain)</td></tr>
+    <tr><td>Y-axis</td><td>Count of samples</td></tr>
+    <tr><td>Color</td><td>Clustering method (K-Means vs Agglomerative); semi-transparent fill for overlay</td></tr>
+    <tr><td>Computation</td><td>H(i) = -sum(p_j * log2(p_j)) per sample; binned across all samples; panels faceted by K</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → per-sample entropy arrays per K</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_histograms_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_histograms_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">entropy histograms gauss4c sigma0p01</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_histograms_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_histograms_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">entropy histograms gauss4c sigma0p1</div></div>
@@ -127,6 +197,17 @@
 </div>
 <div class="section" id="mean-entropy-vs-k">
 <h2>Mean Entropy vs K (5)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Line chart with error band, one line per clustering method</td></tr>
+    <tr><td>X-axis</td><td>K (number of clusters)</td></tr>
+    <tr><td>Y-axis</td><td>Mean Shannon entropy across all samples ± 1 std dev</td></tr>
+    <tr><td>Color</td><td>Clustering method (K-Means vs Agglomerative)</td></tr>
+    <tr><td>Computation</td><td>mean(H(i)) and std(H(i)) computed across all samples for each K; shaded band = ±1 std</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → per-sample entropy arrays; numpy mean/std per K</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_mean_vs_k_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_mean_vs_k_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">entropy mean vs k gauss4c sigma0p01</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_mean_vs_k_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_mean_vs_k_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">entropy mean vs k gauss4c sigma0p1</div></div>
@@ -137,6 +218,17 @@
 </div>
 <div class="section" id="entropy-profiles-bar-charts">
 <h2>Entropy Profiles (bar charts) (10)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Sorted bar chart (entropy_profile_*) or faceted bar chart per method (entropy_method_profiles_*)</td></tr>
+    <tr><td>X-axis</td><td>Sample rank (sorted ascending by entropy at the reference K)</td></tr>
+    <tr><td>Y-axis</td><td>Shannon entropy H(i)</td></tr>
+    <tr><td>Color</td><td>Primary cluster assignment at that K (qualitative palette)</td></tr>
+    <tr><td>Computation</td><td>H(i) per sample, rows sorted by ascending entropy; color = argmax of CLAM row (most frequent cluster)</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → per-sample entropy and primary cluster per K</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_profiles_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_profiles_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">entropy method profiles gauss4c sigma0p01</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_method_profiles_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_method_profiles_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">entropy method profiles gauss4c sigma0p1</div></div>
@@ -152,6 +244,17 @@
 </div>
 <div class="section" id="entropy-landscapes-3d-scatter">
 <h2>Entropy Landscapes (3D scatter) (8)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>3D scatter plot (2D datasets only)</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>Shannon entropy H(i); RdYlGn_r colormap (red = high entropy / unstable, green = low / stable)</td></tr>
+    <tr><td>Computation</td><td>Each point is one sample; Z elevation = H(i); color also encodes H(i) for redundant visual cue; one panel per K</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → per-sample entropy per K</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_blobs_2d.png" loading="lazy"><div class="lbl">entropy 3d blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/entropy_3d_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/entropy_3d_circles_2d.png" loading="lazy"><div class="lbl">entropy 3d circles 2d</div></div>
@@ -165,6 +268,17 @@
 </div>
 <div class="section" id="cri-fields-2d-contour-k-varies">
 <h2>ERICA Statistic (formerly CRI) Fields (2D contour, K varies) (8)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Spatial ERICA statistic contour field (2D datasets only); mirrors Entropy Fields structure</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>Per-sample ERICA statistic (CRI); RdYlGn colormap (green = stable / high CRI, red = unstable)</td></tr>
+    <tr><td>Computation</td><td>CRI(i) = CLAM[i, primary_cluster] / B; interpolated onto grid; one panel per K value</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → erica.clam_matrices_[k] → per-sample CRI</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_blobs_2d.png" loading="lazy"><div class="lbl">cri field vs k blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_circles_2d.png" loading="lazy"><div class="lbl">cri field vs k circles 2d</div></div>
@@ -178,6 +292,17 @@
 </div>
 <div class="section" id="cri-delta-maps-k-k+1">
 <h2>ERICA Statistic (formerly CRI) Delta Maps (K→K+1) (8)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Spatial ERICA statistic change contour (2D datasets only); mirrors Entropy Delta Maps</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>Delta ERICA statistic K→K+1; RdBu colormap (blue = more replicable at K+1, red = less replicable)</td></tr>
+    <tr><td>Computation</td><td>CRI(i, K+1) - CRI(i, K), interpolated via scipy griddata cubic; one panel per K→K+1 transition</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → per-sample CRI differences across consecutive K</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_blobs_2d.png" loading="lazy"><div class="lbl">cri delta blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_circles_2d.png" loading="lazy"><div class="lbl">cri delta circles 2d</div></div>
@@ -191,6 +316,17 @@
 </div>
 <div class="section" id="cri-delta-heatmaps-high-d">
 <h2>ERICA Statistic (formerly CRI) Delta Heatmaps (high-D) (5)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Heatmap — for high-dimensional datasets where spatial contour plots are not possible</td></tr>
+    <tr><td>X-axis</td><td>K transition (2→3, 3→4, etc.)</td></tr>
+    <tr><td>Y-axis</td><td>Samples sorted by ERICA statistic at reference K</td></tr>
+    <tr><td>Color</td><td>Delta ERICA statistic per sample; RdBu colormap (blue = more replicable, red = less)</td></tr>
+    <tr><td>Computation</td><td>CRI(i, K+1) - CRI(i, K) for each sample i; rows sorted by CRI(i, K_ref)</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → per-sample CRI differences stacked across K transitions</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_heatmap_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_heatmap_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">cri delta heatmap gauss4c sigma0p01</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_heatmap_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_heatmap_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">cri delta heatmap gauss4c sigma0p1</div></div>
@@ -201,6 +337,17 @@
 </div>
 <div class="section" id="cri-method-comparison">
 <h2>ERICA Statistic (formerly CRI) Method Comparison (5)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Side-by-side ERICA statistic contour fields, one panel per clustering method</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>Per-sample ERICA statistic; RdYlGn colormap; consistent scale across panels per figure</td></tr>
+    <tr><td>Computation</td><td>CRI(i) computed independently per method at the same K; panels aligned for direct comparison</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=..., method=...) run separately for K-Means and Agglomerative</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_method_compare_circles_2d_k2.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_method_compare_circles_2d_k2.png" loading="lazy"><div class="lbl">cri method compare circles 2d k2</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_method_compare_gmm_anisotropic_k3.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_method_compare_gmm_anisotropic_k3.png" loading="lazy"><div class="lbl">cri method compare gmm anisotropic k3</div></div>
@@ -211,12 +358,34 @@
 </div>
 <div class="section" id="cri-vs-entropy">
 <h2>ERICA Statistic (formerly CRI) vs Entropy (1)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>Scatter plot, 12 subpanels (one per dataset × K combination)</td></tr>
+    <tr><td>X-axis</td><td>ERICA statistic CRI(i) per sample (0 = never consistent, 1 = always consistent)</td></tr>
+    <tr><td>Y-axis</td><td>Shannon entropy H(i) per sample</td></tr>
+    <tr><td>Color</td><td>Primary cluster assignment at that K (qualitative palette)</td></tr>
+    <tr><td>Computation</td><td>CRI(i) and H(i) computed from same CLAM matrix; note that H and CRI are inversely related by construction</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → erica.clam_matrices_[k] → CRI and entropy per sample</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_vs_entropy_all.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_vs_entropy_all.png" loading="lazy"><div class="lbl">cri vs entropy all</div></div>
 </div>
 </div>
 <div class="section" id="confidence-surfaces">
 <h2>Confidence Surfaces (8)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>3D interpolated surface (2D datasets only); Z height = ERICA statistic (confidence)</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>ERICA statistic CRI(i); RdYlGn colormap (green = high confidence, red = low)</td></tr>
+    <tr><td>Computation</td><td>CRI(i) per sample interpolated onto a regular grid via scipy griddata; one surface per K; Z and color both encode CRI for visual depth cue</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → per-sample CRI per K</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_blobs_2d.png" loading="lazy"><div class="lbl">confidence surface blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/confidence_surface_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/confidence_surface_circles_2d.png" loading="lazy"><div class="lbl">confidence surface circles 2d</div></div>
@@ -230,6 +399,17 @@
 </div>
 <div class="section" id="volatility-maps">
 <h2>Volatility Maps (8)</h2>
+<div class="section-placard">
+  <table>
+    <tr><td>Plot type</td><td>2D scatter plot (2D datasets only)</td></tr>
+    <tr><td>X-axis</td><td>Feature 1 (feature space coordinate)</td></tr>
+    <tr><td>Y-axis</td><td>Feature 2 (feature space coordinate)</td></tr>
+    <tr><td>Color</td><td>Number of unique cluster labels assigned to each sample across all B iterations; YlOrRd colormap (yellow = stable, red = highly volatile)</td></tr>
+    <tr><td>Computation</td><td>volatility(i) = |unique clusters assigned to sample i across B subsampling iterations|; derived from raw label matrices before CLAM aggregation</td></tr>
+    <tr><td>ERICA call</td><td>erica.run(data, k_range=...) → raw label arrays → unique count per sample per K</td></tr>
+    <tr><td>Parameters</td><td>B=200, 80/20 split, K-Means unless noted</td></tr>
+  </table>
+</div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_blobs_2d.png" loading="lazy"><div class="lbl">volatility blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/volatility_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/volatility_circles_2d.png" loading="lazy"><div class="lbl">volatility circles 2d</div></div>
