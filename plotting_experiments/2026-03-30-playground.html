@@ -31,9 +31,15 @@
 </head>
 <body>
 <div class="header">
-  <h1>ERICA Playground — Entropy & CRI Experiments</h1>
+  <h1>ERICA Playground — Entropy &amp; ERICA Statistic (formerly CRI) Experiments</h1>
   <p>2026-03-30 &middot; Exploring which visualizations of per-sample replicability reveal internal cluster structure</p>
-  <p>101 figures across entropy fields, CRI maps, delta maps, and method comparisons</p>
+  <p>101 figures across entropy fields, ERICA statistic (formerly CRI) maps, delta maps, and method comparisons</p>
+  <p style="margin-top:10px; font-size:12px;">
+    <strong>Related:</strong>
+    <a href="2026-03-30-gallery.html" style="color:#2d6a4f;">Main Gallery</a> (80 figures, metrics table, by-dataset breakdowns)
+    &nbsp;&middot;&nbsp;
+    <a href="2026-03-30-erica-statistic-playground.html" style="color:#2d6a4f;">ERICA Statistic Deep Dive</a> (68 figures: distributions, boxplots, trajectories, cross-sigma)
+  </p>
 </div>
 <div class="nav">
   <a href="#entropy-fields-2d-contour-k-varies">Entropy Fields</a>
@@ -45,11 +51,11 @@
   <a href="#mean-entropy-vs-k">Mean Entropy vs K</a>
   <a href="#entropy-profiles-bar-charts">Entropy Profiles</a>
   <a href="#entropy-landscapes-3d-scatter">Entropy Landscapes</a>
-  <a href="#cri-fields-2d-contour-k-varies">CRI Fields</a>
-  <a href="#cri-delta-maps-k-k+1">CRI Delta Maps</a>
-  <a href="#cri-delta-heatmaps-high-d">CRI Delta Heatmaps</a>
-  <a href="#cri-method-comparison">CRI Method Comparison</a>
-  <a href="#cri-vs-entropy">CRI vs Entropy</a>
+  <a href="#cri-fields-2d-contour-k-varies">ERICA Stat Fields</a>
+  <a href="#cri-delta-maps-k-k+1">ERICA Stat Delta Maps</a>
+  <a href="#cri-delta-heatmaps-high-d">ERICA Stat Delta Heatmaps</a>
+  <a href="#cri-method-comparison">ERICA Stat Method Comparison</a>
+  <a href="#cri-vs-entropy">ERICA Stat vs Entropy</a>
   <a href="#confidence-surfaces">Confidence Surfaces</a>
   <a href="#volatility-maps">Volatility Maps</a>
 </div>
@@ -158,7 +164,7 @@
 </div>
 </div>
 <div class="section" id="cri-fields-2d-contour-k-varies">
-<h2>CRI Fields (2D contour, K varies) (8)</h2>
+<h2>ERICA Statistic (formerly CRI) Fields (2D contour, K varies) (8)</h2>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_blobs_2d.png" loading="lazy"><div class="lbl">cri field vs k blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_field_vs_k_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_field_vs_k_circles_2d.png" loading="lazy"><div class="lbl">cri field vs k circles 2d</div></div>
@@ -171,7 +177,7 @@
 </div>
 </div>
 <div class="section" id="cri-delta-maps-k-k+1">
-<h2>CRI Delta Maps (K→K+1) (8)</h2>
+<h2>ERICA Statistic (formerly CRI) Delta Maps (K→K+1) (8)</h2>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_blobs_2d.png" loading="lazy"><div class="lbl">cri delta blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_circles_2d.png" loading="lazy"><div class="lbl">cri delta circles 2d</div></div>
@@ -184,7 +190,7 @@
 </div>
 </div>
 <div class="section" id="cri-delta-heatmaps-high-d">
-<h2>CRI Delta Heatmaps (high-D) (5)</h2>
+<h2>ERICA Statistic (formerly CRI) Delta Heatmaps (high-D) (5)</h2>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_heatmap_gauss4c_sigma0p01.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_heatmap_gauss4c_sigma0p01.png" loading="lazy"><div class="lbl">cri delta heatmap gauss4c sigma0p01</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_delta_heatmap_gauss4c_sigma0p1.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_delta_heatmap_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">cri delta heatmap gauss4c sigma0p1</div></div>
@@ -194,7 +200,7 @@
 </div>
 </div>
 <div class="section" id="cri-method-comparison">
-<h2>CRI Method Comparison (5)</h2>
+<h2>ERICA Statistic (formerly CRI) Method Comparison (5)</h2>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_method_compare_circles_2d_k2.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_method_compare_circles_2d_k2.png" loading="lazy"><div class="lbl">cri method compare circles 2d k2</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_method_compare_gmm_anisotropic_k3.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_method_compare_gmm_anisotropic_k3.png" loading="lazy"><div class="lbl">cri method compare gmm anisotropic k3</div></div>
@@ -204,7 +210,7 @@
 </div>
 </div>
 <div class="section" id="cri-vs-entropy">
-<h2>CRI vs Entropy (1)</h2>
+<h2>ERICA Statistic (formerly CRI) vs Entropy (1)</h2>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/cri_vs_entropy_all.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/cri_vs_entropy_all.png" loading="lazy"><div class="lbl">cri vs entropy all</div></div>
 </div>
