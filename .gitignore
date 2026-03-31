@@ -162,6 +162,8 @@ COPILOT.md
 
 # Superpowers dev artifacts (plans, sanity checks, specs)
 docs/superpowers/
+**/SANITY_CHECK.md
+**/sanity-check*.md
 
 # R history
 .Rhistory
