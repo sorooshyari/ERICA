@@ -73,7 +73,7 @@
 
 <div class="masthead">
   <h1>ERICA Figure Gallery</h1>
-  <div class="subtitle">Exploring Visualizations of Clustering Replicability</div>
+  <div class="subtitle">In which a biologist makes 612 plots and hopes some of them mean something</div>
   <div class="meta">2026</div>
 </div>
 
@@ -100,8 +100,8 @@
 
 <div class="content">
 
-<p style="font-size: 14px; color: var(--muted); margin: 20px 0 4px;">This gallery explores which visualizations of the CLAM matrix and ERICA's replicability metrics are most useful for understanding internal cluster structure. All analyses use ERICA v0.1.4 with B=200 MC iterations, 80/20 train-test split. Primary methods: K-Means and Agglomerative Clustering (Ward and Single linkage). Figures generated with matplotlib; viridis and Okabe-Ito colorblind-accessible palettes. Total figure inventory: 612 figures across all pages (80 in this gallery, 363 by-dataset breakdowns, 101 entropy/CRI playground figures, 68 ERICA statistic deep-dive figures).</p>
-<p style="font-size: 12px; color: #888; margin: 0 0 8px;"><sup>*</sup>HDBSCAN integration is under active development and not yet fully validated. HDBSCAN figures are included for exploratory purposes only.</p>
+<p style="font-size: 14px; color: var(--muted); margin: 20px 0 4px;">We made a frankly unreasonable number of plots to figure out which visualizations of the CLAM matrix and ERICA's replicability metrics are most useful for understanding internal cluster structure. All analyses use ERICA v0.1.4 with B=200 MC iterations, 80/20 train-test split. Primary methods: K-Means and Agglomerative Clustering (Ward and Single linkage). Figures generated with matplotlib; viridis and Okabe-Ito colorblind-accessible palettes. Total figure inventory: 612 figures across all pages (80 in this gallery, 363 by-dataset breakdowns, 101 entropy/CRI playground figures, 68 ERICA statistic deep-dive figures).</p>
+<p style="font-size: 12px; color: #888; margin: 0 0 8px;"><sup>*</sup>HDBSCAN integration is under active development. We included the figures because they exist, but we are not yet confident enough to make eye contact with a reviewer about them.</p>
 <p style="font-size: 13px; color: var(--muted); margin: 0 0 24px; border: 1px solid var(--border); padding: 10px 14px; background: #fff;">
   <strong>Related pages:</strong>
   &nbsp;&middot;&nbsp;<a href="2026-03-30-playground.html" style="color:var(--accent);">Entropy &amp; ERICA Statistic (formerly CRI) Experiments</a> &mdash; 101 figures: entropy fields, CRI/ERICA statistic maps, delta maps, method comparisons
@@ -626,7 +626,7 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="clam">
 <h2>1. CLAM Matrix Heatmaps</h2>
-<p class="section-intro">The Cluster Labels Alignment Matrix (CLAM) records, for each sample, how many times it was assigned to each cluster across B Monte Carlo iterations. Rows sorted by primary cluster (argmax), then by assignment confidence within each cluster.</p>
+<p class="section-intro">The CLAM matrix is basically ERICA keeping a tally of where each sample ended up across 200 random train/test splits. Sort the rows and you either get beautiful diagonal blocks (good) or abstract expressionism (less good). Rows sorted by primary cluster (argmax), then by assignment confidence within each cluster.</p>
 
 <div class="figure-pair">
   <div class="figure" onclick="openLightbox(this)">
@@ -716,7 +716,7 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="stability">
 <h2>2. Sample Stability Profiles</h2>
-<p class="section-intro">CLAM rows normalized to proportions and displayed as horizontal stacked bars. Sorted by Shannon entropy: stable samples (entropy &asymp; 0) at top, ambiguous samples (entropy &asymp; log<sub>2</sub>K) at bottom. Subsampled to 100 for display.</p>
+<p class="section-intro">CLAM rows turned into proportions and stacked sideways. Sorted by Shannon entropy because even our sorting has a theoretical basis. Stable samples (entropy &asymp; 0) at top, ambiguous samples (entropy &asymp; log<sub>2</sub>K) at bottom. Subsampled to 100 for display.</p>
 
 <div class="figure-pair">
   <div class="figure" onclick="openLightbox(this)">
@@ -763,7 +763,7 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="metrics">
 <h2>3. Replicability Metric Curves</h2>
-<p class="section-intro">Left panels: CRI, WCRI, TWCRI vs K with K* indicated by vertical dashed lines. Right panels: ARI and AMI (mean &plusmn; std) across 200 iterations. Disqualified K values (empty clusters) marked with &times;.</p>
+<p class="section-intro">Left panels: the ERICA metrics (CRI, WCRI, TWCRI) vs K, with K* marked by hopeful little dashed lines. Right panels: ARI and AMI (mean &plusmn; std) across 200 iterations. Disqualified K values (empty clusters) marked with &times;.</p>
 
 <div class="figure" onclick="openLightbox(this)">
   <img src="figures/metrics_vdx_3gene_kmeans.png" alt="">
@@ -831,7 +831,7 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="methods">
 <h2>4. Method Comparison</h2>
-<p class="section-intro">ERICA metrics across methods for the same dataset. K-based methods shown as lines; HDBSCAN as a marker at its modal K. Grouped bar charts show K* per method per metric.</p>
+<p class="section-intro">Three algorithms look at the same data and politely disagree. K-based methods shown as lines; HDBSCAN as a marker at its modal K. Grouped bar charts show K* per method per metric.</p>
 
 <div class="figure-pair">
   <div class="figure" onclick="openLightbox(this)">
@@ -919,7 +919,7 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="scatter">
 <h2>5. Cluster Assignment Scatter Plots</h2>
-<p class="section-intro">For 2D datasets: points colored by primary CLAM cluster, sized by assignment confidence. Confidence maps show green (stable) to red (ambiguous). Only applicable to datasets with n_features=2.</p>
+<p class="section-intro">For 2D datasets only (the rest of us are stuck in high-dimensional purgatory). Points colored by cluster assignment, sized by how confident ERICA is about that assignment. Big dot = "definitely this cluster." Small dot = "honestly could go either way."</p>
 
 <div class="figure" onclick="openLightbox(this)">
   <img src="figures/scatter_compare_moons_2d_k2.png" alt="">
@@ -1030,7 +1030,7 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="progressions">
 <h2>6. K-Value Progression Series</h2>
-<p class="section-intro">3 rows (K-Means, Ward, Single Linkage) &times; 5 columns (K=2..6). For 2D data: scatter plots. For higher-dimensional data: sorted CLAM heatmaps. Orange borders mark the K* selected by TWCRI. True K indicated with asterisk. Click any figure to expand.</p>
+<p class="section-intro">The "watch the clusters subdivide" grid. 3 methods across, K=2 through 6 down. For 2D data you get scatter plots; for everything else, sorted CLAM heatmaps. Orange borders mark where ERICA thinks K* is. Asterisks mark the truth (when we know it). Click to enlarge and question our choices.</p>
 
 <div class="figure" onclick="openLightbox(this)">
   <img src="figures/k_progressions/k_progression_moons_2d.png" alt="">
@@ -1175,7 +1175,7 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="surfaces">
 <h2>7. 3D Surfaces &amp; Parameter Sensitivity</h2>
-<p class="section-intro">Alternative views of CLAM structure and the HDBSCAN parameter space. 2D heatmaps are publication-ready; 3D surfaces are supplementary.</p>
+<p class="section-intro">We made the plots three-dimensional because we could. The 2D heatmaps probably contain the same information with fewer rotating-axis headaches, but the 3D ones are more fun at lab meetings.</p>
 
 <div class="figure-pair">
   <div class="figure" onclick="openLightbox(this)">
@@ -1266,7 +1266,7 @@
 <!-- ============================================================ -->
 <div class="figure-group" id="gaussian">
 <h2>8. Gaussian Mixture Sigma Study</h2>
-<p class="section-intro">4 isotropic Gaussian centers in 50 dimensions, 100 samples per center. Centers separated by 9.49 (Euclidean) in the first 10 dimensions. Standard deviation &sigma; swept from 0.01 to 10.0, yielding radius/spacing ratios from 0.01 (trivially separated) to 7.45 (indistinguishable). K=2..6 tested with all four methods.</p>
+<p class="section-intro">4 Gaussian centers in 50 dimensions (because we wanted to suffer slightly less than at 100), 100 samples per center. Centers separated by 9.49 (Euclidean) in the first 10 dimensions. Standard deviation &sigma; swept from 0.01 to 10.0, yielding radius/spacing ratios from 0.01 (trivially separated) to 7.45 (indistinguishable). K=2..6 tested with all four methods.</p>
 
 <div class="figure" onclick="openLightbox(this)">
   <img src="figures/gaussian_study/sigma_twcri_curves.png" alt="">
