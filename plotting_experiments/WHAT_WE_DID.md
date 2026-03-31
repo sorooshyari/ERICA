@@ -6,7 +6,7 @@
 
 ## What This Is
 
-A working lab notebook. We set up a plotting sandbox to explore which visualizations of ERICA's output are useful for understanding clustering replicability. Most of this is rough — it's exploratory, not publication-ready. The goal was to generate enough different views of the same data to figure out which ones actually tell us something.
+A working lab notebook. We set up a plotting sandbox to explore which visualizations of ERICA's output are useful for understanding clustering replicability. Most of this is rough — we threw a lot at the wall to see what sticks. Publication-quality this is not. "Does this plot actually tell us anything?" is the bar.
 
 ---
 
@@ -14,13 +14,13 @@ A working lab notebook. We set up a plotting sandbox to explore which visualizat
 
 ### Datasets
 
-We ran ERICA on 26 datasets. One real (VDX breast cancer 3-gene subset from Parmigiani et al.), the rest synthetic — sklearn toy shapes, Gaussian mixtures with different covariance structures, and a 4-center 50D Gaussian with sigma swept from 0.01 to 10.0 to test how ERICA behaves as cluster structure degrades.
+We ran ERICA on 26 datasets. One real (VDX breast cancer 3-gene subset from Parmigiani et al.), the rest synthetic — sklearn toy shapes, Gaussian mixtures with covariances ranging from "politely separated" to "actively hostile," and a 4-center 50D Gaussian with sigma swept from 0.01 to 10.0 (i.e., from "trivially separable" to "asking a water molecule which ocean it belongs to").
 
 The dataset details are in `DATA_DOCUMENTATION.md` and the gallery pages.
 
 ### Figures
 
-612 total (PDF + PNG pairs). Organized in `figures/` with subfolders. Most are variations on a few themes.
+612 total (PDF + PNG pairs). That's not a typo. Organized in `figures/` with subfolders. Most are variations on a few themes — we were not accused of undersampling the visualization space.
 
 ### Scripts
 
@@ -65,7 +65,7 @@ Some of these visualizations are more informative than others. Preliminary impre
 - The **entropy delta maps** (K to K+1 spatial change) are a nice way to see where adding a cluster helps vs hurts
 - The **ERICA statistic trajectory heatmap** (samples x K) shows individual sample stability across K values in a way the aggregate curves don't
 - The **per-cluster boxplots** quickly show which clusters are real vs fragile
-- The **3D surfaces** look cool but it's not clear they reveal anything the 2D heatmaps don't
+- The **3D surfaces** look cool but it's not clear they earn their extra dimension. The 2D heatmaps might say the same thing with less matplotlib wrestling
 
 ### What Needs Work
 
@@ -105,7 +105,11 @@ plotting_experiments/
 
 ## Next Steps
 
-- Validate HDBSCAN implementation
-- Run on full VDX + Mainz + Transbig datasets (not just 3-gene subset)
+- Validate HDBSCAN implementation (it's giving us looks but we don't trust it yet)
+- Run on full VDX + Mainz + Transbig datasets (not just the 3-gene appetizer)
 - Observation dropout experiment (proposed in `future_experiments/`)
-- Decide which visualizations to formalize for the paper
+- Decide which of these 612 figures actually deserve to be in a paper (spoiler: not 612 of them)
+
+---
+
+*"All clusters are wrong, but some are replicable."*
