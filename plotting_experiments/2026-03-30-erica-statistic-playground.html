@@ -30,6 +30,10 @@
   .lightbox img { max-width: 92vw; max-height: 92vh; background: #fff; padding: 10px; }
   .lightbox .close { position: fixed; top: 16px; right: 20px; color: #aaa; font-size: 28px; cursor: pointer; }
   footer { max-width: 900px; margin: 0 auto; padding: 20px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
+  .section-placard { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; margin: 12px 0 16px; background: #f8f8f8; border-left: 3px solid #2d6a4f; padding: 10px 12px; }
+  .section-placard table { border-collapse: collapse; width: 100%; }
+  .section-placard td { padding: 2px 8px; vertical-align: top; border-bottom: 1px solid #eee; }
+  .section-placard td:first-child { color: #2d6a4f; font-weight: 600; white-space: nowrap; width: 110px; }
 </style>
 </head>
 <body>
@@ -62,6 +66,15 @@
 <div class="section" id="distributions">
 <h2>Distributions (11)</h2>
 <p class="desc">X: ERICA stat. Y: density. Panels: K values. Methods overlaid.</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Overlaid histograms</td></tr>
+  <tr><td>X axis</td><td>ERICA statistic value (0.3 to 1.0)</td></tr>
+  <tr><td>Y axis</td><td>density</td></tr>
+  <tr><td>Panels</td><td>one per K value</td></tr>
+  <tr><td>Lines</td><td>methods overlaid (K-Means, Ward, Single)</td></tr>
+  <tr><td>Computation</td><td>ERICA_stat(i) = max(CLAM[i,:]) / sum(CLAM[i,:])</td></tr>
+  <tr><td>Parameters</td><td>B=200, 80/20 split, 30 bins, density=True</td></tr>
+</table></div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_hist_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_hist_blobs_2d.png" loading="lazy"><div class="lbl">blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_hist_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_hist_circles_2d.png" loading="lazy"><div class="lbl">circles 2d</div></div>
@@ -80,6 +93,14 @@
 <div class="section" id="per-cluster-boxplots">
 <h2>Per-Cluster Boxplots (11)</h2>
 <p class="desc">X: cluster. Y: ERICA stat. Box color = cluster.</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Per-cluster boxplot</td></tr>
+  <tr><td>X axis</td><td>cluster index (C1, C2, ...)</td></tr>
+  <tr><td>Y axis</td><td>ERICA statistic</td></tr>
+  <tr><td>Box colors</td><td>qualitative cluster palette</td></tr>
+  <tr><td>Panels</td><td>one per K, K-Means only</td></tr>
+  <tr><td>Shows</td><td>median, IQR, whiskers, outliers per cluster</td></tr>
+</table></div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_boxplot_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_boxplot_blobs_2d.png" loading="lazy"><div class="lbl">blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_boxplot_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_boxplot_circles_2d.png" loading="lazy"><div class="lbl">circles 2d</div></div>
@@ -98,6 +119,13 @@
 <div class="section" id="trajectories">
 <h2>Trajectories (11)</h2>
 <p class="desc">X: K. Y: samples sorted by stability. Color: ERICA stat (green=stable).</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Sample stability trajectory heatmap</td></tr>
+  <tr><td>X axis</td><td>K values (columns)</td></tr>
+  <tr><td>Y axis</td><td>samples (rows, sorted by ERICA stat at reference K, most stable at top)</td></tr>
+  <tr><td>Color</td><td>RdYlGn (green=1.0 stable, red=low)</td></tr>
+  <tr><td>ERICA call</td><td>clam_matrices[(k, 'kmeans')] for each K</td></tr>
+</table></div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_trajectory_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_trajectory_blobs_2d.png" loading="lazy"><div class="lbl">blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_trajectory_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_trajectory_circles_2d.png" loading="lazy"><div class="lbl">circles 2d</div></div>
@@ -116,6 +144,13 @@
 <div class="section" id="mean-vs-k">
 <h2>Mean vs K (11)</h2>
 <p class="desc">X: K. Y: mean ERICA stat. Lines: methods.</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Mean stability curve</td></tr>
+  <tr><td>X axis</td><td>K</td></tr>
+  <tr><td>Y axis</td><td>mean ERICA statistic across all samples</td></tr>
+  <tr><td>Lines</td><td>one per method with markers</td></tr>
+  <tr><td>Y range</td><td>0.4 to 1.05</td></tr>
+</table></div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_mean_vs_k_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_mean_vs_k_blobs_2d.png" loading="lazy"><div class="lbl">blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_mean_vs_k_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_mean_vs_k_circles_2d.png" loading="lazy"><div class="lbl">circles 2d</div></div>
@@ -134,6 +169,13 @@
 <div class="section" id="per-cluster-vs-k">
 <h2>Per-Cluster vs K (11)</h2>
 <p class="desc">X: K. Y: mean ERICA stat. Lines: clusters.</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Per-cluster mean stability curve</td></tr>
+  <tr><td>X axis</td><td>K</td></tr>
+  <tr><td>Y axis</td><td>mean ERICA statistic for samples in that cluster</td></tr>
+  <tr><td>Lines</td><td>one per cluster (colored), K-Means only</td></tr>
+  <tr><td>Shows</td><td>which clusters maintain stability as K increases</td></tr>
+</table></div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_per_cluster_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_per_cluster_blobs_2d.png" loading="lazy"><div class="lbl">blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_per_cluster_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_per_cluster_circles_2d.png" loading="lazy"><div class="lbl">circles 2d</div></div>
@@ -152,6 +194,13 @@
 <div class="section" id="method-profiles">
 <h2>Method Profiles (11)</h2>
 <p class="desc">X: sample rank. Y: ERICA stat. Bar color: cluster. Panel: method.</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Ranked bar chart (3 panels stacked)</td></tr>
+  <tr><td>X axis</td><td>sample rank (most stable left)</td></tr>
+  <tr><td>Y axis</td><td>ERICA statistic</td></tr>
+  <tr><td>Bar color</td><td>primary cluster assignment</td></tr>
+  <tr><td>Panels</td><td>one per method, mean annotated in title</td></tr>
+</table></div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_profiles_blobs_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_profiles_blobs_2d.png" loading="lazy"><div class="lbl">blobs 2d</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_profiles_circles_2d.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_profiles_circles_2d.png" loading="lazy"><div class="lbl">circles 2d</div></div>
@@ -170,6 +219,11 @@
 <div class="section" id="cross-sigma">
 <h2>Cross-Sigma (2)</h2>
 <p class="desc">Comparison plots across sigma levels and VDX vs Gaussian.</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Distribution comparison</td></tr>
+  <tr><td>Sigma shift</td><td>4 panels, one per sigma level, ERICA stat at true K=4</td></tr>
+  <tr><td>VDX comparison</td><td>2 panels side-by-side (VDX K=3 vs Gaussian sigma=1.0 K=4)</td></tr>
+</table></div>
 <div class="grid">
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_sigma_shift.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_sigma_shift.png" loading="lazy"><div class="lbl">sigma shift</div></div>
   <div class="card" onclick="document.getElementById('lbi').src='figures/playground/erica_statistic/erica_stat_vdx_vs_gaussian.png';document.getElementById('lb').classList.add('active')"><img src="figures/playground/erica_statistic/erica_stat_vdx_vs_gaussian.png" loading="lazy"><div class="lbl">vdx vs gaussian</div></div>
