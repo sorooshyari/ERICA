@@ -1,12 +1,17 @@
 """
 02_coassignment_heatmap.py
 
-Compute and plot sample x sample co-assignment frequency matrices —
-the canonical "consensus matrix" from Monti et al. (2003).
+Compute and plot sample x sample co-assignment similarity matrices
+inspired by Monti et al. (2003).
 
-For each dataset and K, we approximate the Monti consensus matrix by
-L1-normalizing CLAM rows to proportions and computing the dot product:
+For each dataset and K, we compute an assignment-probability inner
+product from the CLAM matrix:
     coassign = clam_normed @ clam_normed.T  (n_samples x n_samples)
+
+NOTE: This is the inner product of L1-normalised assignment vectors,
+not the exact Monti consensus matrix (which conditions on pairwise
+co-occurrence within the same subsample).  The two converge for
+well-separated clusters.  See compute_coassignment() docstring.
 
 Rows/columns are reordered via hierarchical clustering to reveal
 block-diagonal structure, matching the Monti visual style.
@@ -54,19 +59,34 @@ METHOD = 'kmeans'
 # ---------------------------------------------------------------------------
 
 def compute_coassignment(clam_matrix):
-    """Compute the Monti-style co-assignment matrix from a CLAM matrix.
+    """Compute a co-assignment similarity matrix from a CLAM matrix.
+
+    This computes the inner product of L1-normalised assignment probability
+    vectors:  coassign[i, j] = sum_c  p(i, c) * p(j, c)
+
+    This is NOT identical to the Monti et al. (2003) consensus matrix,
+    which conditions on co-occurrence in the same subsample.  The Monti
+    matrix requires iteration-level co-occurrence tracking that is not
+    available from the aggregated CLAM matrix alone.  The inner-product
+    approximation is a related quantity that:
+
+      - IS symmetric and bounded in [0, 1].
+      - DOES reveal block-diagonal structure for stable clusterings.
+      - Has diagonal values < 1.0 for samples with uncertain assignments
+        (the true Monti diagonal is always 1.0).
+
+    For well-separated clusters the two matrices converge.
 
     Parameters
     ----------
     clam_matrix : np.ndarray, shape (n_samples, k)
-        Raw co-assignment count matrix from ERICA.
+        Raw cluster-assignment count matrix from ERICA.
 
     Returns
     -------
     coassign : np.ndarray, shape (n_samples, n_samples)
-        Symmetric matrix in [0, 1] where entry (i, j) approximates the
-        proportion of iterations in which samples i and j were assigned
-        to the same cluster.
+        Symmetric matrix in [0, 1] where entry (i, j) is the inner
+        product of the assignment probability vectors of samples i and j.
     """
     clam = np.array(clam_matrix, dtype=float)
     # L1-normalize rows to proportions (zero rows stay zero)
@@ -206,11 +226,11 @@ def plot_coassignment_panel(dataset_name, display_name, result_path, method=METH
     if im_last is not None:
         cax = fig.add_subplot(gs[0, n_panels])
         cbar = fig.colorbar(im_last, cax=cax)
-        cbar.set_label('Co-assignment\nfrequency', fontsize=8)
+        cbar.set_label('Co-assignment\nsimilarity', fontsize=8)
         cbar.ax.tick_params(labelsize=7)
 
     fig.suptitle(
-        f'Co-assignment matrix — {display_name} ({method})',
+        f'Co-assignment similarity — {display_name} ({method})',
         fontsize=13,
         y=0.97,
     )

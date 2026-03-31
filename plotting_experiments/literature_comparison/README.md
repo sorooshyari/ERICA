@@ -10,9 +10,9 @@ Adding the three figure types that every reviewer in this space expects to see b
 
 - **Error bands on metric curves** — Every serious stability paper shows uncertainty on metric-vs-K plots. We have 200 iterations of per-sample data. We just... weren't showing the variance. Embarrassing, like having a confidence interval and keeping it to yourself. (cf. Tibshirani et al. [3], Tibshirani & Walther [2])
 
-- **Sample x sample co-assignment heatmap** — The Monti consensus matrix. THE figure in clustering stability. "How often were samples i and j in the same cluster across iterations?" Reordered to show block-diagonal structure. If you've read a clustering paper in the last 20 years, you've seen this plot. ERICA computes the CLAM matrix (sample x cluster) but not the co-assignment matrix (sample x sample). One is the other's extroverted cousin. (Monti et al. [1], Fig. 2)
+- **Sample x sample co-assignment heatmap** — Inspired by the Monti consensus matrix (THE figure in clustering stability). We compute assignment-probability inner products from the CLAM matrix (i.e. `clam_normed @ clam_normed.T`), which approximate the Monti consensus for well-separated clusters but differ for uncertain assignments (diagonal < 1.0 when a sample splits across clusters). Reordered via hierarchical clustering to reveal block-diagonal structure. (Monti et al. [1], Fig. 2)
 
-- **PCA scatter colored by ERICA statistic** — For high-D datasets where we can't do spatial plots directly. Project to 2D via PCA, color each point by its ERICA statistic. Parmigiani does this with tSNE in their Figures 4 and 6. We'll do PCA because it's deterministic and doesn't require tuning perplexity (life's too short). (Masoero et al. [4], Figs. 4 & 6)
+- **PCA scatter colored by ERICA statistic** — For high-D datasets where we can't do spatial plots directly. Project to 2D via PCA, color each point by its ERICA statistic. Masoero et al. do this with tSNE in their Figures 4 and 6. We use PCA because it's deterministic and doesn't require tuning perplexity (life's too short). (Masoero et al. [4], Figs. 4 & 6)
 
 ## Datasets
 
@@ -25,9 +25,9 @@ Running on everything we have results for, but the key comparisons:
 
 | Script | What | Based on |
 |--------|------|----------|
-| `01_error_bands.py` | Metric curves with ±1 std shading | Parmigiani Fig 5, Gap Statistic |
+| `01_error_bands.py` | Metric curves with ±1 std shading | Masoero et al. Fig 5, Gap Statistic |
 | `02_coassignment_heatmap.py` | Sample x sample co-assignment matrix | Monti 2003 Fig 2 |
-| `03_pca_erica_scatter.py` | PCA projection colored by ERICA stat | Parmigiani Fig 4, 6 |
+| `03_pca_erica_scatter.py` | PCA projection colored by ERICA stat | Masoero et al. Fig 4, 6 |
 
 ## Outputs
 

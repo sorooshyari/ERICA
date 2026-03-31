@@ -6,10 +6,13 @@ of Parmigiani et al. (2023) and the Gap Statistic paper (Tibshirani et al. 2001)
 
 Two-panel layout per figure:
   Left  — ERICA metrics (CRI, WCRI, TWCRI) with shaded ±1 std bands.
-           Band for CRI is derived from the per-sample CRI distribution
-           (computed from the CLAM matrix).
+           Band width is the std of per-sample assignment consistency
+           (max proportion assigned to modal cluster) across all samples.
+           All three metrics share the same band width because the
+           underlying per-sample distribution is identical; only the
+           aggregate (mean) differs between CRI, WCRI, and TWCRI.
   Right — Parmigiani metrics (ARI, AMI) with shaded ±1 std bands computed
-           from per-iteration ARI/AMI values.
+           from per-iteration ARI/AMI values (iteration-level variance).
 
 K* is marked with a vertical dashed line per metric.
 
@@ -154,6 +157,13 @@ def plot_error_bands(er, dataset_name, method):
 
     # ------------------------------------------------------------------
     # Collect ERICA band data (mean ± std over samples from CLAM)
+    #
+    # NOTE: The band width (std) is derived from the per-sample
+    # assignment consistency distribution, which is the same for all
+    # three metrics (CRI, WCRI, TWCRI).  The MEAN values differ because
+    # each metric aggregates differently, but the underlying per-sample
+    # distribution is identical.  This is intentional: the band shows
+    # cross-sample variability in assignment stability.
     # ------------------------------------------------------------------
     erica_mean = {m: np.full(n_k, np.nan) for m in ERICA_METRICS}
     erica_std = {m: np.full(n_k, np.nan) for m in ERICA_METRICS}
