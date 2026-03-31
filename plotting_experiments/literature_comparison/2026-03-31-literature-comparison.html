@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERICA Literature Comparison</title>
+<style>
+  :root { --bg: #fafafa; --text: #1a1a2e; --muted: #555; --accent: #2d6a4f; --border: #ddd; --card-bg: #fff; --code-bg: #f4f4f4; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+  .masthead { max-width: 900px; margin: 0 auto; padding: 60px 40px 32px; }
+  .masthead h1 { font-size: 28px; font-weight: 400; letter-spacing: 1px; }
+  .masthead .subtitle { font-size: 15px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .masthead .meta { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  /* Sticky section nav */
+  .nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-top: 2px solid var(--text); border-bottom: 1px solid var(--border); max-width: 900px; margin: 0 auto; padding: 0; display: flex; flex-wrap: wrap; }
+  .nav a { padding: 10px 14px; font-size: 12px; text-decoration: none; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+  .nav a:hover, .nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 0 40px 60px; }
+
+  /* Figure groups */
+  .figure-group { margin: 40px 0; padding-top: 20px; border-top: 1px solid var(--border); }
+  .figure-group h2 { font-size: 20px; font-weight: 400; margin-bottom: 6px; }
+  .figure-group .section-intro { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+
+  /* Figure cards */
+  .figure { margin: 24px 0; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+  .figure:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .figure img { width: 100%; display: block; padding: 8px; background: #fff; }
+  .figure .caption { padding: 12px 16px; border-top: 1px solid var(--border); }
+  .figure .caption .fig-id { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .figure .caption .fig-title { font-size: 15px; font-weight: 600; margin: 3px 0 6px; }
+  .figure .caption .fig-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .figure-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .figure-pair .figure { margin: 0; }
+
+  /* Lightbox overlay */
+  .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; background: #fff; padding: 12px; box-shadow: 0 4px 40px rgba(0,0,0,0.5); }
+  .lightbox .lb-caption { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #ccc; font-size: 13px; text-align: center; max-width: 700px; }
+  .lightbox .lb-close { position: fixed; top: 20px; right: 24px; color: #aaa; font-size: 28px; cursor: pointer; }
+  .lightbox .lb-close:hover { color: #fff; }
+
+  /* References */
+  .references { font-size: 13px; color: var(--muted); }
+  .references ol { padding-left: 20px; }
+  .references li { margin: 6px 0; line-height: 1.6; }
+  .references a { color: var(--accent); }
+
+  footer { max-width: 900px; margin: 0 auto; padding: 32px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
+
+  @media (max-width: 700px) {
+    .masthead, .content, footer { padding-left: 16px; padding-right: 16px; }
+    .figure-pair { grid-template-columns: 1fr; }
+    .nav { padding: 0 8px; }
+    .nav a { padding: 8px 10px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>ERICA Literature Comparison</h1>
+  <div class="subtitle">Visualizations benchmarked against Tibshirani et al. (2001), Monti et al. (2003), and Masoero et al. (2023)</div>
+  <div class="meta">Internal working document for CMAC &mdash; Sorooshyari &amp; Shirazi, 2026-03-31</div>
+</div>
+
+<div class="nav" id="topnav">
+  <a href="#error-bands">Error Bands</a>
+  <a href="#coassignment">Assignment Similarity</a>
+  <a href="#pca-erica">PCA + ERICA Statistic</a>
+  <a href="#triptych">Triptych</a>
+  <a href="#method-compare">Method Comparison</a>
+  <a href="#references">References</a>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lb-close" onclick="closeLightbox()">&times;</span>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-caption" id="lb-caption"></div>
+</div>
+
+<div class="content">
+
+<p style="font-size: 14px; color: var(--muted); margin: 20px 0 24px;">
+  This gallery compares ERICA visualizations against figures from the clustering stability literature.
+  All analyses use ERICA v0.1.4 with B=200 MC iterations, 80/20 train-test split.
+  Datasets include VDX breast cancer (3-gene subset), Gaussian sigma sweeps, and 2D shape datasets.
+  Click any figure to enlarge.
+</p>
+
+<!-- ============================================================ -->
+<div class="figure-group" id="error-bands">
+<h2>Error Bands</h2>
+<p class="section-intro">
+  Metric-vs-K curves with &plusmn;1 std shaded confidence bands.
+  Left panel: ERICA metrics (per-sample std from CLAM). Right panel: ARI/AMI (per-iteration std).
+  Following Tibshirani et al. (2001) and Masoero et al. (2023).
+</p>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_vdx_3gene_kmeans.png','VDX 3-gene — K-Means')">
+    <img src="../figures/literature_comparison/error_bands_vdx_3gene_kmeans.png" alt="Error bands VDX 3-gene K-Means">
+    <div class="caption">
+      <div class="fig-id">EB-01</div>
+      <div class="fig-title">VDX 3-gene &mdash; K-Means</div>
+      <div class="fig-desc">Real breast cancer gene expression data (ESR1, ERBB2, AURKA).</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_vdx_3gene_agglomerative_ward.png','VDX 3-gene — Agglomerative Ward')">
+    <img src="../figures/literature_comparison/error_bands_vdx_3gene_agglomerative_ward.png" alt="Error bands VDX 3-gene Agglomerative Ward">
+    <div class="caption">
+      <div class="fig-id">EB-02</div>
+      <div class="fig-title">VDX 3-gene &mdash; Agglomerative Ward</div>
+      <div class="fig-desc">Same data, hierarchical clustering with Ward linkage.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma0p01_kmeans.png','Gaussian 4c σ=0.01 — K-Means')">
+    <img src="../figures/literature_comparison/error_bands_gauss4c_sigma0p01_kmeans.png" alt="Error bands Gaussian sigma=0.01 K-Means">
+    <div class="caption">
+      <div class="fig-id">EB-03</div>
+      <div class="fig-title">Gaussian 4c &sigma;=0.01 &mdash; K-Means</div>
+      <div class="fig-desc">Very tight clusters; replicability should saturate near 1.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma0p01_agglomerative_ward.png','Gaussian 4c σ=0.01 — Agglomerative Ward')">
+    <img src="../figures/literature_comparison/error_bands_gauss4c_sigma0p01_agglomerative_ward.png" alt="Error bands Gaussian sigma=0.01 Agglomerative Ward">
+    <div class="caption">
+      <div class="fig-id">EB-04</div>
+      <div class="fig-title">Gaussian 4c &sigma;=0.01 &mdash; Agglomerative Ward</div>
+      <div class="fig-desc">Hierarchical clustering on the same tight clusters.</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma0p1_kmeans.png','Gaussian 4c σ=0.1 — K-Means')">
+    <img src="../figures/literature_comparison/error_bands_gauss4c_sigma0p1_kmeans.png" alt="Error bands Gaussian sigma=0.1 K-Means">
+    <div class="caption">
+      <div class="fig-id">EB-05</div>
+      <div class="fig-title">Gaussian 4c &sigma;=0.1 &mdash; K-Means</div>
+      <div class="fig-desc">Moderate separation; clear peak at K=4.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma0p1_agglomerative_ward.png','Gaussian 4c σ=0.1 — Agglomerative Ward')">
+    <img src="../figures/literature_comparison/error_bands_gauss4c_sigma0p1_agglomerative_ward.png" alt="Error bands Gaussian sigma=0.1 Agglomerative Ward">
+    <div class="caption">
+      <div class="fig-id">EB-06</div>
+      <div class="fig-title">Gaussian 4c &sigma;=0.1 &mdash; Agglomerative Ward</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma1p0_kmeans.png','Gaussian 4c σ=1.0 — K-Means')">
+    <img src="../figures/literature_comparison/error_bands_gauss4c_sigma1p0_kmeans.png" alt="Error bands Gaussian sigma=1.0 K-Means">
+    <div class="caption">
+      <div class="fig-id">EB-07</div>
+      <div class="fig-title">Gaussian 4c &sigma;=1.0 &mdash; K-Means</div>
+      <div class="fig-desc">Overlapping clusters; K* selection becomes ambiguous.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma1p0_agglomerative_ward.png','Gaussian 4c σ=1.0 — Agglomerative Ward')">
+    <img src="../figures/literature_comparison/error_bands_gauss4c_sigma1p0_agglomerative_ward.png" alt="Error bands Gaussian sigma=1.0 Agglomerative Ward">
+    <div class="caption">
+      <div class="fig-id">EB-08</div>
+      <div class="fig-title">Gaussian 4c &sigma;=1.0 &mdash; Agglomerative Ward</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma10p0_kmeans.png','Gaussian 4c σ=10.0 — K-Means')">
+    <img src="../figures/literature_comparison/error_bands_gauss4c_sigma10p0_kmeans.png" alt="Error bands Gaussian sigma=10.0 K-Means">
+    <div class="caption">
+      <div class="fig-id">EB-09</div>
+      <div class="fig-title">Gaussian 4c &sigma;=10.0 &mdash; K-Means</div>
+      <div class="fig-desc">Heavily overlapping; near-null cluster structure.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_gauss4c_sigma10p0_agglomerative_ward.png','Gaussian 4c σ=10.0 — Agglomerative Ward')">
+    <img src="../figures/literature_comparison/error_bands_gauss4c_sigma10p0_agglomerative_ward.png" alt="Error bands Gaussian sigma=10.0 Agglomerative Ward">
+    <div class="caption">
+      <div class="fig-id">EB-10</div>
+      <div class="fig-title">Gaussian 4c &sigma;=10.0 &mdash; Agglomerative Ward</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_moons_2d_kmeans.png','Moons 2D — K-Means')">
+    <img src="../figures/literature_comparison/error_bands_moons_2d_kmeans.png" alt="Error bands Moons 2D K-Means">
+    <div class="caption">
+      <div class="fig-id">EB-11</div>
+      <div class="fig-title">Moons 2D &mdash; K-Means</div>
+      <div class="fig-desc">Non-convex clusters; K-Means intrinsically misspecified.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_moons_2d_agglomerative_ward.png','Moons 2D — Agglomerative Ward')">
+    <img src="../figures/literature_comparison/error_bands_moons_2d_agglomerative_ward.png" alt="Error bands Moons 2D Agglomerative Ward">
+    <div class="caption">
+      <div class="fig-id">EB-12</div>
+      <div class="fig-title">Moons 2D &mdash; Agglomerative Ward</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_blobs_2d_kmeans.png','Blobs 2D — K-Means')">
+    <img src="../figures/literature_comparison/error_bands_blobs_2d_kmeans.png" alt="Error bands Blobs 2D K-Means">
+    <div class="caption">
+      <div class="fig-id">EB-13</div>
+      <div class="fig-title">Blobs 2D &mdash; K-Means</div>
+      <div class="fig-desc">Well-separated 2D blobs (true K=3); K-Means should recover clean signal.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_blobs_2d_agglomerative_ward.png','Blobs 2D — Agglomerative Ward')">
+    <img src="../figures/literature_comparison/error_bands_blobs_2d_agglomerative_ward.png" alt="Error bands Blobs 2D Agglomerative Ward">
+    <div class="caption">
+      <div class="fig-id">EB-14</div>
+      <div class="fig-title">Blobs 2D &mdash; Agglomerative Ward</div>
+    </div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_well_separated_kmeans.png','Well-Separated — K-Means')">
+    <img src="../figures/literature_comparison/error_bands_well_separated_kmeans.png" alt="Error bands Well-Separated K-Means">
+    <div class="caption">
+      <div class="fig-id">EB-15</div>
+      <div class="fig-title">Well-Separated &mdash; K-Means</div>
+      <div class="fig-desc">make_blobs(centers=3, std=0.8) in 5D; tight, well-defined clusters.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('../figures/literature_comparison/error_bands_well_separated_agglomerative_ward.png','Well-Separated — Agglomerative Ward')">
+    <img src="../figures/literature_comparison/error_bands_well_separated_agglomerative_ward.png" alt="Error bands Well-Separated Agglomerative Ward">
+    <div class="caption">
+      <div class="fig-id">EB-16</div>
+      <div class="fig-title">Well-Separated &mdash; Agglomerative Ward</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /error-bands -->
+
+<!-- ============================================================ -->
+<div class="figure-group" id="coassignment">
+<h2>Assignment Similarity Matrices</h2>
+<p class="section-intro">
+  Sample &times; sample matrices showing assignment profile similarity.
+  Computed as the inner product of L1-normalized CLAM rows.
+  Reordered by hierarchical clustering to reveal block-diagonal structure.
+  Inspired by Monti et al. (2003) consensus matrices.
+  <br><br>
+  <em>Note:</em> This is the CLAM-derived co-assignment similarity (inner product of normalized
+  assignment vectors), not the Monti consensus matrix. The Monti matrix conditions on pairwise
+  co-occurrence in the same test subsample (diagonal = 1.0); our computation measures similarity
+  of assignment profiles (diagonal &lt; 1.0 for uncertain samples). Both reveal block-diagonal
+  structure for well-separated clusters.
+</p>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/coassignment_vdx_3gene_kmeans.png','Assignment Similarity — VDX 3-gene K-Means')">
+  <img src="../figures/literature_comparison/coassignment_vdx_3gene_kmeans.png" alt="Assignment Similarity VDX 3-gene">
+  <div class="caption">
+    <div class="fig-id">ASM-01</div>
+    <div class="fig-title">VDX 3-gene &mdash; K-Means</div>
+    <div class="fig-desc">Real breast cancer gene expression data. Three panels show K=K*-1, K*, K*+1.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/coassignment_gauss4c_sigma0p1_kmeans.png','Assignment Similarity — Gaussian 4c σ=0.1')">
+  <img src="../figures/literature_comparison/coassignment_gauss4c_sigma0p1_kmeans.png" alt="Assignment Similarity Gaussian sigma=0.1">
+  <div class="caption">
+    <div class="fig-id">ASM-02</div>
+    <div class="fig-title">Gaussian 4c &sigma;=0.1 &mdash; K-Means</div>
+    <div class="fig-desc">Moderate separation. Clear 4-block structure should be visible at K=4.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/coassignment_gauss4c_sigma1p0_kmeans.png','Assignment Similarity — Gaussian 4c σ=1.0')">
+  <img src="../figures/literature_comparison/coassignment_gauss4c_sigma1p0_kmeans.png" alt="Assignment Similarity Gaussian sigma=1.0">
+  <div class="caption">
+    <div class="fig-id">ASM-03</div>
+    <div class="fig-title">Gaussian 4c &sigma;=1.0 &mdash; K-Means</div>
+    <div class="fig-desc">Overlapping clusters. Block structure degrades; off-diagonal entries increase.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/coassignment_gauss4c_sigma10p0_kmeans.png','Assignment Similarity — Gaussian 4c σ=10.0')">
+  <img src="../figures/literature_comparison/coassignment_gauss4c_sigma10p0_kmeans.png" alt="Assignment Similarity Gaussian sigma=10.0">
+  <div class="caption">
+    <div class="fig-id">ASM-04</div>
+    <div class="fig-title">Gaussian 4c &sigma;=10.0 &mdash; K-Means</div>
+    <div class="fig-desc">Near-null structure. Matrix should appear nearly uniform.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/coassignment_moons_2d_kmeans.png','Assignment Similarity — Moons 2D')">
+  <img src="../figures/literature_comparison/coassignment_moons_2d_kmeans.png" alt="Assignment Similarity Moons 2D">
+  <div class="caption">
+    <div class="fig-id">ASM-05</div>
+    <div class="fig-title">Moons 2D &mdash; K-Means</div>
+    <div class="fig-desc">Non-convex clusters. K-Means assignment instability reflected in the matrix.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/coassignment_blobs_2d_kmeans.png','Assignment Similarity — Blobs 2D')">
+  <img src="../figures/literature_comparison/coassignment_blobs_2d_kmeans.png" alt="Assignment Similarity Blobs 2D">
+  <div class="caption">
+    <div class="fig-id">ASM-06</div>
+    <div class="fig-title">Blobs 2D &mdash; K-Means</div>
+    <div class="fig-desc">Well-separated 2D blobs. Sharp block-diagonal structure expected at K=3.</div>
+  </div>
+</div>
+
+</div><!-- /coassignment -->
+
+<!-- ============================================================ -->
+<div class="figure-group" id="pca-erica">
+<h2>PCA + ERICA Statistic</h2>
+<p class="section-intro">
+  High-dimensional data projected to 2D via PCA, colored by per-sample ERICA statistic
+  (green = stable, red = unstable). Following Masoero et al. (2023) Figs. 4, 6.
+</p>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_vdx_3gene.png','PCA + ERICA — VDX 3-gene')">
+  <img src="../figures/literature_comparison/pca_erica_vdx_3gene.png" alt="PCA ERICA VDX 3-gene">
+  <div class="caption">
+    <div class="fig-id">PE-01</div>
+    <div class="fig-title">VDX 3-gene</div>
+    <div class="fig-desc">Real breast cancer data. Boundary samples (between subtypes) show lower stability.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_gauss4c_sigma0p1.png','PCA + ERICA — Gaussian 4c σ=0.1')">
+  <img src="../figures/literature_comparison/pca_erica_gauss4c_sigma0p1.png" alt="PCA ERICA Gaussian sigma=0.1">
+  <div class="caption">
+    <div class="fig-id">PE-02</div>
+    <div class="fig-title">Gaussian 4c &sigma;=0.1</div>
+    <div class="fig-desc">Moderate separation. Cluster boundaries visible as unstable bands.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_gauss4c_sigma1p0.png','PCA + ERICA — Gaussian 4c σ=1.0')">
+  <img src="../figures/literature_comparison/pca_erica_gauss4c_sigma1p0.png" alt="PCA ERICA Gaussian sigma=1.0">
+  <div class="caption">
+    <div class="fig-id">PE-03</div>
+    <div class="fig-title">Gaussian 4c &sigma;=1.0</div>
+    <div class="fig-desc">Overlapping clusters. Instability spreads broadly across all samples.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_gauss4c_sigma10p0.png','PCA + ERICA — Gaussian 4c σ=10.0')">
+  <img src="../figures/literature_comparison/pca_erica_gauss4c_sigma10p0.png" alt="PCA ERICA Gaussian sigma=10.0">
+  <div class="caption">
+    <div class="fig-id">PE-04</div>
+    <div class="fig-title">Gaussian 4c &sigma;=10.0</div>
+    <div class="fig-desc">Near-null structure. Uniform instability across all samples.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_moons_2d.png','PCA + ERICA — Moons 2D')">
+  <img src="../figures/literature_comparison/pca_erica_moons_2d.png" alt="PCA ERICA Moons 2D">
+  <div class="caption">
+    <div class="fig-id">PE-05</div>
+    <div class="fig-title">Moons 2D</div>
+    <div class="fig-desc">Non-convex clusters. K-Means instability concentrated near the moon tips and crossing region.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_blobs_2d.png','PCA + ERICA — Blobs 2D')">
+  <img src="../figures/literature_comparison/pca_erica_blobs_2d.png" alt="PCA ERICA Blobs 2D">
+  <div class="caption">
+    <div class="fig-id">PE-06</div>
+    <div class="fig-title">Blobs 2D</div>
+    <div class="fig-desc">Well-separated blobs. Core samples highly stable; instability only at cluster edges.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_well_separated.png','PCA + ERICA — Well-Separated 5D')">
+  <img src="../figures/literature_comparison/pca_erica_well_separated.png" alt="PCA ERICA Well-Separated">
+  <div class="caption">
+    <div class="fig-id">PE-07</div>
+    <div class="fig-title">Well-Separated 5D</div>
+    <div class="fig-desc">make_blobs(centers=3, std=0.8, n_features=5). High stability throughout.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_overlapping.png','PCA + ERICA — Overlapping 5D')">
+  <img src="../figures/literature_comparison/pca_erica_overlapping.png" alt="PCA ERICA Overlapping">
+  <div class="caption">
+    <div class="fig-id">PE-08</div>
+    <div class="fig-title">Overlapping 5D</div>
+    <div class="fig-desc">make_blobs(centers=4, std=2.0, n_features=5). Low stability due to heavy overlap.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_erica_high_dim.png','PCA + ERICA — High-Dimensional 50D')">
+  <img src="../figures/literature_comparison/pca_erica_high_dim.png" alt="PCA ERICA High-Dim">
+  <div class="caption">
+    <div class="fig-id">PE-09</div>
+    <div class="fig-title">High-Dimensional 50D</div>
+    <div class="fig-desc">make_blobs(centers=3, n_features=50). PCA projection may lose structure; instability pattern reveals it.</div>
+  </div>
+</div>
+
+</div><!-- /pca-erica -->
+
+<!-- ============================================================ -->
+<div class="figure-group" id="triptych">
+<h2>Triptych</h2>
+<p class="section-intro">
+  Same PCA projection, three views: cluster assignment, ERICA statistic, entropy.
+  Provides a complete picture of how clustering stability relates to spatial structure.
+</p>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_triptych_vdx_3gene.png','Triptych — VDX 3-gene')">
+  <img src="../figures/literature_comparison/pca_triptych_vdx_3gene.png" alt="Triptych VDX 3-gene">
+  <div class="caption">
+    <div class="fig-id">TR-01</div>
+    <div class="fig-title">VDX 3-gene</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_triptych_gauss4c_sigma0p1.png','Triptych — Gaussian 4c σ=0.1')">
+  <img src="../figures/literature_comparison/pca_triptych_gauss4c_sigma0p1.png" alt="Triptych Gaussian sigma=0.1">
+  <div class="caption">
+    <div class="fig-id">TR-02</div>
+    <div class="fig-title">Gaussian 4c &sigma;=0.1</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_triptych_gauss4c_sigma1p0.png','Triptych — Gaussian 4c σ=1.0')">
+  <img src="../figures/literature_comparison/pca_triptych_gauss4c_sigma1p0.png" alt="Triptych Gaussian sigma=1.0">
+  <div class="caption">
+    <div class="fig-id">TR-03</div>
+    <div class="fig-title">Gaussian 4c &sigma;=1.0</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_triptych_gauss4c_sigma10p0.png','Triptych — Gaussian 4c σ=10.0')">
+  <img src="../figures/literature_comparison/pca_triptych_gauss4c_sigma10p0.png" alt="Triptych Gaussian sigma=10.0">
+  <div class="caption">
+    <div class="fig-id">TR-04</div>
+    <div class="fig-title">Gaussian 4c &sigma;=10.0</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_triptych_moons_2d.png','Triptych — Moons 2D')">
+  <img src="../figures/literature_comparison/pca_triptych_moons_2d.png" alt="Triptych Moons 2D">
+  <div class="caption">
+    <div class="fig-id">TR-05</div>
+    <div class="fig-title">Moons 2D</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_triptych_blobs_2d.png','Triptych — Blobs 2D')">
+  <img src="../figures/literature_comparison/pca_triptych_blobs_2d.png" alt="Triptych Blobs 2D">
+  <div class="caption">
+    <div class="fig-id">TR-06</div>
+    <div class="fig-title">Blobs 2D</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_triptych_well_separated.png','Triptych — Well-Separated 5D')">
+  <img src="../figures/literature_comparison/pca_triptych_well_separated.png" alt="Triptych Well-Separated">
+  <div class="caption">
+    <div class="fig-id">TR-07</div>
+    <div class="fig-title">Well-Separated 5D</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_triptych_overlapping.png','Triptych — Overlapping 5D')">
+  <img src="../figures/literature_comparison/pca_triptych_overlapping.png" alt="Triptych Overlapping">
+  <div class="caption">
+    <div class="fig-id">TR-08</div>
+    <div class="fig-title">Overlapping 5D</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_triptych_high_dim.png','Triptych — High-Dimensional 50D')">
+  <img src="../figures/literature_comparison/pca_triptych_high_dim.png" alt="Triptych High-Dim">
+  <div class="caption">
+    <div class="fig-id">TR-09</div>
+    <div class="fig-title">High-Dimensional 50D</div>
+  </div>
+</div>
+
+</div><!-- /triptych -->
+
+<!-- ============================================================ -->
+<div class="figure-group" id="method-compare">
+<h2>Method Comparison</h2>
+<p class="section-intro">
+  Same PCA projection, one panel per method. Shows where each method is uncertain,
+  enabling direct comparison of K-Means vs. Agglomerative clustering stability patterns.
+</p>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_vdx_3gene.png','Method Comparison — VDX 3-gene')">
+  <img src="../figures/literature_comparison/pca_method_compare_vdx_3gene.png" alt="Method Compare VDX 3-gene">
+  <div class="caption">
+    <div class="fig-id">MC-01</div>
+    <div class="fig-title">VDX 3-gene</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_gauss4c_sigma0p1.png','Method Comparison — Gaussian 4c σ=0.1')">
+  <img src="../figures/literature_comparison/pca_method_compare_gauss4c_sigma0p1.png" alt="Method Compare Gaussian sigma=0.1">
+  <div class="caption">
+    <div class="fig-id">MC-02</div>
+    <div class="fig-title">Gaussian 4c &sigma;=0.1</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_gauss4c_sigma1p0.png','Method Comparison — Gaussian 4c σ=1.0')">
+  <img src="../figures/literature_comparison/pca_method_compare_gauss4c_sigma1p0.png" alt="Method Compare Gaussian sigma=1.0">
+  <div class="caption">
+    <div class="fig-id">MC-03</div>
+    <div class="fig-title">Gaussian 4c &sigma;=1.0</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_gauss4c_sigma10p0.png','Method Comparison — Gaussian 4c σ=10.0')">
+  <img src="../figures/literature_comparison/pca_method_compare_gauss4c_sigma10p0.png" alt="Method Compare Gaussian sigma=10.0">
+  <div class="caption">
+    <div class="fig-id">MC-04</div>
+    <div class="fig-title">Gaussian 4c &sigma;=10.0</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_moons_2d.png','Method Comparison — Moons 2D')">
+  <img src="../figures/literature_comparison/pca_method_compare_moons_2d.png" alt="Method Compare Moons 2D">
+  <div class="caption">
+    <div class="fig-id">MC-05</div>
+    <div class="fig-title">Moons 2D</div>
+    <div class="fig-desc">Both methods struggle with non-convex geometry; Ward may be more consistent.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_blobs_2d.png','Method Comparison — Blobs 2D')">
+  <img src="../figures/literature_comparison/pca_method_compare_blobs_2d.png" alt="Method Compare Blobs 2D">
+  <div class="caption">
+    <div class="fig-id">MC-06</div>
+    <div class="fig-title">Blobs 2D</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_well_separated.png','Method Comparison — Well-Separated 5D')">
+  <img src="../figures/literature_comparison/pca_method_compare_well_separated.png" alt="Method Compare Well-Separated">
+  <div class="caption">
+    <div class="fig-id">MC-07</div>
+    <div class="fig-title">Well-Separated 5D</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_overlapping.png','Method Comparison — Overlapping 5D')">
+  <img src="../figures/literature_comparison/pca_method_compare_overlapping.png" alt="Method Compare Overlapping">
+  <div class="caption">
+    <div class="fig-id">MC-08</div>
+    <div class="fig-title">Overlapping 5D</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('../figures/literature_comparison/pca_method_compare_high_dim.png','Method Comparison — High-Dimensional 50D')">
+  <img src="../figures/literature_comparison/pca_method_compare_high_dim.png" alt="Method Compare High-Dim">
+  <div class="caption">
+    <div class="fig-id">MC-09</div>
+    <div class="fig-title">High-Dimensional 50D</div>
+  </div>
+</div>
+
+</div><!-- /method-compare -->
+
+<!-- ============================================================ -->
+<div class="figure-group" id="references">
+<h2>References</h2>
+<div class="references">
+<ol>
+  <li>
+    Tibshirani, R., Walther, G., &amp; Hastie, T. (2001). Estimating the number of clusters in a data set via the gap statistic.
+    <em>Journal of the Royal Statistical Society: Series B</em>, 63(2), 411&ndash;423.
+  </li>
+  <li>
+    Monti, S., Tamayo, P., Mesirov, J., &amp; Golub, T. (2003). Consensus clustering: A resampling-based method for class discovery and visualization of gene expression microarray data.
+    <em>Machine Learning</em>, 52(1&ndash;2), 91&ndash;118.
+  </li>
+  <li>
+    Masoero, L., Camerlenghi, F., Favaro, S., Broderick, T., &amp; Parmigiani, G. (2023). Cross-study replicability in cluster analysis.
+    <em>Statistical Science</em>, 38(2), 303&ndash;316.
+    <a href="https://arxiv.org/pdf/2202.01910.pdf" target="_blank">arXiv:2202.01910</a>
+  </li>
+  <li>
+    Fr&auml;nti, P., &amp; Sieranoja, S. (2018). K-means properties on six clustering benchmark datasets.
+    <em>Applied Intelligence</em>, 48(12), 4743&ndash;4759.
+  </li>
+  <li>
+    Source code and reference data: <a href="https://github.com/lorenzomasoero/clustering_replicability" target="_blank">github.com/lorenzomasoero/clustering_replicability</a>
+  </li>
+</ol>
+</div>
+</div><!-- /references -->
+
+</div><!-- /content -->
+
+<footer>
+  ERICA Literature Comparison &mdash; CMAC, 2026 &mdash; Internal working document
+</footer>
+
+<!-- Lightbox JS -->
+<script>
+function openLightbox(src, caption) {
+  document.getElementById('lb-img').src = src;
+  document.getElementById('lb-caption').textContent = caption;
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.getElementById('lb-img').src = '';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+});
+</script>
+
+</body>
+</html>

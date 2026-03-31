@@ -1,6 +1,6 @@
 # Literature Comparison Experiment
 
-*2026-03-31 — Making ERICA's plots look like they went to the same school as Monti, Tibshirani, and Parmigiani*
+*2026-03-31 — Making ERICA's plots look like they went to the same school as Monti, Tibshirani, and Masoero*
 
 ## What We're Doing
 

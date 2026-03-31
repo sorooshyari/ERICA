@@ -1,17 +1,18 @@
 """
 02_coassignment_heatmap.py
 
-Compute and plot sample x sample co-assignment similarity matrices
+Compute and plot sample x sample CLAM-derived assignment similarity matrices
 inspired by Monti et al. (2003).
 
 For each dataset and K, we compute an assignment-probability inner
 product from the CLAM matrix:
     coassign = clam_normed @ clam_normed.T  (n_samples x n_samples)
 
-NOTE: This is the inner product of L1-normalised assignment vectors,
-not the exact Monti consensus matrix (which conditions on pairwise
-co-occurrence within the same subsample).  The two converge for
-well-separated clusters.  See compute_coassignment() docstring.
+# NOTE: This is the inner product of L1-normalized CLAM rows, which approximates
+# but is not identical to the Monti (2003) consensus matrix. The Monti matrix
+# conditions on pairwise co-occurrence in the same test subsample (diagonal = 1.0).
+# Our computation measures similarity of assignment profiles (diagonal < 1.0 for
+# uncertain samples). Both reveal block-diagonal structure for well-separated clusters.
 
 Rows/columns are reordered via hierarchical clustering to reveal
 block-diagonal structure, matching the Monti visual style.
@@ -230,7 +231,7 @@ def plot_coassignment_panel(dataset_name, display_name, result_path, method=METH
         cbar.ax.tick_params(labelsize=7)
 
     fig.suptitle(
-        f'Co-assignment similarity — {display_name} ({method})',
+        f'Assignment Similarity Matrix — {display_name} ({method})',
         fontsize=13,
         y=0.97,
     )
