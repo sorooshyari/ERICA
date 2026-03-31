@@ -56,6 +56,11 @@
 
   footer { max-width: 900px; margin: 0 auto; padding: 32px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
 
+  .placard { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; margin-top: 8px; background: #f8f8f8; border-left: 3px solid var(--accent); padding: 8px 10px; }
+  .placard table { border-collapse: collapse; width: 100%; }
+  .placard td { padding: 2px 8px; vertical-align: top; border-bottom: 1px solid #eee; }
+  .placard td:first-child { color: var(--accent); font-weight: 600; white-space: nowrap; width: 100px; }
+
   @media (max-width: 700px) {
     .masthead, .content, footer { padding-left: 16px; padding-right: 16px; }
     .figure-pair { grid-template-columns: 1fr; }
@@ -631,6 +636,17 @@
       <div class="fig-title">Sorted CLAM &mdash; VDX, K-Means, K=3</div>
       <div class="fig-desc">344 samples, 3 genes (ESR1, ERBB2, AURKA) from Parmigiani et al. Sorted by primary cluster then confidence. Viridis colormap, assignment counts 0 to B.</div>
       <div class="fig-method">clam_matrices[(3, 'kmeans')]</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Sorted CLAM heatmap</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+        <tr><td>Parameters</td><td>K=3, B=200 iterations, 80/20 train-test split</td></tr>
+        <tr><td>X-axis</td><td>Cluster index (0, 1, 2)</td></tr>
+        <tr><td>Y-axis</td><td>Samples sorted by argmax(row), then by max(row)/sum(row) descending</td></tr>
+        <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200)</td></tr>
+        <tr><td>Computation</td><td>CLAM[i,j] = # times sample i assigned to cluster j across B subsample iterations. Rows reordered so each cluster's most confident members appear as a contiguous block.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(3, 'kmeans')]</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -639,6 +655,17 @@
       <div class="fig-id">Figure 1b</div>
       <div class="fig-title">Unsorted CLAM &mdash; VDX, K-Means, K=3</div>
       <div class="fig-desc">Same data, original sample order. Block structure obscured without sorting.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Unsorted CLAM heatmap</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+        <tr><td>Parameters</td><td>K=3, B=200 iterations, 80/20 train-test split</td></tr>
+        <tr><td>X-axis</td><td>Cluster index (0, 1, 2)</td></tr>
+        <tr><td>Y-axis</td><td>Samples in original dataset order (no sorting applied)</td></tr>
+        <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200)</td></tr>
+        <tr><td>Computation</td><td>CLAM[i,j] = # times sample i assigned to cluster j across B iterations. No reordering; compare with Fig. 1a to see sorting benefit.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(3, 'kmeans')]</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -649,6 +676,17 @@
     <div class="fig-id">Figure 1c</div>
     <div class="fig-title">CLAM across K=2, 3, 4 &mdash; VDX, K-Means</div>
     <div class="fig-desc">Progression of sorted CLAM heatmaps as K increases. Shows how existing clusters subdivide and where off-diagonal assignments appear.</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>Sorted CLAM heatmap multi-panel (K progression)</td></tr>
+      <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+      <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+      <tr><td>Parameters</td><td>K=2, 3, 4 (three panels); B=200 iterations, 80/20 split</td></tr>
+      <tr><td>X-axis</td><td>Cluster index (0..K-1) per panel</td></tr>
+      <tr><td>Y-axis</td><td>Samples sorted by primary cluster then confidence within each K</td></tr>
+      <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200, shared scale)</td></tr>
+      <tr><td>Computation</td><td>Three independent CLAM matrices, one per K value. Row sorting applied independently to each panel.</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, 'kmeans')] for k in [2, 3, 4]</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -659,6 +697,18 @@
     <div class="fig-title">HDBSCAN CLAM &mdash; VDX, modal K=2 <sup style="color:#c44;font-size:10px;">*experimental</sup></div>
     <div class="fig-desc">CLAM from iterations where HDBSCAN discovered K=2. Noise points reassigned to nearest centroid. Shape: (344, 2). <em>Note: HDBSCAN integration is under validation.</em></div>
     <div class="fig-method">get_auto_k_results('hdbscan')['clam_matrix']</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>Sorted CLAM heatmap (HDBSCAN, auto-K)</td></tr>
+      <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+      <tr><td>Method</td><td>HDBSCAN (min_cluster_size=15, min_samples=5)</td></tr>
+      <tr><td>Parameters</td><td>Modal K=2, B=200 iterations, 80/20 split</td></tr>
+      <tr><td>X-axis</td><td>Cluster index (0, 1) — modal K from HDBSCAN output</td></tr>
+      <tr><td>Y-axis</td><td>Samples sorted by primary cluster then confidence</td></tr>
+      <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200)</td></tr>
+      <tr><td>Computation</td><td>CLAM accumulated only for iterations where HDBSCAN returned K=2. Noise points reassigned to nearest cluster centroid before tallying.</td></tr>
+      <tr><td>ERICA call</td><td>get_auto_k_results('hdbscan')['clam_matrix']</td></tr>
+    </table></div>
+    <p style="font-size:11px;color:#c44;margin-top:6px;">Note: HDBSCAN integration is experimental and under validation.</p>
   </div>
 </div>
 </div>
@@ -675,6 +725,17 @@
       <div class="fig-id">Figure 2a</div>
       <div class="fig-title">Stability Strips &mdash; VDX, K-Means, K=3</div>
       <div class="fig-desc">VDX dataset, 344 samples. Colors represent cluster assignment proportions per sample.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Entropy-sorted stacked bar chart (stability strip)</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+        <tr><td>Parameters</td><td>K=3, B=200 iterations, 80/20 split; subsampled to 100 for display</td></tr>
+        <tr><td>X-axis</td><td>Proportion of assignments to each cluster (0 to 1, sums to 1 per bar)</td></tr>
+        <tr><td>Y-axis</td><td>Individual samples sorted ascending by Shannon entropy H = −∑p·log₂(p)</td></tr>
+        <tr><td>Color</td><td>Cluster identity (qualitative palette, K=3 colors)</td></tr>
+        <tr><td>Computation</td><td>CLAM rows normalized to proportions p_ij = CLAM[i,j]/B. Shannon entropy computed per row. Samples sorted ascending so most stable (H≈0) appear at top.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(3, 'kmeans')] / 200</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -683,6 +744,17 @@
       <div class="fig-id">Figure 2b</div>
       <div class="fig-title">Stability Strips &mdash; VDX, Ward, K=3</div>
       <div class="fig-desc">Same dataset, Agglomerative Ward linkage. Compare boundary sample distributions with Figure 2a.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Entropy-sorted stacked bar chart (stability strip)</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>Agglomerative Clustering (Ward linkage, Euclidean)</td></tr>
+        <tr><td>Parameters</td><td>K=3, B=200 iterations, 80/20 split; subsampled to 100 for display</td></tr>
+        <tr><td>X-axis</td><td>Proportion of assignments to each cluster (0 to 1)</td></tr>
+        <tr><td>Y-axis</td><td>Individual samples sorted ascending by Shannon entropy H = −∑p·log₂(p)</td></tr>
+        <tr><td>Color</td><td>Cluster identity (qualitative palette, K=3 colors)</td></tr>
+        <tr><td>Computation</td><td>CLAM rows normalized to proportions. Entropy computed per row and used for sort order. Boundary samples (high entropy, mixed bars) appear at bottom.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(3, 'agglomerative_ward')] / 200</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -700,6 +772,17 @@
     <div class="fig-title">Metrics vs K &mdash; VDX, K-Means</div>
     <div class="fig-desc">VDX 3-gene dataset. ERICA metrics (left) and Parmigiani ARI/AMI (right) for K=2..6.</div>
     <div class="fig-method">metrics[k]['kmeans'] &mdash; k_star['TWCRI']['kmeans']</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>Stability profile with K* annotation (dual-panel)</td></tr>
+      <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+      <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+      <tr><td>Parameters</td><td>K=2..6, B=200 iterations, 80/20 split</td></tr>
+      <tr><td>X-axis</td><td>K (number of clusters), both panels</td></tr>
+      <tr><td>Y-axis (L)</td><td>CRI, WCRI, TWCRI values (0–1); K* marked with vertical dashed line</td></tr>
+      <tr><td>Y-axis (R)</td><td>ARI and AMI mean ± std across B iterations (Parmigiani metrics)</td></tr>
+      <tr><td>Computation</td><td>CRI = mean pairwise cosine similarity of CLAM rows. WCRI = cluster-size-weighted CRI. TWCRI = test-weighted WCRI. ARI/AMI computed per iteration then averaged. K* = first K where TWCRI is non-decreasing (Algorithm 2).</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['metrics'] ; get_results()['k_star']['TWCRI']['kmeans']</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -710,6 +793,17 @@
       <div class="fig-id">Figure 3b</div>
       <div class="fig-title">Metrics &mdash; Well-separated, K-Means</div>
       <div class="fig-desc">300 samples, 5D, 3 true clusters (std=0.8). K=4,5 disqualified (empty clusters).</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Stability profile with K* annotation (dual-panel)</td></tr>
+        <tr><td>Dataset</td><td>well_separated — 300 samples, 5 features (make_blobs, centers=3, std=0.8)</td></tr>
+        <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6, B=200 iterations, 80/20 split; K=4,5 disqualified (empty clusters → NaN)</td></tr>
+        <tr><td>X-axis</td><td>K (number of clusters)</td></tr>
+        <tr><td>Y-axis (L)</td><td>CRI, WCRI, TWCRI (0–1); disqualified K marked with ×</td></tr>
+        <tr><td>Y-axis (R)</td><td>ARI and AMI mean ± std across B iterations</td></tr>
+        <tr><td>Computation</td><td>Same as Fig. 3a. Disqualified K values (any empty cluster produced) set to NaN and excluded from K* selection. Literature standard: Tibshirani 2001, Masoero et al. 2023.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['metrics'] ; get_disqualified_k()</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -718,6 +812,17 @@
       <div class="fig-id">Figure 3c</div>
       <div class="fig-title">Metrics &mdash; Overlapping, K-Means</div>
       <div class="fig-desc">300 samples, 5D, 4 true clusters (std=2.0). Higher variance in ARI at true K.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Stability profile with K* annotation (dual-panel)</td></tr>
+        <tr><td>Dataset</td><td>overlapping — 300 samples, 5 features (make_blobs, centers=4, std=2.0)</td></tr>
+        <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6, B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>K (number of clusters)</td></tr>
+        <tr><td>Y-axis (L)</td><td>CRI, WCRI, TWCRI (0–1)</td></tr>
+        <tr><td>Y-axis (R)</td><td>ARI and AMI mean ± std across B iterations; higher variance at true K due to overlapping boundaries</td></tr>
+        <tr><td>Computation</td><td>Same as Fig. 3a. Overlapping geometry (std=2.0) produces wider ARI/AMI confidence bands at the true K compared to well-separated data.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['metrics'] ; get_results()['k_star']</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -735,6 +840,17 @@
       <div class="fig-id">Figure 4a</div>
       <div class="fig-title">Method Comparison &mdash; VDX</div>
       <div class="fig-desc">K-Means (orange), Ward (blue), HDBSCAN (star) across CRI, WCRI, TWCRI.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Multi-method metric overlay (line + marker)</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, HDBSCAN (experimental)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 for K-based methods; modal K for HDBSCAN; B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>K (number of clusters); HDBSCAN plotted as star at its modal K</td></tr>
+        <tr><td>Y-axis</td><td>ERICA metric value (CRI, WCRI, or TWCRI panel; 0–1)</td></tr>
+        <tr><td>Color</td><td>Method identity (orange=K-Means, blue=Ward, star=HDBSCAN)</td></tr>
+        <tr><td>Computation</td><td>CRI/WCRI/TWCRI computed per (K, method) pair. K* per method shown as vertical line in respective color.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['metrics'] for each method key</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -743,6 +859,17 @@
       <div class="fig-id">Figure 4b</div>
       <div class="fig-title">K* Selection &mdash; VDX</div>
       <div class="fig-desc">Grouped bar chart of optimal K* per method per ERICA metric.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K* grouped bar chart</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single, HDBSCAN (experimental)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 sweep; B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>ERICA metric (CRI, WCRI, TWCRI) grouped by method</td></tr>
+        <tr><td>Y-axis</td><td>K* value (optimal number of clusters selected by Algorithm 2)</td></tr>
+        <tr><td>Color</td><td>Method identity (grouped bar fill color per method)</td></tr>
+        <tr><td>Computation</td><td>K* = smallest K where the metric is non-decreasing over the remaining tested K values. Disqualified K values (NaN) excluded from selection.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['k_star']</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -754,6 +881,17 @@
       <div class="fig-id">Figure 4c</div>
       <div class="fig-title">Method Comparison &mdash; Well-separated</div>
       <div class="fig-desc">300 samples, 5D, true K=3.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Multi-method metric overlay (line + marker)</td></tr>
+        <tr><td>Dataset</td><td>well_separated — 300 samples, 5 features (make_blobs, centers=3, std=0.8)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single</td></tr>
+        <tr><td>Parameters</td><td>K=2..6, B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>K (number of clusters, 2..6)</td></tr>
+        <tr><td>Y-axis</td><td>TWCRI value (0–1); K* per method shown as vertical line</td></tr>
+        <tr><td>Color</td><td>Method identity</td></tr>
+        <tr><td>Computation</td><td>TWCRI computed per (K, method). With well-separated data all methods agree K*=3=true K.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['metrics'] for each method key</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -762,6 +900,17 @@
       <div class="fig-id">Figure 4d</div>
       <div class="fig-title">Method Comparison &mdash; Overlapping</div>
       <div class="fig-desc">300 samples, 5D, true K=4.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Multi-method metric overlay (line + marker)</td></tr>
+        <tr><td>Dataset</td><td>overlapping — 300 samples, 5 features (make_blobs, centers=4, std=2.0)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single</td></tr>
+        <tr><td>Parameters</td><td>K=2..6, B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>K (number of clusters, 2..6)</td></tr>
+        <tr><td>Y-axis</td><td>TWCRI value (0–1); K* per method shown as vertical line</td></tr>
+        <tr><td>Color</td><td>Method identity</td></tr>
+        <tr><td>Computation</td><td>TWCRI computed per (K, method). Overlapping geometry (std=2.0) causes method disagreement on K*; metric curves are less decisive.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['metrics'] for each method key</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -778,6 +927,18 @@
     <div class="fig-id">Figure 5a</div>
     <div class="fig-title">Method Comparison at K=2 &mdash; Two Moons</div>
     <div class="fig-desc">300 samples from make_moons(noise=0.05). K-Means, Ward, and HDBSCAN assignments side by side. Point size scales with CLAM confidence.</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>Cluster assignment scatter — method comparison panel</td></tr>
+      <tr><td>Dataset</td><td>moons_2d — 300 samples, 2 features (make_moons, noise=0.05)</td></tr>
+      <tr><td>Method</td><td>K-Means, Agglomerative Ward, HDBSCAN (side-by-side panels)</td></tr>
+      <tr><td>Parameters</td><td>K=2, B=200 iterations, 80/20 split</td></tr>
+      <tr><td>X-axis</td><td>Feature 1 (dim 0)</td></tr>
+      <tr><td>Y-axis</td><td>Feature 2 (dim 1)</td></tr>
+      <tr><td>Color</td><td>Primary cluster assignment argmax(CLAM[i,:]) — qualitative palette</td></tr>
+      <tr><td>Point size</td><td>CLAM confidence = max(CLAM[i,:])/B; larger = more stable assignment</td></tr>
+      <tr><td>Computation</td><td>Primary cluster from argmax of normalized CLAM row. Confidence from max proportion. Point area scales linearly with confidence.</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(2, method)] for each method</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -788,6 +949,18 @@
       <div class="fig-id">Figure 5b</div>
       <div class="fig-title">K-Means at K*=4 &mdash; Moons</div>
       <div class="fig-desc">K-Means' selected K*. Each crescent bisected into two segments.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Cluster assignment scatter at K*</td></tr>
+        <tr><td>Dataset</td><td>moons_2d — 300 samples, 2 features (make_moons, noise=0.05)</td></tr>
+        <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+        <tr><td>Parameters</td><td>K=K*=4 (TWCRI-selected), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>Feature 1 (dim 0)</td></tr>
+        <tr><td>Y-axis</td><td>Feature 2 (dim 1)</td></tr>
+        <tr><td>Color</td><td>Primary cluster assignment (qualitative palette, K=4 colors)</td></tr>
+        <tr><td>Point size</td><td>CLAM confidence = max(CLAM[i,:])/B</td></tr>
+        <tr><td>Computation</td><td>K-Means cannot recover the crescent geometry; at K*=4 each moon is bisected into two roughly equal halves.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(4, 'kmeans')]</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -796,6 +969,17 @@
       <div class="fig-id">Figure 5c</div>
       <div class="fig-title">Confidence Map &mdash; Moons, K-Means, K=2</div>
       <div class="fig-desc">Green = high confidence, red = low confidence. Boundary region between moons shows lowest stability.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Confidence map scatter (continuous color scale)</td></tr>
+        <tr><td>Dataset</td><td>moons_2d — 300 samples, 2 features (make_moons, noise=0.05)</td></tr>
+        <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+        <tr><td>Parameters</td><td>K=2, B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>Feature 1 (dim 0)</td></tr>
+        <tr><td>Y-axis</td><td>Feature 2 (dim 1)</td></tr>
+        <tr><td>Color</td><td>CLAM confidence = max(CLAM[i,:])/B (RdYlGn: red=low, green=high)</td></tr>
+        <tr><td>Computation</td><td>Per-sample confidence derived from max proportion in normalized CLAM row. Boundary zone between moons has low confidence (≈0.5) due to inconsistent assignments.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(2, 'kmeans')] / 200</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -806,6 +990,18 @@
     <div class="fig-id">Figure 5d</div>
     <div class="fig-title">Method Comparison at K=2 &mdash; Concentric Circles</div>
     <div class="fig-desc">300 samples from make_circles(noise=0.05, factor=0.5). All methods produce spatial bisections rather than radial separations.</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>Cluster assignment scatter — method comparison panel</td></tr>
+      <tr><td>Dataset</td><td>circles_2d — 300 samples, 2 features (make_circles, noise=0.05, factor=0.5)</td></tr>
+      <tr><td>Method</td><td>K-Means, Agglomerative Ward, HDBSCAN (side-by-side panels)</td></tr>
+      <tr><td>Parameters</td><td>K=2, B=200 iterations, 80/20 split</td></tr>
+      <tr><td>X-axis</td><td>Feature 1 (dim 0)</td></tr>
+      <tr><td>Y-axis</td><td>Feature 2 (dim 1)</td></tr>
+      <tr><td>Color</td><td>Primary cluster assignment — qualitative palette</td></tr>
+      <tr><td>Point size</td><td>CLAM confidence = max(CLAM[i,:])/B</td></tr>
+      <tr><td>Computation</td><td>None of the tested methods can recover the radial circle geometry; all produce linear (spatial) bisections of the plane instead.</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(2, method)] for each method</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -815,6 +1011,18 @@
     <div class="fig-id">Figure 5e</div>
     <div class="fig-title">Method Comparison at K=3 &mdash; 2D Blobs</div>
     <div class="fig-desc">300 samples from make_blobs(centers=3, std=0.5). All methods produce identical assignments at the true K.</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>Cluster assignment scatter — method comparison panel</td></tr>
+      <tr><td>Dataset</td><td>blobs_2d — 300 samples, 2 features (make_blobs, centers=3, std=0.5)</td></tr>
+      <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (side-by-side panels)</td></tr>
+      <tr><td>Parameters</td><td>K=3=true K, B=200 iterations, 80/20 split</td></tr>
+      <tr><td>X-axis</td><td>Feature 1 (dim 0)</td></tr>
+      <tr><td>Y-axis</td><td>Feature 2 (dim 1)</td></tr>
+      <tr><td>Color</td><td>Primary cluster assignment — qualitative palette</td></tr>
+      <tr><td>Point size</td><td>CLAM confidence = max(CLAM[i,:])/B; near-maximum for all points</td></tr>
+      <tr><td>Computation</td><td>Well-separated blobs (std=0.5) yield CRI≈1.0 and identical assignments across all methods; all three panels are nearly equivalent.</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(3, method)] for each method</td></tr>
+    </table></div>
   </div>
 </div>
 </div>
@@ -830,6 +1038,17 @@
     <div class="fig-id">Figure 6a</div>
     <div class="fig-title">K Progression &mdash; Two Moons (true K=2)</div>
     <div class="fig-desc">make_moons, 300 samples, noise=0.05. Three methods &times; K=2..6.</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>K-value progression grid (scatter panels)</td></tr>
+      <tr><td>Dataset</td><td>moons_2d — 300 samples, 2 features (make_moons, noise=0.05)</td></tr>
+      <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+      <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+      <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+      <tr><td>Color</td><td>Primary cluster assignment (qualitative palette per K)</td></tr>
+      <tr><td>Point size</td><td>CLAM confidence = max(CLAM[i,:])/B</td></tr>
+      <tr><td>Computation</td><td>15 independent CLAM matrices. K* computed via TWCRI Algorithm 2 and highlighted with orange border.</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -839,6 +1058,17 @@
     <div class="fig-id">Figure 6b</div>
     <div class="fig-title">K Progression &mdash; Concentric Circles (true K=2)</div>
     <div class="fig-desc">make_circles, 300 samples, noise=0.05, factor=0.5.</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>K-value progression grid (scatter panels)</td></tr>
+      <tr><td>Dataset</td><td>circles_2d — 300 samples, 2 features (make_circles, noise=0.05, factor=0.5)</td></tr>
+      <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+      <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+      <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+      <tr><td>Color</td><td>Primary cluster assignment (qualitative palette per K)</td></tr>
+      <tr><td>Point size</td><td>CLAM confidence = max(CLAM[i,:])/B</td></tr>
+      <tr><td>Computation</td><td>15 CLAM matrices. Concentric circles violate convexity assumption; no method recovers radial separation at any K.</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -848,6 +1078,16 @@
     <div class="fig-id">Figure 6c</div>
     <div class="fig-title">K Progression &mdash; VDX Breast Cancer (true K unknown)</div>
     <div class="fig-desc">Parmigiani VDX 3-gene subset, 344 samples. Sorted CLAM heatmaps.</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>K-value progression grid (sorted CLAM heatmaps)</td></tr>
+      <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+      <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+      <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+      <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+      <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200) per panel</td></tr>
+      <tr><td>Computation</td><td>CLAM heatmaps used (not scatter) as n_features=3 > 2. Each panel sorted by argmax row then confidence. True K unknown for this real dataset.</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -858,6 +1098,17 @@
       <div class="fig-id">Figure 6d</div>
       <div class="fig-title">Anisotropic GMM (true K=3)</div>
       <div class="fig-desc">450 samples, 2D. Elongated ellipses at different orientations.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K-value progression grid (scatter panels)</td></tr>
+        <tr><td>Dataset</td><td>gmm_anisotropic — 450 samples, 2 features (3 elongated Gaussians, varied orientations)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+        <tr><td>Color</td><td>Primary cluster assignment (qualitative palette per K)</td></tr>
+        <tr><td>Point size</td><td>CLAM confidence = max(CLAM[i,:])/B</td></tr>
+        <tr><td>Computation</td><td>Anisotropic geometry (elongated ellipses) challenges K-Means; Ward linkage typically recovers the true K=3 better.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -866,6 +1117,17 @@
       <div class="fig-id">Figure 6e</div>
       <div class="fig-title">Five-Cluster GMM (true K=5)</div>
       <div class="fig-desc">400 samples, 2D. Five Gaussians with varied covariances.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K-value progression grid (scatter panels)</td></tr>
+        <tr><td>Dataset</td><td>gmm_five_clusters — 400 samples, 2 features (5 Gaussians with varied covariances)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+        <tr><td>Color</td><td>Primary cluster assignment (qualitative palette per K)</td></tr>
+        <tr><td>Point size</td><td>CLAM confidence = max(CLAM[i,:])/B</td></tr>
+        <tr><td>Computation</td><td>Five distinct clusters with varied covariances. K*=5 column should show cleanest block structure in CLAM if method recovers true structure.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -877,6 +1139,16 @@
       <div class="fig-id">Figure 6f</div>
       <div class="fig-title">Well-separated (true K=3)</div>
       <div class="fig-desc">300 samples, 5D. CLAM heatmaps.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K-value progression grid (sorted CLAM heatmaps)</td></tr>
+        <tr><td>Dataset</td><td>well_separated — 300 samples, 5 features (make_blobs, centers=3, std=0.8)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+        <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200) per panel</td></tr>
+        <tr><td>Computation</td><td>CLAM heatmaps (n_features=5 > 2). At K=3 all methods show perfect block structure (TWCRI=1.0). K>3 columns show off-diagonal smearing.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -885,6 +1157,16 @@
       <div class="fig-id">Figure 6g</div>
       <div class="fig-title">High-dimensional (true K=3)</div>
       <div class="fig-desc">200 samples, 50D. CLAM heatmaps.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K-value progression grid (sorted CLAM heatmaps)</td></tr>
+        <tr><td>Dataset</td><td>high_dim — 200 samples, 50 features (make_blobs, centers=3)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+        <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200) per panel</td></tr>
+        <tr><td>Computation</td><td>High-dimensional (50D) case; CLAM heatmaps render well even in 50D. Curse of dimensionality may reduce block contrast vs 2D datasets.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -902,6 +1184,17 @@
       <div class="fig-id">Figure 7a</div>
       <div class="fig-title">TWCRI Landscape (2D) &mdash; VDX</div>
       <div class="fig-desc">TWCRI across K (columns) and methods (rows). Cell annotations show values.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>2D annotated heatmap (parameter sensitivity grid)</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (rows)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 (columns), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>K value (2, 3, 4, 5, 6)</td></tr>
+        <tr><td>Y-axis</td><td>Clustering method</td></tr>
+        <tr><td>Color</td><td>TWCRI value (sequential colormap, 0–1); cell text shows numeric value</td></tr>
+        <tr><td>Computation</td><td>TWCRI[method, K] from independent ERICA runs. Highest-valued cell per row indicates that method's K*.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['metrics'][k][method]['TWCRI'] for all (k, method)</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -910,6 +1203,18 @@
       <div class="fig-id">Figure 7b</div>
       <div class="fig-title">TWCRI Landscape (3D) &mdash; VDX</div>
       <div class="fig-desc">Same data as 7a rendered as surface plot.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>3D surface plot</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single</td></tr>
+        <tr><td>Parameters</td><td>K=2..6, B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>K value (2..6)</td></tr>
+        <tr><td>Y-axis</td><td>Clustering method (categorical, encoded as 0/1/2)</td></tr>
+        <tr><td>Z-axis</td><td>TWCRI value (0–1)</td></tr>
+        <tr><td>Color</td><td>Z height (TWCRI), same sequential palette as Fig. 7a</td></tr>
+        <tr><td>Computation</td><td>Same TWCRI matrix as Fig. 7a, rendered as 3D surface to expose relative magnitude across the full (method, K) grid.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['metrics'][k][method]['TWCRI'] for all (k, method)</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -921,6 +1226,18 @@
       <div class="fig-id">Figure 7c</div>
       <div class="fig-title">HDBSCAN Sensitivity (2D) &mdash; VDX</div>
       <div class="fig-desc">K agreement rate across min_cluster_size (5..50) &times; min_samples (None, 3, 5, 10). 24 ERICA runs, 100 iterations each.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>2D parameter sensitivity heatmap (HDBSCAN hyperparameter sweep)</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>HDBSCAN (experimental)</td></tr>
+        <tr><td>Parameters</td><td>min_cluster_size ∈ {5,10,15,20,30,50} × min_samples ∈ {None,3,5,10}; 24 runs × 100 iterations each</td></tr>
+        <tr><td>X-axis</td><td>min_cluster_size (6 values: 5..50)</td></tr>
+        <tr><td>Y-axis</td><td>min_samples (4 values: None, 3, 5, 10)</td></tr>
+        <tr><td>Color</td><td>K agreement rate = fraction of iterations where HDBSCAN returned the modal K (0–1)</td></tr>
+        <tr><td>Computation</td><td>For each hyperparameter pair, run ERICA for 100 iterations and record the fraction agreeing on modal K. Higher = more stable K discovery.</td></tr>
+        <tr><td>ERICA call</td><td>get_auto_k_results('hdbscan')['k_agreement'] per (min_cluster_size, min_samples)</td></tr>
+      </table></div>
+      <p style="font-size:11px;color:#c44;margin-top:6px;">Note: HDBSCAN integration is experimental and under validation.</p>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -929,6 +1246,18 @@
       <div class="fig-id">Figure 7d</div>
       <div class="fig-title">CLAM Topography &mdash; VDX, K-Means, K=3</div>
       <div class="fig-desc">Sorted CLAM matrix as 3D surface. X=cluster, Y=sample (sorted), Z=assignment count.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>3D surface (CLAM topography)</td></tr>
+        <tr><td>Dataset</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Method</td><td>K-Means (k-means++ init, n_init=50)</td></tr>
+        <tr><td>Parameters</td><td>K=3, B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>Cluster index (0, 1, 2)</td></tr>
+        <tr><td>Y-axis</td><td>Sample index (sorted by argmax then confidence, same order as Fig. 1a)</td></tr>
+        <tr><td>Z-axis</td><td>Assignment count CLAM[i,j] (0 to B=200)</td></tr>
+        <tr><td>Color</td><td>Z height (assignment count), viridis</td></tr>
+        <tr><td>Computation</td><td>The sorted CLAM matrix from Fig. 1a rendered as a 3D surface to emphasize the peaked structure of confident samples vs. the flat plateau of ambiguous ones.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(3, 'kmeans')]</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -945,6 +1274,17 @@
     <div class="fig-id">Figure 8a</div>
     <div class="fig-title">TWCRI at K=4 vs &sigma;</div>
     <div class="fig-desc">TWCRI evaluated at the true K=4 across four sigma levels (log scale). One line per K-based method; HDBSCAN shown as discrete markers at its modal K's TWCRI.</div>
+    <div class="placard"><table>
+      <tr><td>Plot type</td><td>Sigma sweep line plot (stability vs. cluster separation)</td></tr>
+      <tr><td>Dataset</td><td>gauss4c_sigma* — 400 samples (100/center), 50 features, 4 centers; σ ∈ {0.01, 0.1, 1.0, 10.0}</td></tr>
+      <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (lines); HDBSCAN (markers)</td></tr>
+      <tr><td>Parameters</td><td>K=4 (true K) fixed; B=200 iterations, 80/20 split</td></tr>
+      <tr><td>X-axis</td><td>σ (log scale: 0.01 → 10.0); radius/spacing ratio in parentheses</td></tr>
+      <tr><td>Y-axis</td><td>TWCRI at K=4 (0–1)</td></tr>
+      <tr><td>Color</td><td>Method identity</td></tr>
+      <tr><td>Computation</td><td>For each σ level, run full ERICA and read TWCRI at K=true K=4. HDBSCAN plotted at its modal K's TWCRI as discrete marker.</td></tr>
+      <tr><td>ERICA call</td><td>get_results()['metrics'][4][method]['TWCRI'] per σ dataset</td></tr>
+    </table></div>
   </div>
 </div>
 
@@ -955,6 +1295,17 @@
       <div class="fig-id">Figure 8b</div>
       <div class="fig-title">ARI/AMI at K=4 vs &sigma;</div>
       <div class="fig-desc">ARI (solid) and AMI (dashed) at true K across sigma levels.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Sigma sweep line plot (Parmigiani metrics)</td></tr>
+        <tr><td>Dataset</td><td>gauss4c_sigma* — 400 samples, 50 features, 4 centers; σ ∈ {0.01, 0.1, 1.0, 10.0}</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single</td></tr>
+        <tr><td>Parameters</td><td>K=4 (true K), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>σ (log scale)</td></tr>
+        <tr><td>Y-axis</td><td>ARI mean ± std (solid) and AMI mean ± std (dashed) across B iterations at K=4</td></tr>
+        <tr><td>Color</td><td>Method identity; line style distinguishes ARI vs AMI</td></tr>
+        <tr><td>Computation</td><td>ARI and AMI computed per iteration between clustering output and true labels, then averaged. Error bars = ± 1 std. Complements TWCRI in Fig. 8a.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['parmigiani_metrics'][4][method]['ARI_mean'] etc.</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -963,6 +1314,18 @@
       <div class="fig-id">Figure 8c</div>
       <div class="fig-title">HDBSCAN Noise Fraction vs &sigma;</div>
       <div class="fig-desc">Mean fraction of test samples classified as noise by HDBSCAN at each sigma level.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Sigma sweep bar/line (HDBSCAN noise diagnostic)</td></tr>
+        <tr><td>Dataset</td><td>gauss4c_sigma* — 400 samples, 50 features, 4 centers; σ ∈ {0.01, 0.1, 1.0, 10.0}</td></tr>
+        <tr><td>Method</td><td>HDBSCAN (experimental)</td></tr>
+        <tr><td>Parameters</td><td>min_cluster_size=15, min_samples=5; B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>σ (log scale)</td></tr>
+        <tr><td>Y-axis</td><td>Mean fraction of test samples labeled as noise (label=-1) by HDBSCAN (0–1)</td></tr>
+        <tr><td>Color</td><td>Single series (HDBSCAN only)</td></tr>
+        <tr><td>Computation</td><td>For each iteration, count noise-labeled test points / total test points. Average across 200 iterations. As σ increases clusters merge and noise fraction rises dramatically.</td></tr>
+        <tr><td>ERICA call</td><td>get_auto_k_results('hdbscan')['noise_fraction'] per σ dataset</td></tr>
+      </table></div>
+      <p style="font-size:11px;color:#c44;margin-top:6px;">Note: HDBSCAN integration is experimental and under validation.</p>
     </div>
   </div>
 </div>
@@ -974,6 +1337,18 @@
       <div class="fig-id">Figure 8d</div>
       <div class="fig-title">K* Selection Across &sigma;</div>
       <div class="fig-desc">Grouped bars showing K* per method at each sigma. Horizontal line at true K=4.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K* grouped bar chart across sigma levels</td></tr>
+        <tr><td>Dataset</td><td>gauss4c_sigma* — 400 samples, 50 features, 4 centers; σ ∈ {0.01, 0.1, 1.0, 10.0}</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single, HDBSCAN (experimental)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 sweep, B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>σ level (four groups)</td></tr>
+        <tr><td>Y-axis</td><td>K* selected by TWCRI Algorithm 2 per method</td></tr>
+        <tr><td>Color</td><td>Method identity (grouped bars within each σ)</td></tr>
+        <tr><td>Reference</td><td>Horizontal dashed line at true K=4</td></tr>
+        <tr><td>Computation</td><td>K* = smallest non-decreasing TWCRI index per method. As σ → 10 (structure collapses), methods disagree and K* deviates from true K=4.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['k_star']['TWCRI'] per σ dataset</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -982,6 +1357,18 @@
       <div class="fig-id">Figure 8e</div>
       <div class="fig-title">VDX vs Gaussian (&sigma;=1.0)</div>
       <div class="fig-desc">Side-by-side TWCRI and ARI curves. VDX (left) vs 50D Gaussian at &sigma;=1.0 (right).</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>Dual-dataset metric comparison panel</td></tr>
+        <tr><td>Dataset (L)</td><td>vdx_3gene — 344 samples, 3 features (ESR1, ERBB2, AURKA)</td></tr>
+        <tr><td>Dataset (R)</td><td>gauss4c_sigma1p0 — 400 samples, 50 features, σ=1.0, radius/spacing=0.75</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward (shown in both panels)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6, B=200 iterations, 80/20 split</td></tr>
+        <tr><td>X-axis</td><td>K (both panels)</td></tr>
+        <tr><td>Y-axis</td><td>TWCRI (top row) and ARI mean ± std (bottom row)</td></tr>
+        <tr><td>Color</td><td>Method identity (shared color scheme across panels)</td></tr>
+        <tr><td>Computation</td><td>Side-by-side to contrast real genomic data (VDX) with a synthetic analog of similar separation difficulty (σ=1.0 gives radius/spacing=0.75).</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['metrics'] for each dataset independently</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -995,6 +1382,16 @@
       <div class="fig-id">Figure 8f</div>
       <div class="fig-title">&sigma; = 0.01</div>
       <div class="fig-desc">Radius/spacing = 0.01. 400 samples, 50D, 4 centers.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K-value progression grid (sorted CLAM heatmaps)</td></tr>
+        <tr><td>Dataset</td><td>gauss4c_sigma0p01 — 400 samples, 50 features, σ=0.01, radius/spacing=0.01, 4 centers</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+        <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200)</td></tr>
+        <tr><td>Computation</td><td>Trivially separated (σ=0.01 << inter-center distance). All methods find perfect block structure at K=4; CLAM at K=4 is a pure identity-block matrix (TWCRI=1.0).</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -1003,6 +1400,16 @@
       <div class="fig-id">Figure 8g</div>
       <div class="fig-title">&sigma; = 0.1</div>
       <div class="fig-desc">Radius/spacing = 0.07. Well-separated.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K-value progression grid (sorted CLAM heatmaps)</td></tr>
+        <tr><td>Dataset</td><td>gauss4c_sigma0p1 — 400 samples, 50 features, σ=0.1, radius/spacing=0.07, 4 centers</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+        <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200)</td></tr>
+        <tr><td>Computation</td><td>Well-separated (σ/spacing=0.07). Still very high stability; CLAM at K=4 shows near-perfect blocks. Minor off-diagonal activity visible at K=5,6.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
@@ -1014,6 +1421,16 @@
       <div class="fig-id">Figure 8h</div>
       <div class="fig-title">&sigma; = 1.0</div>
       <div class="fig-desc">Radius/spacing = 0.75. Overlap region.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K-value progression grid (sorted CLAM heatmaps)</td></tr>
+        <tr><td>Dataset</td><td>gauss4c_sigma1p0 — 400 samples, 50 features, σ=1.0, radius/spacing=0.75, 4 centers</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+        <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200)</td></tr>
+        <tr><td>Computation</td><td>Overlap region (σ/spacing=0.75). Block structure visible at K=4 but with notable off-diagonal counts. Methods begin to disagree on K*. Matches VDX difficulty level (see Fig. 8e).</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+      </table></div>
     </div>
   </div>
   <div class="figure" onclick="openLightbox(this)">
@@ -1022,6 +1439,16 @@
       <div class="fig-id">Figure 8i</div>
       <div class="fig-title">&sigma; = 10.0</div>
       <div class="fig-desc">Radius/spacing = 7.45. Structure collapsed.</div>
+      <div class="placard"><table>
+        <tr><td>Plot type</td><td>K-value progression grid (sorted CLAM heatmaps)</td></tr>
+        <tr><td>Dataset</td><td>gauss4c_sigma10p0 — 400 samples, 50 features, σ=10.0, radius/spacing=7.45, 4 centers</td></tr>
+        <tr><td>Method</td><td>K-Means, Agglomerative Ward, Agglomerative Single (3 rows)</td></tr>
+        <tr><td>Parameters</td><td>K=2..6 (5 columns), B=200 iterations, 80/20 split</td></tr>
+        <tr><td>Layout</td><td>3 rows (methods) × 5 cols (K=2..6); orange border marks K* per method</td></tr>
+        <tr><td>Color</td><td>Assignment count (viridis, 0 to B=200)</td></tr>
+        <tr><td>Computation</td><td>Structure fully collapsed (σ >> inter-center spacing). CLAM matrices at all K show near-uniform noise — no block structure. TWCRI is low across all K; K* selection is meaningless at this level.</td></tr>
+        <tr><td>ERICA call</td><td>get_results()['clam_matrices'][(k, method)] for k in 2..6</td></tr>
+      </table></div>
     </div>
   </div>
 </div>
