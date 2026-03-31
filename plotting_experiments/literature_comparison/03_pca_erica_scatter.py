@@ -273,15 +273,17 @@ def plot_method_compare(X_2d, var_ratio, clam_by_method, k, dataset_name):
 
     axes[0].set_ylabel(ylabel, fontsize=8)
 
+    fig.suptitle(f'{dataset_name}  --  Method comparison (K={k})',
+                 fontsize=12, y=1.0)
+    fig.tight_layout(rect=[0, 0.08, 1, 0.95])
+
+    # Colorbar below all panels to avoid overlapping the rightmost plot
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
-    cbar = fig.colorbar(sm, ax=axes, fraction=0.025, pad=0.04)
+    cbar_ax = fig.add_axes([0.2, 0.01, 0.6, 0.025])
+    cbar = fig.colorbar(sm, cax=cbar_ax, orientation='horizontal')
     cbar.set_label('ERICA statistic', fontsize=9)
     cbar.ax.tick_params(labelsize=8)
-
-    fig.suptitle(f'{dataset_name}  --  Method comparison (K={k})',
-                 fontsize=12, y=1.02)
-    fig.tight_layout()
     return fig
 
 
