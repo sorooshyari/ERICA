@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ERICA Statistic Playground</title>
 <style>
-  :root { --bg: #fafafa; --text: #1a1a2e; --muted: #555; --accent: #2d6a4f; --border: #ddd; }
+  :root { --bg: #0d0d0d; --text: #e0e0e0; --muted: #8a8a8a; --accent: #5cb88a; --border: #2a2a2a; --card-bg: #1a1a1a; --code-bg: #141414; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Palatino Linotype', Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.6; }
   .header { max-width: 900px; margin: 0 auto; padding: 40px 40px 20px; }
   .header h1 { font-size: 24px; font-weight: 400; }
   .header p { font-size: 13px; color: var(--muted); margin-top: 6px; }
   .defbox { max-width: 900px; margin: 0 auto; padding: 0 40px 16px; }
-  .defbox .def { background: #fff; border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 12px 16px; font-size: 13px; font-family: monospace; color: var(--text); }
+  .defbox .def { background: #1a1a1a; border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 12px 16px; font-size: 13px; font-family: monospace; color: var(--text); }
   .nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-top: 2px solid var(--text); border-bottom: 1px solid var(--border); max-width: 900px; margin: 0 auto; display: flex; flex-wrap: wrap; }
   .nav a { padding: 8px 12px; font-size: 11px; text-decoration: none; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
   .nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
@@ -21,8 +21,8 @@
   .section h2 { font-size: 17px; font-weight: 400; margin-bottom: 4px; }
   .section .desc { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 12px; }
-  .card { background: #fff; border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
-  .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .card { background: #1a1a1a; border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+  .card:hover { box-shadow: 0 2px 8px rgba(255,255,255,0.04); }
   .card img { width: 100%; display: block; padding: 6px; }
   .card .lbl { padding: 6px 10px; font-size: 11px; color: var(--muted); font-family: monospace; border-top: 1px solid var(--border); }
   .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
@@ -30,22 +30,26 @@
   .lightbox img { max-width: 92vw; max-height: 92vh; background: #fff; padding: 10px; }
   .lightbox .close { position: fixed; top: 16px; right: 20px; color: #aaa; font-size: 28px; cursor: pointer; }
   footer { max-width: 900px; margin: 0 auto; padding: 20px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
-  .section-placard { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; margin: 12px 0 16px; background: #f8f8f8; border-left: 3px solid #2d6a4f; padding: 10px 12px; }
+  .section-placard { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; margin: 12px 0 16px; background: #141414; border-left: 3px solid #5cb88a; padding: 10px 12px; }
   .section-placard table { border-collapse: collapse; width: 100%; }
-  .section-placard td { padding: 2px 8px; vertical-align: top; border-bottom: 1px solid #eee; }
-  .section-placard td:first-child { color: #2d6a4f; font-weight: 600; white-space: nowrap; width: 110px; }
+  .section-placard td { padding: 2px 8px; vertical-align: top; border-bottom: 1px solid #222; }
+  .section-placard td:first-child { color: #5cb88a; font-weight: 600; white-space: nowrap; width: 110px; }
 </style>
 </head>
 <body>
 <div class="header">
   <h1>ERICA Statistic Playground</h1>
-  <p>2026-03-30 <p>2026-03-30 &middot; Exploratory</p>middot; How many ways can you look at one number per sample? At least seven, apparently.</p>
+  <p>2026-03-30 &middot; How many ways can you look at one number per sample? At least seven, apparently.</p>
   <p>68 figures across distributions, boxplots, trajectories, mean vs K, per-cluster, profiles, and cross-sigma comparisons</p>
   <p style="margin-top:10px; font-size:12px;">
     <strong>Related:</strong>
-    <a href="2026-03-30-gallery.html" style="color:#2d6a4f;">Main Gallery</a> (80 figures, metrics table, by-dataset breakdowns)
+    <a href="2026-03-30-gallery.html" style="color:#5cb88a;">Main Gallery</a> (80 figures, metrics table, by-dataset breakdowns)
     &nbsp;&middot;&nbsp;
-    <a href="2026-03-30-playground.html" style="color:#2d6a4f;">Entropy &amp; ERICA Statistic (formerly CRI) Experiments</a> (101 figures)
+    <a href="2026-03-30-playground.html" style="color:#5cb88a;">Entropy &amp; ERICA Statistic (formerly CRI) Experiments</a> (101 figures)
+    &nbsp;&middot;&nbsp;
+    <a href="literature_comparison/2026-03-31-literature-comparison.html" style="color:#5cb88a;">Literature Comparison</a>
+    &nbsp;&middot;&nbsp;
+    <a href="erica_statistics/2026-04-02-erica-statistics.html" style="color:#5cb88a;">ERICA Statistics (Exploratory)</a> (110 figures)
   </p>
 </div>
 <div class="defbox">

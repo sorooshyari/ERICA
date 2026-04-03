@@ -24,7 +24,7 @@ The dataset details are in `DATA_DOCUMENTATION.md` and the gallery pages.
 
 ### Scripts
 
-17 Python scripts generating the data, running ERICA, and producing plots. Plus a shared `style.py` for consistent formatting. The Gaussian sigma study has its own subfolder with a separate experiment plan.
+28 Python scripts generating the data, running ERICA, and producing plots (11 top-level + 5 gaussian + 3 literature + 8 erica_statistics + style.py). The Gaussian sigma study, literature comparison, and ERICA statistics exploration each have their own subfolders.
 
 ---
 
@@ -55,6 +55,14 @@ The ERICA statistic (formerly CRI) for a sample is the proportion of MC iteratio
 
 Recreated the original Gaussian_mix_gen_2 setup: 4 centers in 50D, sigma = 0.01, 0.1, 1.0, 10.0. Ran all methods. The TWCRI-vs-sigma curve shows the expected degradation. At sigma=1.0 (radius/spacing ratio 0.75), methods start to diverge. At sigma=10.0, everything collapses. The details are in `gaussian_mixture_study/EXPERIMENT_PLAN.md`.
 
+### Literature Comparison
+
+Reproduced standard figures from the clustering stability literature (Tibshirani gap statistic, Monti consensus clustering, Masoero/Parmigiani replicability). Error band plots, co-assignment heatmaps, and PCA scatter colored by ERICA statistics. Scripts in `literature_comparison/`.
+
+### ERICA Statistics Exploration
+
+Deep dive into the ERICA statistic, ARI, and AMI across all datasets and methods. Eight scripts covering: distribution analysis (histograms, KDE), statistics-vs-K curves, method comparison panels, cross-dataset summary heatmaps, sigma degradation tracking, scatter plots of statistic relationships, Per-Cluster Stability Profiles (PCSP), and ICA/ICAH (Iterative Cluster Assignment / Iterative Cluster Assignment Heatmaps) analysis. The PCSP and ICA views turned out to be particularly informative — they show per-cluster stability trajectories that the aggregate metrics obscure. Gallery at `erica_statistics/2026-04-02-erica-statistics.html`.
+
 ---
 
 ## What Seems Useful So Far
@@ -80,8 +88,10 @@ Some of these visualizations are more informative than others. Preliminary impre
 
 ```
 plotting_experiments/
-├── 12 Python scripts + style.py
+├── 11 Python scripts + style.py
 ├── gaussian_mixture_study/           5 scripts + experiment plan
+├── literature_comparison/            3 scripts + HTML gallery
+├── erica_statistics/                 8 scripts + HTML gallery
 ├── future_experiments/               dropout/dimensionality proposal
 ├── data/                             26 datasets (.npz)
 ├── results/                          26 result bundles (.joblib)
@@ -94,6 +104,8 @@ plotting_experiments/
 ├── 2026-03-30-gallery.html           main gallery
 ├── 2026-03-30-playground.html        entropy & CRI experiments
 ├── 2026-03-30-erica-statistic-playground.html
+├── literature_comparison/2026-03-31-literature-comparison.html
+├── erica_statistics/2026-04-02-erica-statistics.html
 ├── metrics_table.tsv                 374-row metrics export
 ├── DATA_DOCUMENTATION.md
 ├── PLOTTING_GUIDE.md

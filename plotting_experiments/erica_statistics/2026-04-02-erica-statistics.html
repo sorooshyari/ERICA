@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERICA Statistics — Exploratory</title>
+<style>
+  :root { --bg: #0d0d0d; --text: #e0e0e0; --muted: #8a8a8a; --accent: #5cb88a; --border: #2a2a2a; --card-bg: #1a1a1a; --code-bg: #141414; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+  .masthead { max-width: 900px; margin: 0 auto; padding: 60px 40px 32px; }
+  .masthead h1 { font-size: 28px; font-weight: 400; letter-spacing: 1px; }
+  .masthead .subtitle { font-size: 15px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .masthead .meta { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  .defbox { max-width: 900px; margin: 0 auto; padding: 0 40px 16px; }
+  .defbox .def { background: #1a1a1a; border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 12px 16px; font-size: 13px; font-family: monospace; color: var(--text); line-height: 1.8; }
+
+  .nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-top: 2px solid var(--text); border-bottom: 1px solid var(--border); max-width: 900px; margin: 0 auto; padding: 0; display: flex; flex-wrap: wrap; }
+  .nav a { padding: 10px 14px; font-size: 12px; text-decoration: none; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+  .nav a:hover, .nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 0 40px 60px; }
+
+  .section { margin: 40px 0; padding-top: 20px; border-top: 1px solid var(--border); }
+  .section h2 { font-size: 20px; font-weight: 400; margin-bottom: 6px; }
+  .section .desc { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+
+  .section-placard { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; margin: 12px 0 16px; background: #141414; border-left: 3px solid var(--accent); padding: 10px 12px; }
+  .section-placard table { border-collapse: collapse; width: 100%; }
+  .section-placard td { padding: 2px 8px; vertical-align: top; border-bottom: 1px solid #222; }
+  .section-placard td:first-child { color: var(--accent); font-weight: 600; white-space: nowrap; width: 110px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 12px; }
+  .card { background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+  .card:hover { box-shadow: 0 2px 8px rgba(255,255,255,0.04); }
+  .card img { width: 100%; display: block; padding: 8px; background: #fff; }
+  .card .lbl { padding: 6px 10px; font-size: 11px; color: var(--muted); font-family: monospace; border-top: 1px solid var(--border); }
+
+  .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; background: #fff; padding: 12px; box-shadow: 0 4px 40px rgba(0,0,0,0.5); }
+  .lightbox .lb-caption { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #ccc; font-size: 13px; text-align: center; max-width: 700px; }
+  .lightbox .lb-close { position: fixed; top: 20px; right: 24px; color: #aaa; font-size: 28px; cursor: pointer; }
+  .lightbox .lb-close:hover { color: #fff; }
+
+  footer { max-width: 900px; margin: 0 auto; padding: 32px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
+
+  @media (max-width: 700px) {
+    .masthead, .content, footer { padding-left: 16px; padding-right: 16px; }
+    .grid { grid-template-columns: 1fr; }
+    .nav { padding: 0 8px; }
+    .nav a { padding: 8px 10px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>ERICA Statistics &mdash; Exploratory</h1>
+  <div class="subtitle">Extending Parmigiani's ARI/AMI to Monte Carlo subsampling, then throwing plots at the wall</div>
+  <div class="meta">2026-04-02</div>
+</div>
+
+<div class="defbox">
+  <div class="def">
+    <strong>ERICA statistic</strong> = max(CLAM[i,:]) / sum(CLAM[i,:]). Per-sample assignment consistency. Range: 1/K to 1.0.<br>
+    <strong>ERICA-ARI</strong> = per-iteration ARI(predicted_test, refit_test). Partition-level agreement. Range: -1 to 1.<br>
+    <strong>ERICA-AMI</strong> = per-iteration AMI(predicted_test, refit_test). Information-theoretic variant. Range: 0 to 1.<br>
+    <em>Adapted from Parmigiani et al. (2023) Algorithm 1 to Monte Carlo subsampling (B=200).</em>
+  </div>
+</div>
+
+<div class="nav" id="topnav">
+  <a href="#distributions">Distributions</a>
+  <a href="#stats-vs-k">Statistics vs K</a>
+  <a href="#method-comparison">Method Comparison</a>
+  <a href="#cross-dataset">Cross-Dataset</a>
+  <a href="#sigma-degradation">Sigma Degradation</a>
+  <a href="#scatter-plots">Scatter Plots</a>
+  <a href="#pcsp">PCSP</a>
+  <a href="#ica-icah">ICA &amp; ICAH</a>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lb-close" onclick="closeLightbox()">&times;</span>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-caption" id="lb-caption"></div>
+</div>
+
+<div class="content">
+
+<p style="font-size: 14px; color: var(--muted); margin: 20px 0 4px;">
+  Three complementary views of clustering replicability under Monte Carlo subsampling.
+  All analyses use ERICA v0.1.4 with B=200 MC iterations, 80/20 train-test split.
+  Primary methods: K-Means and Agglomerative Clustering (Ward linkage).
+  Click any figure to enlarge.
+</p>
+<p style="font-size: 13px; color: var(--muted); margin: 0 0 24px; border: 1px solid var(--border); padding: 10px 14px; background: #1a1a1a;">
+  <strong>Related pages:</strong>
+  &nbsp;&middot;&nbsp;<a href="../2026-03-30-gallery.html" style="color:var(--accent);">Main Gallery</a> &mdash; 80 figures, metrics table, by-dataset breakdowns
+  &nbsp;&middot;&nbsp;<a href="../2026-03-30-playground.html" style="color:var(--accent);">Entropy &amp; ERICA Stat Playground</a> &mdash; 101 figures
+  &nbsp;&middot;&nbsp;<a href="../2026-03-30-erica-statistic-playground.html" style="color:var(--accent);">ERICA Statistic Deep Dive</a> &mdash; 68 figures
+  &nbsp;&middot;&nbsp;<a href="../literature_comparison/2026-03-31-literature-comparison.html" style="color:var(--accent);">Literature Comparison</a> &mdash; Parmigiani / Tibshirani / Monti reproductions
+</p>
+
+<!-- ============================================================ -->
+<div class="section" id="distributions">
+<h2>Distributions (9)</h2>
+<p class="desc">1&times;3 histograms: ERICA statistic, ARI, and AMI distributions at K* for each dataset.</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>1&times;3 histogram panel (ERICA stat | ARI | AMI)</td></tr>
+  <tr><td>X axis</td><td>Statistic value</td></tr>
+  <tr><td>Y axis</td><td>Frequency / density</td></tr>
+  <tr><td>K value</td><td>K* (selected by Algorithm 2)</td></tr>
+  <tr><td>Parameters</td><td>B=200, 80/20 split</td></tr>
+  <tr><td>Script</td><td>01_distributions.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_vdx_3gene.png','Distributions — vdx_3gene')"><img src="../figures/erica_statistics/dist_vdx_3gene.png" loading="lazy"><div class="lbl">vdx_3gene</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_gauss4c_sigma0p1.png','Distributions — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/dist_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_gauss4c_sigma1p0.png','Distributions — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/dist_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_gauss4c_sigma10p0.png','Distributions — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/dist_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_well_separated.png','Distributions — well_separated')"><img src="../figures/erica_statistics/dist_well_separated.png" loading="lazy"><div class="lbl">well_separated</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_high_dim.png','Distributions — high_dim')"><img src="../figures/erica_statistics/dist_high_dim.png" loading="lazy"><div class="lbl">high_dim</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_overlapping.png','Distributions — overlapping')"><img src="../figures/erica_statistics/dist_overlapping.png" loading="lazy"><div class="lbl">overlapping</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_moons_2d.png','Distributions — moons_2d')"><img src="../figures/erica_statistics/dist_moons_2d.png" loading="lazy"><div class="lbl">moons_2d</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_blobs_2d.png','Distributions — blobs_2d')"><img src="../figures/erica_statistics/dist_blobs_2d.png" loading="lazy"><div class="lbl">blobs_2d</div></div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="stats-vs-k">
+<h2>Statistics vs K (18)</h2>
+<p class="desc">All three statistics plotted against K with &plusmn;1 std error bands. One plot per dataset &times; method.</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Line plot with shaded error bands</td></tr>
+  <tr><td>X axis</td><td>K (number of clusters)</td></tr>
+  <tr><td>Y axis</td><td>Statistic value (ERICA stat, ARI, AMI)</td></tr>
+  <tr><td>Bands</td><td>&plusmn;1 std across B=200 iterations</td></tr>
+  <tr><td>Methods</td><td>K-Means, Agglomerative (Ward)</td></tr>
+  <tr><td>Script</td><td>02_statistics_vs_k.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_vdx_3gene_kmeans.png','Stats vs K — vdx_3gene — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_vdx_3gene_agglomerative_ward.png','Stats vs K — vdx_3gene — Ward')"><img src="../figures/erica_statistics/stats_vs_k_vdx_3gene_agglomerative_ward.png" loading="lazy"><div class="lbl">vdx_3gene — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_kmeans.png','Stats vs K — gauss4c sigma=0.1 — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_agglomerative_ward.png','Stats vs K — gauss4c sigma=0.1 — Ward')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_kmeans.png','Stats vs K — gauss4c sigma=1.0 — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_agglomerative_ward.png','Stats vs K — gauss4c sigma=1.0 — Ward')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_kmeans.png','Stats vs K — gauss4c sigma=10.0 — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_agglomerative_ward.png','Stats vs K — gauss4c sigma=10.0 — Ward')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_well_separated_kmeans.png','Stats vs K — well_separated — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_well_separated_agglomerative_ward.png','Stats vs K — well_separated — Ward')"><img src="../figures/erica_statistics/stats_vs_k_well_separated_agglomerative_ward.png" loading="lazy"><div class="lbl">well_separated — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_high_dim_kmeans.png','Stats vs K — high_dim — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_high_dim_agglomerative_ward.png','Stats vs K — high_dim — Ward')"><img src="../figures/erica_statistics/stats_vs_k_high_dim_agglomerative_ward.png" loading="lazy"><div class="lbl">high_dim — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_overlapping_kmeans.png','Stats vs K — overlapping — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_overlapping_agglomerative_ward.png','Stats vs K — overlapping — Ward')"><img src="../figures/erica_statistics/stats_vs_k_overlapping_agglomerative_ward.png" loading="lazy"><div class="lbl">overlapping — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_moons_2d_kmeans.png','Stats vs K — moons_2d — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_moons_2d_agglomerative_ward.png','Stats vs K — moons_2d — Ward')"><img src="../figures/erica_statistics/stats_vs_k_moons_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">moons_2d — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_blobs_2d_kmeans.png','Stats vs K — blobs_2d — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_blobs_2d_agglomerative_ward.png','Stats vs K — blobs_2d — Ward')"><img src="../figures/erica_statistics/stats_vs_k_blobs_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">blobs_2d — ward</div></div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="method-comparison">
+<h2>Method Comparison (9)</h2>
+<p class="desc">2&times;3 grid per dataset: rows = methods (K-Means, Ward), columns = statistics (ERICA stat, ARI, AMI).</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>2&times;3 panel grid (methods &times; statistics)</td></tr>
+  <tr><td>Rows</td><td>K-Means, Agglomerative (Ward)</td></tr>
+  <tr><td>Columns</td><td>ERICA statistic, ARI, AMI</td></tr>
+  <tr><td>Content</td><td>Distribution or summary per cell</td></tr>
+  <tr><td>Script</td><td>03_method_comparison.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_vdx_3gene.png','Method Comparison — vdx_3gene')"><img src="../figures/erica_statistics/method_compare_vdx_3gene.png" loading="lazy"><div class="lbl">vdx_3gene</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_gauss4c_sigma0p1.png','Method Comparison — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/method_compare_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_gauss4c_sigma1p0.png','Method Comparison — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/method_compare_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_gauss4c_sigma10p0.png','Method Comparison — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/method_compare_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_well_separated.png','Method Comparison — well_separated')"><img src="../figures/erica_statistics/method_compare_well_separated.png" loading="lazy"><div class="lbl">well_separated</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_high_dim.png','Method Comparison — high_dim')"><img src="../figures/erica_statistics/method_compare_high_dim.png" loading="lazy"><div class="lbl">high_dim</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_overlapping.png','Method Comparison — overlapping')"><img src="../figures/erica_statistics/method_compare_overlapping.png" loading="lazy"><div class="lbl">overlapping</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_moons_2d.png','Method Comparison — moons_2d')"><img src="../figures/erica_statistics/method_compare_moons_2d.png" loading="lazy"><div class="lbl">moons_2d</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_blobs_2d.png','Method Comparison — blobs_2d')"><img src="../figures/erica_statistics/method_compare_blobs_2d.png" loading="lazy"><div class="lbl">blobs_2d</div></div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="cross-dataset">
+<h2>Cross-Dataset Summary (1)</h2>
+<p class="desc">Heatmap of all datasets &times; all three statistics. Which datasets are replicable? Where do statistics disagree?</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Heatmap (datasets &times; statistics)</td></tr>
+  <tr><td>Rows</td><td>Datasets (9)</td></tr>
+  <tr><td>Columns</td><td>ERICA stat, ARI, AMI &times; methods</td></tr>
+  <tr><td>Color</td><td>Statistic value (diverging or sequential colormap)</td></tr>
+  <tr><td>Script</td><td>04_cross_dataset_summary.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/cross_dataset_summary.png','Cross-Dataset Summary')"><img src="../figures/erica_statistics/cross_dataset_summary.png" loading="lazy"><div class="lbl">cross_dataset_summary</div></div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="sigma-degradation">
+<h2>Sigma Degradation (1)</h2>
+<p class="desc">How all three statistics degrade as Gaussian cluster separation decreases (&sigma;: 0.1 &rarr; 1.0 &rarr; 10.0).</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Line plot or grouped bar</td></tr>
+  <tr><td>X axis</td><td>&sigma; (cluster spread)</td></tr>
+  <tr><td>Y axis</td><td>Statistic value</td></tr>
+  <tr><td>Lines</td><td>ERICA stat, ARI, AMI</td></tr>
+  <tr><td>Question</td><td>Do all three degrade at the same rate?</td></tr>
+  <tr><td>Script</td><td>05_sigma_degradation.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/sigma_degradation.png','Sigma Degradation')"><img src="../figures/erica_statistics/sigma_degradation.png" loading="lazy"><div class="lbl">sigma_degradation</div></div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="scatter-plots">
+<h2>Scatter Plots (45)</h2>
+<p class="desc">Spatial views: confidence maps, triptychs, and method comparisons in feature space.</p>
+
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Confidence Maps (18)</h3>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Scatter plot colored by ERICA statistic</td></tr>
+  <tr><td>Axes</td><td>First two features (or PCA components)</td></tr>
+  <tr><td>Color</td><td>ERICA statistic value per sample</td></tr>
+  <tr><td>Script</td><td>06_scatter_plots.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_vdx_3gene_kmeans.png','Scatter — vdx_3gene — K-Means')"><img src="../figures/erica_statistics/scatter_erica_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_vdx_3gene_agglomerative_ward.png','Scatter — vdx_3gene — Ward')"><img src="../figures/erica_statistics/scatter_erica_vdx_3gene_agglomerative_ward.png" loading="lazy"><div class="lbl">vdx_3gene — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_kmeans.png','Scatter — gauss4c sigma=0.1 — K-Means')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_agglomerative_ward.png','Scatter — gauss4c sigma=0.1 — Ward')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_kmeans.png','Scatter — gauss4c sigma=1.0 — K-Means')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_agglomerative_ward.png','Scatter — gauss4c sigma=1.0 — Ward')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_kmeans.png','Scatter — gauss4c sigma=10.0 — K-Means')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_agglomerative_ward.png','Scatter — gauss4c sigma=10.0 — Ward')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_well_separated_kmeans.png','Scatter — well_separated — K-Means')"><img src="../figures/erica_statistics/scatter_erica_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_well_separated_agglomerative_ward.png','Scatter — well_separated — Ward')"><img src="../figures/erica_statistics/scatter_erica_well_separated_agglomerative_ward.png" loading="lazy"><div class="lbl">well_separated — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_high_dim_kmeans.png','Scatter — high_dim — K-Means')"><img src="../figures/erica_statistics/scatter_erica_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_high_dim_agglomerative_ward.png','Scatter — high_dim — Ward')"><img src="../figures/erica_statistics/scatter_erica_high_dim_agglomerative_ward.png" loading="lazy"><div class="lbl">high_dim — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_overlapping_kmeans.png','Scatter — overlapping — K-Means')"><img src="../figures/erica_statistics/scatter_erica_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_overlapping_agglomerative_ward.png','Scatter — overlapping — Ward')"><img src="../figures/erica_statistics/scatter_erica_overlapping_agglomerative_ward.png" loading="lazy"><div class="lbl">overlapping — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_moons_2d_kmeans.png','Scatter — moons_2d — K-Means')"><img src="../figures/erica_statistics/scatter_erica_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_moons_2d_agglomerative_ward.png','Scatter — moons_2d — Ward')"><img src="../figures/erica_statistics/scatter_erica_moons_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">moons_2d — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_blobs_2d_kmeans.png','Scatter — blobs_2d — K-Means')"><img src="../figures/erica_statistics/scatter_erica_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_blobs_2d_agglomerative_ward.png','Scatter — blobs_2d — Ward')"><img src="../figures/erica_statistics/scatter_erica_blobs_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">blobs_2d — ward</div></div>
+</div>
+
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Triptychs (18)</h3>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>1&times;3 scatter: ERICA stat | ARI | AMI side-by-side in feature space</td></tr>
+  <tr><td>Color</td><td>Per-sample statistic value</td></tr>
+  <tr><td>Script</td><td>06_scatter_plots.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_vdx_3gene_kmeans.png','Triptych — vdx_3gene — K-Means')"><img src="../figures/erica_statistics/triptych_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_vdx_3gene_agglomerative_ward.png','Triptych — vdx_3gene — Ward')"><img src="../figures/erica_statistics/triptych_vdx_3gene_agglomerative_ward.png" loading="lazy"><div class="lbl">vdx_3gene — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma0p1_kmeans.png','Triptych — gauss4c sigma=0.1 — K-Means')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma0p1_agglomerative_ward.png','Triptych — gauss4c sigma=0.1 — Ward')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma0p1_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma1p0_kmeans.png','Triptych — gauss4c sigma=1.0 — K-Means')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma1p0_agglomerative_ward.png','Triptych — gauss4c sigma=1.0 — Ward')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma1p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma10p0_kmeans.png','Triptych — gauss4c sigma=10.0 — K-Means')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma10p0_agglomerative_ward.png','Triptych — gauss4c sigma=10.0 — Ward')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma10p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_well_separated_kmeans.png','Triptych — well_separated — K-Means')"><img src="../figures/erica_statistics/triptych_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_well_separated_agglomerative_ward.png','Triptych — well_separated — Ward')"><img src="../figures/erica_statistics/triptych_well_separated_agglomerative_ward.png" loading="lazy"><div class="lbl">well_separated — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_high_dim_kmeans.png','Triptych — high_dim — K-Means')"><img src="../figures/erica_statistics/triptych_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_high_dim_agglomerative_ward.png','Triptych — high_dim — Ward')"><img src="../figures/erica_statistics/triptych_high_dim_agglomerative_ward.png" loading="lazy"><div class="lbl">high_dim — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_overlapping_kmeans.png','Triptych — overlapping — K-Means')"><img src="../figures/erica_statistics/triptych_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_overlapping_agglomerative_ward.png','Triptych — overlapping — Ward')"><img src="../figures/erica_statistics/triptych_overlapping_agglomerative_ward.png" loading="lazy"><div class="lbl">overlapping — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_moons_2d_kmeans.png','Triptych — moons_2d — K-Means')"><img src="../figures/erica_statistics/triptych_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_moons_2d_agglomerative_ward.png','Triptych — moons_2d — Ward')"><img src="../figures/erica_statistics/triptych_moons_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">moons_2d — ward</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_blobs_2d_kmeans.png','Triptych — blobs_2d — K-Means')"><img src="../figures/erica_statistics/triptych_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_blobs_2d_agglomerative_ward.png','Triptych — blobs_2d — Ward')"><img src="../figures/erica_statistics/triptych_blobs_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">blobs_2d — ward</div></div>
+</div>
+
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison Scatters (9)</h3>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Side-by-side scatter: K-Means vs Ward in feature space</td></tr>
+  <tr><td>Color</td><td>ERICA statistic per sample</td></tr>
+  <tr><td>Script</td><td>06_scatter_plots.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_vdx_3gene.png','Method Scatter — vdx_3gene')"><img src="../figures/erica_statistics/scatter_method_compare_vdx_3gene.png" loading="lazy"><div class="lbl">vdx_3gene</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p1.png','Method Scatter — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_gauss4c_sigma1p0.png','Method Scatter — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/scatter_method_compare_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_gauss4c_sigma10p0.png','Method Scatter — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/scatter_method_compare_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_well_separated.png','Method Scatter — well_separated')"><img src="../figures/erica_statistics/scatter_method_compare_well_separated.png" loading="lazy"><div class="lbl">well_separated</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_high_dim.png','Method Scatter — high_dim')"><img src="../figures/erica_statistics/scatter_method_compare_high_dim.png" loading="lazy"><div class="lbl">high_dim</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_overlapping.png','Method Scatter — overlapping')"><img src="../figures/erica_statistics/scatter_method_compare_overlapping.png" loading="lazy"><div class="lbl">overlapping</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_moons_2d.png','Method Scatter — moons_2d')"><img src="../figures/erica_statistics/scatter_method_compare_moons_2d.png" loading="lazy"><div class="lbl">moons_2d</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_blobs_2d.png','Method Scatter — blobs_2d')"><img src="../figures/erica_statistics/scatter_method_compare_blobs_2d.png" loading="lazy"><div class="lbl">blobs_2d</div></div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="pcsp">
+<h2>PCSP (9)</h2>
+<p class="desc">Per-Cluster Scatter Plots from the original ERICA plotting module. K-Means at K*.</p>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Per-Cluster Scatter Plot (PCSP)</td></tr>
+  <tr><td>Method</td><td>K-Means only</td></tr>
+  <tr><td>K value</td><td>K* (Algorithm 2)</td></tr>
+  <tr><td>Color</td><td>Cluster assignment</td></tr>
+  <tr><td>Script</td><td>07_pcsp.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_vdx_3gene_kmeans.png','PCSP — vdx_3gene')"><img src="../figures/erica_statistics/pcsp_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_gauss4c_sigma0p1_kmeans.png','PCSP — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/pcsp_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_gauss4c_sigma1p0_kmeans.png','PCSP — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/pcsp_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_gauss4c_sigma10p0_kmeans.png','PCSP — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/pcsp_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_well_separated_kmeans.png','PCSP — well_separated')"><img src="../figures/erica_statistics/pcsp_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_high_dim_kmeans.png','PCSP — high_dim')"><img src="../figures/erica_statistics/pcsp_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_overlapping_kmeans.png','PCSP — overlapping')"><img src="../figures/erica_statistics/pcsp_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_moons_2d_kmeans.png','PCSP — moons_2d')"><img src="../figures/erica_statistics/pcsp_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_blobs_2d_kmeans.png','PCSP — blobs_2d')"><img src="../figures/erica_statistics/pcsp_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="ica-icah">
+<h2>ICA &amp; ICAH (18)</h2>
+<p class="desc">ICA dimensionality reduction and Inter-Cluster Assignment Heatmaps.</p>
+
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCA vs ICA (9)</h3>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Side-by-side scatter: PCA projection vs ICA projection</td></tr>
+  <tr><td>Color</td><td>Cluster assignment or ERICA statistic</td></tr>
+  <tr><td>Script</td><td>08_ica_analysis.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_vdx_3gene.png','PCA vs ICA — vdx_3gene')"><img src="../figures/erica_statistics/pca_vs_ica_vdx_3gene.png" loading="lazy"><div class="lbl">vdx_3gene</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p1.png','PCA vs ICA — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_gauss4c_sigma1p0.png','PCA vs ICA — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/pca_vs_ica_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_gauss4c_sigma10p0.png','PCA vs ICA — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/pca_vs_ica_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_well_separated.png','PCA vs ICA — well_separated')"><img src="../figures/erica_statistics/pca_vs_ica_well_separated.png" loading="lazy"><div class="lbl">well_separated</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_high_dim.png','PCA vs ICA — high_dim')"><img src="../figures/erica_statistics/pca_vs_ica_high_dim.png" loading="lazy"><div class="lbl">high_dim</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_overlapping.png','PCA vs ICA — overlapping')"><img src="../figures/erica_statistics/pca_vs_ica_overlapping.png" loading="lazy"><div class="lbl">overlapping</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_moons_2d.png','PCA vs ICA — moons_2d')"><img src="../figures/erica_statistics/pca_vs_ica_moons_2d.png" loading="lazy"><div class="lbl">moons_2d</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_blobs_2d.png','PCA vs ICA — blobs_2d')"><img src="../figures/erica_statistics/pca_vs_ica_blobs_2d.png" loading="lazy"><div class="lbl">blobs_2d</div></div>
+</div>
+
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Inter-Cluster Assignment Heatmaps (9)</h3>
+<div class="section-placard"><table>
+  <tr><td>Plot type</td><td>Heatmap of inter-cluster assignment frequencies</td></tr>
+  <tr><td>Axes</td><td>Cluster i &times; Cluster j</td></tr>
+  <tr><td>Color</td><td>Assignment frequency from CLAM matrix</td></tr>
+  <tr><td>Method</td><td>K-Means only</td></tr>
+  <tr><td>Script</td><td>08_ica_analysis.py</td></tr>
+</table></div>
+<div class="grid">
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_vdx_3gene_kmeans.png','ICAH — vdx_3gene')"><img src="../figures/erica_statistics/icah_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_gauss4c_sigma0p1_kmeans.png','ICAH — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/icah_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_gauss4c_sigma1p0_kmeans.png','ICAH — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/icah_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_gauss4c_sigma10p0_kmeans.png','ICAH — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/icah_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_well_separated_kmeans.png','ICAH — well_separated')"><img src="../figures/erica_statistics/icah_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_high_dim_kmeans.png','ICAH — high_dim')"><img src="../figures/erica_statistics/icah_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_overlapping_kmeans.png','ICAH — overlapping')"><img src="../figures/erica_statistics/icah_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_moons_2d_kmeans.png','ICAH — moons_2d')"><img src="../figures/erica_statistics/icah_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
+  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_blobs_2d_kmeans.png','ICAH — blobs_2d')"><img src="../figures/erica_statistics/icah_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
+</div>
+</div>
+
+</div><!-- /content -->
+
+<footer>Exploratory &mdash; 2026-04-02 &mdash; ERICA v0.1.4 &mdash; &ldquo;All clusters are wrong, but some are replicable.&rdquo;</footer>
+
+<script>
+function openLightbox(src, caption) {
+    document.getElementById('lb-img').src = src;
+    document.getElementById('lb-caption').textContent = caption;
+    document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+</script>
+
+</body>
+</html>

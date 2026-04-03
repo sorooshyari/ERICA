@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ERICA Literature Comparison</title>
 <style>
-  :root { --bg: #fafafa; --text: #1a1a2e; --muted: #555; --accent: #2d6a4f; --border: #ddd; --card-bg: #fff; --code-bg: #f0f0f0; }
+  :root { --bg: #0d0d0d; --text: #e0e0e0; --muted: #8a8a8a; --accent: #5cb88a; --border: #2a2a2a; --card-bg: #1a1a1a; --code-bg: #141414; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.7; }
 
@@ -28,7 +28,7 @@
 
   /* Figure cards */
   .figure { margin: 24px 0; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
-  .figure:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .figure:hover { box-shadow: 0 2px 8px rgba(255,255,255,0.04); }
   .figure img { width: 100%; display: block; padding: 8px; background: #fff; }
   .figure .caption { padding: 12px 16px; border-top: 1px solid var(--border); }
   .figure .caption .fig-id { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
@@ -38,8 +38,8 @@
   /* Museum placard */
   .placard { margin-top: 10px; padding: 10px 12px; background: var(--code-bg); border-left: 3px solid var(--border); }
   .placard table { border-collapse: collapse; width: 100%; }
-  .placard td { font-family: 'Courier New', Courier, monospace; font-size: 11px; color: #333; padding: 1px 0; vertical-align: top; }
-  .placard td:first-child { color: #777; padding-right: 12px; white-space: nowrap; min-width: 110px; }
+  .placard td { font-family: 'Courier New', Courier, monospace; font-size: 11px; color: #b0b0b0; padding: 1px 0; vertical-align: top; }
+  .placard td:first-child { color: #8a8a8a; padding-right: 12px; white-space: nowrap; min-width: 110px; }
 
   .figure-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
   .figure-pair .figure { margin: 0; }
@@ -99,6 +99,14 @@
   All analyses use ERICA v0.1.4 with B=200 MC iterations, 80/20 train-test split.
   Datasets include VDX breast cancer (3-gene subset), Gaussian sigma sweeps, and 2D shape datasets.
   Click any figure to enlarge.
+</p>
+
+<p style="font-size: 13px; color: var(--muted); margin: 0 0 24px; border: 1px solid var(--border); padding: 10px 14px; background: var(--card-bg);">
+  <strong>Related pages:</strong>
+  &nbsp;&middot;&nbsp;<a href="../2026-03-30-gallery.html" style="color:var(--accent);">Main Gallery</a> (80 figures)
+  &nbsp;&middot;&nbsp;<a href="../2026-03-30-playground.html" style="color:var(--accent);">Entropy &amp; ERICA Statistic Experiments</a> (101 figures)
+  &nbsp;&middot;&nbsp;<a href="../2026-03-30-erica-statistic-playground.html" style="color:var(--accent);">ERICA Statistic Deep Dive</a> (68 figures)
+  &nbsp;&middot;&nbsp;<a href="../erica_statistics/2026-04-02-erica-statistics.html" style="color:var(--accent);">ERICA Statistics (Exploratory)</a> (110 figures)
 </p>
 
 <!-- ============================================================ -->
