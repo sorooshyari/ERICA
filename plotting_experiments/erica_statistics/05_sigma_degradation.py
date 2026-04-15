@@ -53,8 +53,11 @@ def erica_stat_from_clam(clam):
 
 
 def collect_metrics(method):
-    """Return (sigmas, erica_stat_means, ari_means, ami_means) for the given method."""
-    sigmas, estat, aris, amis = [], [], [], []
+    """Return arrays of (sigmas, means, stds) for all three metrics."""
+    sigmas = []
+    estat_mean, estat_std = [], []
+    ari_mean, ari_std = [], []
+    ami_mean, ami_std = [], []
 
     for dataset, sigma in SIGMA_DATASETS:
         path = os.path.join(RESULTS_DIR, f'{dataset}.joblib')
@@ -72,25 +75,45 @@ def collect_metrics(method):
             continue
 
         sigmas.append(sigma)
-        estat.append(float(np.mean(erica_stat_from_clam(clam))))
+        e_vals = erica_stat_from_clam(clam)
+        estat_mean.append(float(np.mean(e_vals)))
+        estat_std.append(float(np.std(e_vals)))
 
         il = res_entry.get('iteration_labels')
         if il is not None:
-            ari_vals, ami_vals = compute_per_iteration_ari_ami(il)
-            aris.append(float(np.mean(ari_vals)))
-            amis.append(float(np.mean(ami_vals)))
+            a_vals, m_vals = compute_per_iteration_ari_ami(il)
+            ari_mean.append(float(np.mean(a_vals)))
+            ari_std.append(float(np.std(a_vals)))
+            ami_mean.append(float(np.mean(m_vals)))
+            ami_std.append(float(np.std(m_vals)))
         else:
             m_dict = er.get('metrics', {}).get(K_EVAL, {}).get(method, {})
-            aris.append(float(m_dict.get('ARI_mean', np.nan)))
-            amis.append(float(m_dict.get('AMI_mean', np.nan)))
+            ari_mean.append(float(m_dict.get('ARI_mean', np.nan)))
+            ari_std.append(float(m_dict.get('ARI_std', 0.0)))
+            ami_mean.append(float(m_dict.get('AMI_mean', np.nan)))
+            ami_std.append(float(m_dict.get('AMI_std', 0.0)))
 
-    return np.array(sigmas), np.array(estat), np.array(aris), np.array(amis)
+    return (
+        np.array(sigmas),
+        np.array(estat_mean), np.array(estat_std),
+        np.array(ari_mean), np.array(ari_std),
+        np.array(ami_mean), np.array(ami_std),
+    )
 
 
-def plot_panel(ax, sigmas, estat, aris, amis, title):
-    for key, vals in [('ERICA stat', estat), ('ERICA-ARI', aris), ('ERICA-AMI', amis)]:
+def plot_panel(ax, sigmas, means_dict, stds_dict, title):
+    for key in ['ERICA stat', 'ERICA-ARI', 'ERICA-AMI']:
+        m_vals = means_dict[key]
+        s_vals = stds_dict[key]
         style = LINE_STYLES[key]
-        ax.plot(sigmas, vals, 'o-', color=style['color'], label=style['label'], markersize=7)
+        ax.plot(sigmas, m_vals, 'o-', color=style['color'],
+                label=style['label'], markersize=7)
+        ax.fill_between(
+            sigmas,
+            np.clip(m_vals - s_vals, -0.05, 1.05),
+            np.clip(m_vals + s_vals, -0.05, 1.05),
+            color=style['color'], alpha=0.15,
+        )
 
     ax.set_xscale('log')
     ax.set_xlabel(r'$\sigma$ (cluster standard deviation)')
@@ -107,23 +130,27 @@ def main():
     os.makedirs(FIGURES_DIR, exist_ok=True)
 
     print('Collecting K-Means metrics ...')
-    km_sigmas, km_estat, km_aris, km_amis = collect_metrics('kmeans')
+    km_s, km_em, km_es, km_am, km_as_, km_mm, km_ms = collect_metrics('kmeans')
     print('Collecting Ward metrics ...')
-    wd_sigmas, wd_estat, wd_aris, wd_amis = collect_metrics('agglomerative_ward')
+    wd_s, wd_em, wd_es, wd_am, wd_as_, wd_mm, wd_ms = collect_metrics('agglomerative_ward')
 
-    if len(km_sigmas) == 0 and len(wd_sigmas) == 0:
+    if len(km_s) == 0 and len(wd_s) == 0:
         print('No data found for either method. Exiting.')
         return
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(DOUBLE_COL * 1.2, 3.5), sharey=True)
 
-    if len(km_sigmas) > 0:
-        plot_panel(ax1, km_sigmas, km_estat, km_aris, km_amis, 'K-Means')
+    if len(km_s) > 0:
+        km_means = {'ERICA stat': km_em, 'ERICA-ARI': km_am, 'ERICA-AMI': km_mm}
+        km_stds = {'ERICA stat': km_es, 'ERICA-ARI': km_as_, 'ERICA-AMI': km_ms}
+        plot_panel(ax1, km_s, km_means, km_stds, 'K-Means')
     else:
         ax1.set_title('K-Means (no data)', fontweight='bold', fontsize=11)
 
-    if len(wd_sigmas) > 0:
-        plot_panel(ax2, wd_sigmas, wd_estat, wd_aris, wd_amis, 'Ward')
+    if len(wd_s) > 0:
+        wd_means = {'ERICA stat': wd_em, 'ERICA-ARI': wd_am, 'ERICA-AMI': wd_mm}
+        wd_stds = {'ERICA stat': wd_es, 'ERICA-ARI': wd_as_, 'ERICA-AMI': wd_ms}
+        plot_panel(ax2, wd_s, wd_means, wd_stds, 'Ward')
         ax2.set_ylabel('')
     else:
         ax2.set_title('Ward (no data)', fontweight='bold', fontsize=11)

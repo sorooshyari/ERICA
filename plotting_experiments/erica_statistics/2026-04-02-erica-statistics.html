@@ -33,10 +33,20 @@
   .section-placard td:first-child { color: var(--accent); font-weight: 600; white-space: nowrap; width: 110px; }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 12px; }
+
   .card { background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
   .card:hover { box-shadow: 0 2px 8px rgba(255,255,255,0.04); }
   .card img { width: 100%; display: block; padding: 8px; background: #fff; }
   .card .lbl { padding: 6px 10px; font-size: 11px; color: var(--muted); font-family: monospace; border-top: 1px solid var(--border); }
+
+  .figure { margin: 12px 0; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+  .figure:hover { box-shadow: 0 2px 8px rgba(255,255,255,0.04); }
+  .figure img { width: 100%; display: block; padding: 8px; background: #fff; }
+  .figure .caption { padding: 12px 16px; border-top: 1px solid var(--border); }
+  .figure .caption .fig-id { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .figure .caption .fig-title { font-size: 15px; font-weight: 600; margin: 3px 0 6px; }
+  .figure .caption .fig-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .figure .caption .fig-method { font-size: 11px; color: var(--muted); margin-top: 6px; font-family: 'SF Mono', 'Fira Code', monospace; background: var(--code-bg); padding: 4px 8px; border-radius: 3px; display: inline-block; }
 
   .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
   .lightbox.active { display: flex; }
@@ -72,15 +82,19 @@
   </div>
 </div>
 
+
 <div class="nav" id="topnav">
-  <a href="#distributions">Distributions</a>
-  <a href="#stats-vs-k">Statistics vs K</a>
-  <a href="#method-comparison">Method Comparison</a>
   <a href="#cross-dataset">Cross-Dataset</a>
   <a href="#sigma-degradation">Sigma Degradation</a>
-  <a href="#scatter-plots">Scatter Plots</a>
-  <a href="#pcsp">PCSP</a>
-  <a href="#ica-icah">ICA &amp; ICAH</a>
+  <a href="#vdx_3gene">VDX 3-gene</a>
+  <a href="#gauss4c_sigma0p1">Gauss σ=0.1</a>
+  <a href="#gauss4c_sigma1p0">Gauss σ=1.0</a>
+  <a href="#gauss4c_sigma10p0">Gauss σ=10.0</a>
+  <a href="#well_separated">Well-Separated</a>
+  <a href="#high_dim">High-Dim</a>
+  <a href="#overlapping">Overlapping</a>
+  <a href="#moons_2d">Moons</a>
+  <a href="#blobs_2d">Blobs</a>
 </div>
 
 <!-- Lightbox -->
@@ -107,89 +121,6 @@
 </p>
 
 <!-- ============================================================ -->
-<div class="section" id="distributions">
-<h2>Distributions (9)</h2>
-<p class="desc">1&times;3 histograms: ERICA statistic, ARI, and AMI distributions at K* for each dataset.</p>
-<div class="section-placard"><table>
-  <tr><td>Plot type</td><td>1&times;3 histogram panel (ERICA stat | ARI | AMI)</td></tr>
-  <tr><td>X axis</td><td>Statistic value</td></tr>
-  <tr><td>Y axis</td><td>Frequency / density</td></tr>
-  <tr><td>K value</td><td>K* (selected by Algorithm 2)</td></tr>
-  <tr><td>Parameters</td><td>B=200, 80/20 split</td></tr>
-  <tr><td>Script</td><td>01_distributions.py</td></tr>
-</table></div>
-<div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_vdx_3gene.png','Distributions — vdx_3gene')"><img src="../figures/erica_statistics/dist_vdx_3gene.png" loading="lazy"><div class="lbl">vdx_3gene</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_gauss4c_sigma0p1.png','Distributions — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/dist_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_gauss4c_sigma1p0.png','Distributions — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/dist_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_gauss4c_sigma10p0.png','Distributions — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/dist_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_well_separated.png','Distributions — well_separated')"><img src="../figures/erica_statistics/dist_well_separated.png" loading="lazy"><div class="lbl">well_separated</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_high_dim.png','Distributions — high_dim')"><img src="../figures/erica_statistics/dist_high_dim.png" loading="lazy"><div class="lbl">high_dim</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_overlapping.png','Distributions — overlapping')"><img src="../figures/erica_statistics/dist_overlapping.png" loading="lazy"><div class="lbl">overlapping</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_moons_2d.png','Distributions — moons_2d')"><img src="../figures/erica_statistics/dist_moons_2d.png" loading="lazy"><div class="lbl">moons_2d</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/dist_blobs_2d.png','Distributions — blobs_2d')"><img src="../figures/erica_statistics/dist_blobs_2d.png" loading="lazy"><div class="lbl">blobs_2d</div></div>
-</div>
-</div>
-
-<!-- ============================================================ -->
-<div class="section" id="stats-vs-k">
-<h2>Statistics vs K (18)</h2>
-<p class="desc">All three statistics plotted against K with &plusmn;1 std error bands. One plot per dataset &times; method.</p>
-<div class="section-placard"><table>
-  <tr><td>Plot type</td><td>Line plot with shaded error bands</td></tr>
-  <tr><td>X axis</td><td>K (number of clusters)</td></tr>
-  <tr><td>Y axis</td><td>Statistic value (ERICA stat, ARI, AMI)</td></tr>
-  <tr><td>Bands</td><td>&plusmn;1 std across B=200 iterations</td></tr>
-  <tr><td>Methods</td><td>K-Means, Agglomerative (Ward)</td></tr>
-  <tr><td>Script</td><td>02_statistics_vs_k.py</td></tr>
-</table></div>
-<div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_vdx_3gene_kmeans.png','Stats vs K — vdx_3gene — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_vdx_3gene_agglomerative_ward.png','Stats vs K — vdx_3gene — Ward')"><img src="../figures/erica_statistics/stats_vs_k_vdx_3gene_agglomerative_ward.png" loading="lazy"><div class="lbl">vdx_3gene — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_kmeans.png','Stats vs K — gauss4c sigma=0.1 — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_agglomerative_ward.png','Stats vs K — gauss4c sigma=0.1 — Ward')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_kmeans.png','Stats vs K — gauss4c sigma=1.0 — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_agglomerative_ward.png','Stats vs K — gauss4c sigma=1.0 — Ward')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_kmeans.png','Stats vs K — gauss4c sigma=10.0 — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_agglomerative_ward.png','Stats vs K — gauss4c sigma=10.0 — Ward')"><img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_well_separated_kmeans.png','Stats vs K — well_separated — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_well_separated_agglomerative_ward.png','Stats vs K — well_separated — Ward')"><img src="../figures/erica_statistics/stats_vs_k_well_separated_agglomerative_ward.png" loading="lazy"><div class="lbl">well_separated — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_high_dim_kmeans.png','Stats vs K — high_dim — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_high_dim_agglomerative_ward.png','Stats vs K — high_dim — Ward')"><img src="../figures/erica_statistics/stats_vs_k_high_dim_agglomerative_ward.png" loading="lazy"><div class="lbl">high_dim — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_overlapping_kmeans.png','Stats vs K — overlapping — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_overlapping_agglomerative_ward.png','Stats vs K — overlapping — Ward')"><img src="../figures/erica_statistics/stats_vs_k_overlapping_agglomerative_ward.png" loading="lazy"><div class="lbl">overlapping — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_moons_2d_kmeans.png','Stats vs K — moons_2d — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_moons_2d_agglomerative_ward.png','Stats vs K — moons_2d — Ward')"><img src="../figures/erica_statistics/stats_vs_k_moons_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">moons_2d — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_blobs_2d_kmeans.png','Stats vs K — blobs_2d — K-Means')"><img src="../figures/erica_statistics/stats_vs_k_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_blobs_2d_agglomerative_ward.png','Stats vs K — blobs_2d — Ward')"><img src="../figures/erica_statistics/stats_vs_k_blobs_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">blobs_2d — ward</div></div>
-</div>
-</div>
-
-<!-- ============================================================ -->
-<div class="section" id="method-comparison">
-<h2>Method Comparison (9)</h2>
-<p class="desc">2&times;3 grid per dataset: rows = methods (K-Means, Ward), columns = statistics (ERICA stat, ARI, AMI).</p>
-<div class="section-placard"><table>
-  <tr><td>Plot type</td><td>2&times;3 panel grid (methods &times; statistics)</td></tr>
-  <tr><td>Rows</td><td>K-Means, Agglomerative (Ward)</td></tr>
-  <tr><td>Columns</td><td>ERICA statistic, ARI, AMI</td></tr>
-  <tr><td>Content</td><td>Distribution or summary per cell</td></tr>
-  <tr><td>Script</td><td>03_method_comparison.py</td></tr>
-</table></div>
-<div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_vdx_3gene.png','Method Comparison — vdx_3gene')"><img src="../figures/erica_statistics/method_compare_vdx_3gene.png" loading="lazy"><div class="lbl">vdx_3gene</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_gauss4c_sigma0p1.png','Method Comparison — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/method_compare_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_gauss4c_sigma1p0.png','Method Comparison — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/method_compare_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_gauss4c_sigma10p0.png','Method Comparison — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/method_compare_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_well_separated.png','Method Comparison — well_separated')"><img src="../figures/erica_statistics/method_compare_well_separated.png" loading="lazy"><div class="lbl">well_separated</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_high_dim.png','Method Comparison — high_dim')"><img src="../figures/erica_statistics/method_compare_high_dim.png" loading="lazy"><div class="lbl">high_dim</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_overlapping.png','Method Comparison — overlapping')"><img src="../figures/erica_statistics/method_compare_overlapping.png" loading="lazy"><div class="lbl">overlapping</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_moons_2d.png','Method Comparison — moons_2d')"><img src="../figures/erica_statistics/method_compare_moons_2d.png" loading="lazy"><div class="lbl">moons_2d</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/method_compare_blobs_2d.png','Method Comparison — blobs_2d')"><img src="../figures/erica_statistics/method_compare_blobs_2d.png" loading="lazy"><div class="lbl">blobs_2d</div></div>
-</div>
-</div>
-
-<!-- ============================================================ -->
 <div class="section" id="cross-dataset">
 <h2>Cross-Dataset Summary (1)</h2>
 <p class="desc">Heatmap of all datasets &times; all three statistics. Which datasets are replicable? Where do statistics disagree?</p>
@@ -201,7 +132,15 @@
   <tr><td>Script</td><td>04_cross_dataset_summary.py</td></tr>
 </table></div>
 <div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/cross_dataset_summary.png','Cross-Dataset Summary')"><img src="../figures/erica_statistics/cross_dataset_summary.png" loading="lazy"><div class="lbl">cross_dataset_summary</div></div>
+  <div class="figure" onclick="openLightbox('../figures/erica_statistics/cross_dataset_summary.png','Cross-Dataset Summary')">
+    <img src="../figures/erica_statistics/cross_dataset_summary.png" loading="lazy" alt="Cross-Dataset Summary">
+    <div class="caption">
+      <div class="fig-id">CDS-01</div>
+      <div class="fig-title">Cross-Dataset Summary</div>
+      <div class="fig-desc">All 9 datasets at a glance. Rows ordered by difficulty. Diagonal pattern: well-separated, high_dim, blobs are trivially replicable (all 1.0). VDX and moons show a gap between ERICA stat (high) and ARI (lower) — per-sample consistency doesn't guarantee partition-level agreement. Gaussian σ=10.0 is the null case.</div>
+      <div class="fig-method">heatmap · values at K* (K-Means) · RdYlGn colormap · annotated with 2-decimal values</div>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -218,154 +157,1185 @@
   <tr><td>Script</td><td>05_sigma_degradation.py</td></tr>
 </table></div>
 <div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/sigma_degradation.png','Sigma Degradation')"><img src="../figures/erica_statistics/sigma_degradation.png" loading="lazy"><div class="lbl">sigma_degradation</div></div>
+  <div class="figure" onclick="openLightbox('../figures/erica_statistics/sigma_degradation.png','Sigma Degradation')">
+    <img src="../figures/erica_statistics/sigma_degradation.png" loading="lazy" alt="Sigma Degradation">
+    <div class="caption">
+      <div class="fig-id">SD-01</div>
+      <div class="fig-title">Sigma Degradation</div>
+      <div class="fig-desc">Three statistics degrade differently as σ increases. ERICA stat degrades most slowly — it remains 0.49 (≈ 1/K=0.25 would be truly random) even at σ=10.0. ARI collapses to near-zero fastest. This is expected: ARI penalizes partition disagreement more harshly than per-sample wobble. Side-by-side K-Means vs Ward shows similar degradation trajectories.</div>
+      <div class="fig-method">x: σ (log scale) · y: mean statistic at K=4 · 3 lines: ERICA stat, ARI, AMI · K-Means | Ward panels</div>
+    </div>
+  </div>
 </div>
 </div>
 
 <!-- ============================================================ -->
-<div class="section" id="scatter-plots">
-<h2>Scatter Plots (45)</h2>
-<p class="desc">Spatial views: confidence maps, triptychs, and method comparisons in feature space.</p>
-
-<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Confidence Maps (18)</h3>
-<div class="section-placard"><table>
-  <tr><td>Plot type</td><td>Scatter plot colored by ERICA statistic</td></tr>
-  <tr><td>Axes</td><td>First two features (or PCA components)</td></tr>
-  <tr><td>Color</td><td>ERICA statistic value per sample</td></tr>
-  <tr><td>Script</td><td>06_scatter_plots.py</td></tr>
-</table></div>
+<div class="section" id="vdx_3gene">
+<h2>VDX 3-Gene Breast Cancer</h2>
+<p class="desc">Real breast cancer gene expression (ESR1, ERBB2, AURKA). 344 samples, 3 features, true K unknown. The anchor real-data dataset from Parmigiani et al. ERICA stat=0.83, ARI=0.59 at K*=6.</p>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Distribution</h3>
 <div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_vdx_3gene_kmeans.png','Scatter — vdx_3gene — K-Means')"><img src="../figures/erica_statistics/scatter_erica_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_vdx_3gene_agglomerative_ward.png','Scatter — vdx_3gene — Ward')"><img src="../figures/erica_statistics/scatter_erica_vdx_3gene_agglomerative_ward.png" loading="lazy"><div class="lbl">vdx_3gene — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_kmeans.png','Scatter — gauss4c sigma=0.1 — K-Means')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_agglomerative_ward.png','Scatter — gauss4c sigma=0.1 — Ward')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_kmeans.png','Scatter — gauss4c sigma=1.0 — K-Means')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_agglomerative_ward.png','Scatter — gauss4c sigma=1.0 — Ward')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_kmeans.png','Scatter — gauss4c sigma=10.0 — K-Means')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_agglomerative_ward.png','Scatter — gauss4c sigma=10.0 — Ward')"><img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_well_separated_kmeans.png','Scatter — well_separated — K-Means')"><img src="../figures/erica_statistics/scatter_erica_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_well_separated_agglomerative_ward.png','Scatter — well_separated — Ward')"><img src="../figures/erica_statistics/scatter_erica_well_separated_agglomerative_ward.png" loading="lazy"><div class="lbl">well_separated — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_high_dim_kmeans.png','Scatter — high_dim — K-Means')"><img src="../figures/erica_statistics/scatter_erica_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_high_dim_agglomerative_ward.png','Scatter — high_dim — Ward')"><img src="../figures/erica_statistics/scatter_erica_high_dim_agglomerative_ward.png" loading="lazy"><div class="lbl">high_dim — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_overlapping_kmeans.png','Scatter — overlapping — K-Means')"><img src="../figures/erica_statistics/scatter_erica_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_overlapping_agglomerative_ward.png','Scatter — overlapping — Ward')"><img src="../figures/erica_statistics/scatter_erica_overlapping_agglomerative_ward.png" loading="lazy"><div class="lbl">overlapping — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_moons_2d_kmeans.png','Scatter — moons_2d — K-Means')"><img src="../figures/erica_statistics/scatter_erica_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_moons_2d_agglomerative_ward.png','Scatter — moons_2d — Ward')"><img src="../figures/erica_statistics/scatter_erica_moons_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">moons_2d — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_blobs_2d_kmeans.png','Scatter — blobs_2d — K-Means')"><img src="../figures/erica_statistics/scatter_erica_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_erica_blobs_2d_agglomerative_ward.png','Scatter — blobs_2d — Ward')"><img src="../figures/erica_statistics/scatter_erica_blobs_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">blobs_2d — ward</div></div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/dist_vdx_3gene.png','Distributions — vdx_3gene')">
+    <img src="../figures/erica_statistics/dist_vdx_3gene.png" loading="lazy" alt="Distributions — vdx_3gene">
+    <div class="caption">
+      <div class="fig-id">DIST-01</div>
+      <div class="fig-title">Distributions — vdx_3gene</div>
+      <div class="fig-desc">VDX breast cancer 3-gene subset (344 samples, K*=6). ERICA stat mean=0.83 shows moderate per-sample consistency. ARI drops to 0.59 — partition-level agreement is notably lower than per-sample stability, suggesting some partitions rearrange even when individual samples stay put.</div>
+      <div class="fig-method">erica_stat = max(CLAM[i,:]) / sum(CLAM[i,:]) · ARI/AMI per-iteration from predicted vs refit labels · B=200, 80/20 split</div>
+    </div>
+  </div>
 </div>
-
-<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Triptychs (18)</h3>
-<div class="section-placard"><table>
-  <tr><td>Plot type</td><td>1&times;3 scatter: ERICA stat | ARI | AMI side-by-side in feature space</td></tr>
-  <tr><td>Color</td><td>Per-sample statistic value</td></tr>
-  <tr><td>Script</td><td>06_scatter_plots.py</td></tr>
-</table></div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Statistics vs K</h3>
 <div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_vdx_3gene_kmeans.png','Triptych — vdx_3gene — K-Means')"><img src="../figures/erica_statistics/triptych_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_vdx_3gene_agglomerative_ward.png','Triptych — vdx_3gene — Ward')"><img src="../figures/erica_statistics/triptych_vdx_3gene_agglomerative_ward.png" loading="lazy"><div class="lbl">vdx_3gene — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma0p1_kmeans.png','Triptych — gauss4c sigma=0.1 — K-Means')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma0p1_agglomerative_ward.png','Triptych — gauss4c sigma=0.1 — Ward')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma0p1_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma1p0_kmeans.png','Triptych — gauss4c sigma=1.0 — K-Means')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma1p0_agglomerative_ward.png','Triptych — gauss4c sigma=1.0 — Ward')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma1p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma10p0_kmeans.png','Triptych — gauss4c sigma=10.0 — K-Means')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma10p0_agglomerative_ward.png','Triptych — gauss4c sigma=10.0 — Ward')"><img src="../figures/erica_statistics/triptych_gauss4c_sigma10p0_agglomerative_ward.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_well_separated_kmeans.png','Triptych — well_separated — K-Means')"><img src="../figures/erica_statistics/triptych_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_well_separated_agglomerative_ward.png','Triptych — well_separated — Ward')"><img src="../figures/erica_statistics/triptych_well_separated_agglomerative_ward.png" loading="lazy"><div class="lbl">well_separated — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_high_dim_kmeans.png','Triptych — high_dim — K-Means')"><img src="../figures/erica_statistics/triptych_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_high_dim_agglomerative_ward.png','Triptych — high_dim — Ward')"><img src="../figures/erica_statistics/triptych_high_dim_agglomerative_ward.png" loading="lazy"><div class="lbl">high_dim — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_overlapping_kmeans.png','Triptych — overlapping — K-Means')"><img src="../figures/erica_statistics/triptych_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_overlapping_agglomerative_ward.png','Triptych — overlapping — Ward')"><img src="../figures/erica_statistics/triptych_overlapping_agglomerative_ward.png" loading="lazy"><div class="lbl">overlapping — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_moons_2d_kmeans.png','Triptych — moons_2d — K-Means')"><img src="../figures/erica_statistics/triptych_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_moons_2d_agglomerative_ward.png','Triptych — moons_2d — Ward')"><img src="../figures/erica_statistics/triptych_moons_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">moons_2d — ward</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_blobs_2d_kmeans.png','Triptych — blobs_2d — K-Means')"><img src="../figures/erica_statistics/triptych_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/triptych_blobs_2d_agglomerative_ward.png','Triptych — blobs_2d — Ward')"><img src="../figures/erica_statistics/triptych_blobs_2d_agglomerative_ward.png" loading="lazy"><div class="lbl">blobs_2d — ward</div></div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_vdx_3gene_kmeans.png','Stats vs K — vdx_3gene — K-Means')">
+    <img src="../figures/erica_statistics/stats_vs_k_vdx_3gene_kmeans.png" loading="lazy" alt="Stats vs K — vdx_3gene — K-Means">
+    <div class="caption">
+      <div class="fig-id">SVK-01</div>
+      <div class="fig-title">Stats vs K — vdx_3gene — K-Means</div>
+      <div class="fig-desc">VDX 3-gene, K-Means. ERICA stat remains high (>0.8) across K, while ARI and AMI peak and then decline. The gap between ERICA stat and ARI widens at higher K — more clusters means more partition rearrangement even when individual assignments are stable.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_vdx_3gene_agglomerative_ward.png','Stats vs K — vdx_3gene — Ward')">
+    <img src="../figures/erica_statistics/stats_vs_k_vdx_3gene_agglomerative_ward.png" loading="lazy" alt="Stats vs K — vdx_3gene — Ward">
+    <div class="caption">
+      <div class="fig-id">SVK-02</div>
+      <div class="fig-title">Stats vs K — vdx_3gene — Ward</div>
+      <div class="fig-desc">VDX 3-gene, Ward linkage. Similar pattern to K-Means but ARI/AMI bands are wider — more iteration-to-iteration variance. Ward's centroid proxy for prediction introduces additional noise.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
 </div>
-
-<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison Scatters (9)</h3>
-<div class="section-placard"><table>
-  <tr><td>Plot type</td><td>Side-by-side scatter: K-Means vs Ward in feature space</td></tr>
-  <tr><td>Color</td><td>ERICA statistic per sample</td></tr>
-  <tr><td>Script</td><td>06_scatter_plots.py</td></tr>
-</table></div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison</h3>
 <div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_vdx_3gene.png','Method Scatter — vdx_3gene')"><img src="../figures/erica_statistics/scatter_method_compare_vdx_3gene.png" loading="lazy"><div class="lbl">vdx_3gene</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p1.png','Method Scatter — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_gauss4c_sigma1p0.png','Method Scatter — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/scatter_method_compare_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_gauss4c_sigma10p0.png','Method Scatter — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/scatter_method_compare_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_well_separated.png','Method Scatter — well_separated')"><img src="../figures/erica_statistics/scatter_method_compare_well_separated.png" loading="lazy"><div class="lbl">well_separated</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_high_dim.png','Method Scatter — high_dim')"><img src="../figures/erica_statistics/scatter_method_compare_high_dim.png" loading="lazy"><div class="lbl">high_dim</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_overlapping.png','Method Scatter — overlapping')"><img src="../figures/erica_statistics/scatter_method_compare_overlapping.png" loading="lazy"><div class="lbl">overlapping</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_moons_2d.png','Method Scatter — moons_2d')"><img src="../figures/erica_statistics/scatter_method_compare_moons_2d.png" loading="lazy"><div class="lbl">moons_2d</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_blobs_2d.png','Method Scatter — blobs_2d')"><img src="../figures/erica_statistics/scatter_method_compare_blobs_2d.png" loading="lazy"><div class="lbl">blobs_2d</div></div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/method_compare_vdx_3gene.png','Method Comparison — vdx_3gene')">
+    <img src="../figures/erica_statistics/method_compare_vdx_3gene.png" loading="lazy" alt="Method Comparison — vdx_3gene">
+    <div class="caption">
+      <div class="fig-id">MC-01</div>
+      <div class="fig-title">Method Comparison — vdx_3gene</div>
+      <div class="fig-desc">VDX 3-gene. K-Means and Ward show similar ERICA stat profiles, but Ward's ARI band is wider. The AMI column tracks ARI closely — information-theoretic and combinatorial measures agree on partition stability.</div>
+      <div class="fig-method">2×3 grid · rows: K-Means, Ward · cols: ERICA stat, ARI, AMI · each cell: metric vs K with ±1 std band</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Spatial Views</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_vdx_3gene_kmeans.png','Confidence Map — vdx_3gene — K-Means')">
+    <img src="../figures/erica_statistics/scatter_erica_vdx_3gene_kmeans.png" loading="lazy" alt="Confidence Map — vdx_3gene — K-Means">
+    <div class="caption">
+      <div class="fig-id">SC-01</div>
+      <div class="fig-title">Confidence Map — vdx_3gene — K-Means</div>
+      <div class="fig-desc">VDX 3-gene PCA projection, K-Means at K*=6. Most points are green (high ERICA stat ≈ 0.83+). Red/yellow points at cluster boundaries — these samples switch assignments across MC iterations.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_vdx_3gene_agglomerative_ward.png','Confidence Map — vdx_3gene — Ward')">
+    <img src="../figures/erica_statistics/scatter_erica_vdx_3gene_agglomerative_ward.png" loading="lazy" alt="Confidence Map — vdx_3gene — Ward">
+    <div class="caption">
+      <div class="fig-id">SC-02</div>
+      <div class="fig-title">Confidence Map — vdx_3gene — Ward</div>
+      <div class="fig-desc">VDX 3-gene PCA projection, Ward at K*=6. Similar spatial pattern to K-Means — the same boundary regions are yellow/red. Ward produces slightly more yellow points in the dense central region, reflecting the centroid-proxy prediction's additional uncertainty for the 344-sample breast cancer dataset.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · Ward at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_vdx_3gene_kmeans.png','Triptych — vdx_3gene — K-Means')">
+    <img src="../figures/erica_statistics/triptych_vdx_3gene_kmeans.png" loading="lazy" alt="Triptych — vdx_3gene — K-Means">
+    <div class="caption">
+      <div class="fig-id">TR-01</div>
+      <div class="fig-title">Triptych — vdx_3gene — K-Means</div>
+      <div class="fig-desc">VDX 3-gene triptych. Left: 6 cluster assignments in PCA space. Center: ERICA stat — boundary samples between ESR1-high and ERBB2-high groups are least stable. Right: entropy mirrors ERICA stat inversely — high entropy where assignments are uncertain.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_vdx_3gene_agglomerative_ward.png','Triptych — vdx_3gene — Ward')">
+    <img src="../figures/erica_statistics/triptych_vdx_3gene_agglomerative_ward.png" loading="lazy" alt="Triptych — vdx_3gene — Ward">
+    <div class="caption">
+      <div class="fig-id">TR-02</div>
+      <div class="fig-title">Triptych — vdx_3gene — Ward</div>
+      <div class="fig-desc">VDX 3-gene triptych, Ward linkage. Left: 6-cluster assignment similar to K-Means but with slightly different boundary placements. Center: ERICA stat shows more yellow in the dense central region. Right: entropy field is broader — Ward's centroid proxy spreads uncertainty across more samples.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_vdx_3gene.png','Method Scatter — vdx_3gene')">
+    <img src="../figures/erica_statistics/scatter_method_compare_vdx_3gene.png" loading="lazy" alt="Method Scatter — vdx_3gene">
+    <div class="caption">
+      <div class="fig-id">MS-01</div>
+      <div class="fig-title">Method Scatter — vdx_3gene</div>
+      <div class="fig-desc">VDX 3-gene, PCA projection. K-Means and Ward produce similar spatial patterns of stability. Same boundary regions are red in both — the unstable samples are intrinsically hard, not method-dependent.</div>
+      <div class="fig-method">side-by-side K-Means | Ward · shared ERICA stat colorbar (RdYlGn, 0–1) · PCA or raw 2D</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCSP</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pcsp_vdx_3gene_kmeans.png','PCSP — vdx_3gene')">
+    <img src="../figures/erica_statistics/pcsp_vdx_3gene_kmeans.png" loading="lazy" alt="PCSP — vdx_3gene">
+    <div class="caption">
+      <div class="fig-id">PCSP-01</div>
+      <div class="fig-title">PCSP — vdx_3gene</div>
+      <div class="fig-desc">VDX 3-gene PCSP at K*=6. Each panel is one source cluster; x-axis indexes samples, y-axis = assignment mass to other clusters. Dense scatter near y=0 means tight clusters (most mass stays home). Elevated dots indicate sample "leakers" — frequently reassigned to adjacent clusters.</div>
+      <div class="fig-method">PCSP per source cluster · x: sample index · y: normalized assignment to target clusters · vertical dotted lines = target cluster boundaries · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">ICA &amp; ICAH</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_vdx_3gene.png','PCA vs ICA — vdx_3gene')">
+    <img src="../figures/erica_statistics/pca_vs_ica_vdx_3gene.png" loading="lazy" alt="PCA vs ICA — vdx_3gene">
+    <div class="caption">
+      <div class="fig-id">ICA-01</div>
+      <div class="fig-title">PCA vs ICA — vdx_3gene</div>
+      <div class="fig-desc">VDX 3-gene. Left: PCA preserves variance-ordered structure. Right: ICA seeks statistically independent axes — may reveal non-Gaussian substructure that PCA misses. Color by ERICA stat shows similar instability patterns in both projections.</div>
+      <div class="fig-method">1×2 panels · left: PCA(2) · right: FastICA(2) · color: ERICA stat (RdYlGn) · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/icah_vdx_3gene_kmeans.png','ICAH — vdx_3gene')">
+    <img src="../figures/erica_statistics/icah_vdx_3gene_kmeans.png" loading="lazy" alt="ICAH — vdx_3gene">
+    <div class="caption">
+      <div class="fig-id">ICAH-01</div>
+      <div class="fig-title">ICAH — vdx_3gene</div>
+      <div class="fig-desc">VDX 3-gene, K=6. Diagonal dominates (self-assignment 0.7–0.85). Off-diagonal shows which cluster pairs exchange samples — C2↔C5 has the highest mutual leakage, suggesting these two clusters may not be distinguishable.</div>
+      <div class="fig-method">k×k heatmap · rows: source cluster · cols: target cluster · values: mean normalized CLAM assignment · RdYlGn · K-Means at K*</div>
+    </div>
+  </div>
 </div>
 </div>
 
 <!-- ============================================================ -->
-<div class="section" id="pcsp">
-<h2>PCSP (9)</h2>
-<p class="desc">Per-Cluster Scatter Plots from the original ERICA plotting module. K-Means at K*.</p>
-<div class="section-placard"><table>
-  <tr><td>Plot type</td><td>Per-Cluster Scatter Plot (PCSP)</td></tr>
-  <tr><td>Method</td><td>K-Means only</td></tr>
-  <tr><td>K value</td><td>K* (Algorithm 2)</td></tr>
-  <tr><td>Color</td><td>Cluster assignment</td></tr>
-  <tr><td>Script</td><td>07_pcsp.py</td></tr>
-</table></div>
+<div class="section" id="gauss4c_sigma0p1">
+<h2>Gaussian 4-Center — σ=0.1</h2>
+<p class="desc">4 isotropic Gaussian clusters in 50D, σ=0.1 (well-separated). 400 samples. Expected K*=4. Perfect replicability (all metrics=1.0).</p>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Distribution</h3>
 <div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_vdx_3gene_kmeans.png','PCSP — vdx_3gene')"><img src="../figures/erica_statistics/pcsp_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_gauss4c_sigma0p1_kmeans.png','PCSP — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/pcsp_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_gauss4c_sigma1p0_kmeans.png','PCSP — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/pcsp_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_gauss4c_sigma10p0_kmeans.png','PCSP — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/pcsp_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_well_separated_kmeans.png','PCSP — well_separated')"><img src="../figures/erica_statistics/pcsp_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_high_dim_kmeans.png','PCSP — high_dim')"><img src="../figures/erica_statistics/pcsp_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_overlapping_kmeans.png','PCSP — overlapping')"><img src="../figures/erica_statistics/pcsp_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_moons_2d_kmeans.png','PCSP — moons_2d')"><img src="../figures/erica_statistics/pcsp_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pcsp_blobs_2d_kmeans.png','PCSP — blobs_2d')"><img src="../figures/erica_statistics/pcsp_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/dist_gauss4c_sigma0p1.png','Distributions — gauss4c sigma=0.1')">
+    <img src="../figures/erica_statistics/dist_gauss4c_sigma0p1.png" loading="lazy" alt="Distributions — gauss4c sigma=0.1">
+    <div class="caption">
+      <div class="fig-id">DIST-02</div>
+      <div class="fig-title">Distributions — gauss4c sigma=0.1</div>
+      <div class="fig-desc">Gaussian 4-center, σ=0.1 (well-separated). All three statistics spike at 1.0. The histograms are essentially point masses — perfect replicability as expected when clusters don't overlap.</div>
+      <div class="fig-method">erica_stat = max(CLAM[i,:]) / sum(CLAM[i,:]) · ARI/AMI per-iteration from predicted vs refit labels · B=200, 80/20 split</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Statistics vs K</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_kmeans.png','Stats vs K — gauss4c sigma=0.1 — K-Means')">
+    <img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_kmeans.png" loading="lazy" alt="Stats vs K — gauss4c sigma=0.1 — K-Means">
+    <div class="caption">
+      <div class="fig-id">SVK-03</div>
+      <div class="fig-title">Stats vs K — gauss4c σ=0.1 — K-Means</div>
+      <div class="fig-desc">Gaussian σ=0.1, K-Means. All three statistics hit 1.0 at K=4 (true K) and remain near-perfect for K&lt;4. Error bands are invisible — zero variance when clusters are perfectly separated. Beyond K=4, forced splits create slight drops in ARI/AMI before ERICA stat.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_agglomerative_ward.png','Stats vs K — gauss4c sigma=0.1 — Ward')">
+    <img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_agglomerative_ward.png" loading="lazy" alt="Stats vs K — gauss4c sigma=0.1 — Ward">
+    <div class="caption">
+      <div class="fig-id">SVK-04</div>
+      <div class="fig-title">Stats vs K — gauss4c σ=0.1 — Ward</div>
+      <div class="fig-desc">Gaussian σ=0.1, Ward linkage. Nearly identical to K-Means — when clusters are trivially separable, the method choice is irrelevant. All three curves overlap at 1.0 through K=4 with vanishing error bands.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/method_compare_gauss4c_sigma0p1.png','Method Comparison — gauss4c sigma=0.1')">
+    <img src="../figures/erica_statistics/method_compare_gauss4c_sigma0p1.png" loading="lazy" alt="Method Comparison — gauss4c sigma=0.1">
+    <div class="caption">
+      <div class="fig-id">MC-02</div>
+      <div class="fig-title">Method Comparison — gauss4c σ=0.1</div>
+      <div class="fig-desc">Gaussian σ=0.1. Both methods produce identical perfect results — all six panels show 1.0 at K=4 with zero error bands. The 2×3 grid is visually symmetric, confirming that method choice is irrelevant when clusters are trivially separated.</div>
+      <div class="fig-method">2×3 grid · rows: K-Means, Ward · cols: ERICA stat, ARI, AMI · each cell: metric vs K with ±1 std band</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Spatial Views</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_kmeans.png','Confidence Map — gauss4c sigma=0.1 — K-Means')">
+    <img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_kmeans.png" loading="lazy" alt="Confidence Map — gauss4c sigma=0.1 — K-Means">
+    <div class="caption">
+      <div class="fig-id">SC-03</div>
+      <div class="fig-title">Confidence Map — gauss4c σ=0.1 — K-Means</div>
+      <div class="fig-desc">Gaussian σ=0.1 PCA projection, K-Means at K*=4. All 400 points are deep green (stat=1.0). Four tight clusters are clearly separated in PCA space with no boundary ambiguity. The confidence map is uniformly perfect.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_agglomerative_ward.png','Confidence Map — gauss4c sigma=0.1 — Ward')">
+    <img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_agglomerative_ward.png" loading="lazy" alt="Confidence Map — gauss4c sigma=0.1 — Ward">
+    <div class="caption">
+      <div class="fig-id">SC-04</div>
+      <div class="fig-title">Confidence Map — gauss4c σ=0.1 — Ward</div>
+      <div class="fig-desc">Gaussian σ=0.1 PCA projection, Ward at K*=4. Identical to K-Means — all green, all 1.0. When clusters are point-like and separated, the confidence map is a trivially uniform green field regardless of method.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · Ward at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma0p1_kmeans.png','Triptych — gauss4c sigma=0.1 — K-Means')">
+    <img src="../figures/erica_statistics/triptych_gauss4c_sigma0p1_kmeans.png" loading="lazy" alt="Triptych — gauss4c sigma=0.1 — K-Means">
+    <div class="caption">
+      <div class="fig-id">TR-03</div>
+      <div class="fig-title">Triptych — gauss4c σ=0.1 — K-Means</div>
+      <div class="fig-desc">Gaussian σ=0.1 triptych. Left: four tight, separated clusters. Center: uniform green (ERICA stat=1.0 everywhere). Right: uniform dark (entropy=0 everywhere). The triptych is visually monotone because there is no uncertainty to visualize.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma0p1_agglomerative_ward.png','Triptych — gauss4c sigma=0.1 — Ward')">
+    <img src="../figures/erica_statistics/triptych_gauss4c_sigma0p1_agglomerative_ward.png" loading="lazy" alt="Triptych — gauss4c sigma=0.1 — Ward">
+    <div class="caption">
+      <div class="fig-id">TR-04</div>
+      <div class="fig-title">Triptych — gauss4c σ=0.1 — Ward</div>
+      <div class="fig-desc">Gaussian σ=0.1 triptych, Ward. Identical to K-Means — four clusters, all green, zero entropy. The three panels contain no method-specific information because the problem is trivially solved by both algorithms.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p1.png','Method Scatter — gauss4c sigma=0.1')">
+    <img src="../figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p1.png" loading="lazy" alt="Method Scatter — gauss4c sigma=0.1">
+    <div class="caption">
+      <div class="fig-id">MS-02</div>
+      <div class="fig-title">Method Scatter — gauss4c σ=0.1</div>
+      <div class="fig-desc">Gaussian σ=0.1, PCA projection. Both panels are uniformly green — K-Means and Ward agree perfectly on every sample. The side-by-side comparison is trivially identical when clusters are well-separated in 50D.</div>
+      <div class="fig-method">side-by-side K-Means | Ward · shared ERICA stat colorbar (RdYlGn, 0–1) · PCA or raw 2D</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCSP</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pcsp_gauss4c_sigma0p1_kmeans.png','PCSP — gauss4c sigma=0.1')">
+    <img src="../figures/erica_statistics/pcsp_gauss4c_sigma0p1_kmeans.png" loading="lazy" alt="PCSP — gauss4c sigma=0.1">
+    <div class="caption">
+      <div class="fig-id">PCSP-02</div>
+      <div class="fig-title">PCSP — gauss4c σ=0.1</div>
+      <div class="fig-desc">Gaussian σ=0.1 PCSP at K*=4. Four panels, each showing near-zero scatter — every sample's assignment mass stays at its home cluster with zero leakage. The PCSP is flat along y=0 in all panels, confirming the identity-matrix CLAM.</div>
+      <div class="fig-method">PCSP per source cluster · x: sample index · y: normalized assignment to target clusters · vertical dotted lines = target cluster boundaries · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">ICA &amp; ICAH</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p1.png','PCA vs ICA — gauss4c sigma=0.1')">
+    <img src="../figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p1.png" loading="lazy" alt="PCA vs ICA — gauss4c sigma=0.1">
+    <div class="caption">
+      <div class="fig-id">ICA-02</div>
+      <div class="fig-title">PCA vs ICA — gauss4c σ=0.1</div>
+      <div class="fig-desc">Gaussian σ=0.1. PCA and ICA produce different rotations of four clearly separated clusters. Both are uniformly green — the projection method doesn't affect the stability pattern when clusters are trivially distinguishable in the original 50D space.</div>
+      <div class="fig-method">1×2 panels · left: PCA(2) · right: FastICA(2) · color: ERICA stat (RdYlGn) · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/icah_gauss4c_sigma0p1_kmeans.png','ICAH — gauss4c sigma=0.1')">
+    <img src="../figures/erica_statistics/icah_gauss4c_sigma0p1_kmeans.png" loading="lazy" alt="ICAH — gauss4c sigma=0.1">
+    <div class="caption">
+      <div class="fig-id">ICAH-02</div>
+      <div class="fig-title">ICAH — gauss4c σ=0.1</div>
+      <div class="fig-desc">Gaussian σ=0.1. Perfect diagonal (1.0 everywhere). No inter-cluster leakage — the ICAH is an identity matrix.</div>
+      <div class="fig-method">k×k heatmap · rows: source cluster · cols: target cluster · values: mean normalized CLAM assignment · RdYlGn · K-Means at K*</div>
+    </div>
+  </div>
 </div>
 </div>
 
 <!-- ============================================================ -->
-<div class="section" id="ica-icah">
-<h2>ICA &amp; ICAH (18)</h2>
-<p class="desc">ICA dimensionality reduction and Inter-Cluster Assignment Heatmaps.</p>
-
-<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCA vs ICA (9)</h3>
-<div class="section-placard"><table>
-  <tr><td>Plot type</td><td>Side-by-side scatter: PCA projection vs ICA projection</td></tr>
-  <tr><td>Color</td><td>Cluster assignment or ERICA statistic</td></tr>
-  <tr><td>Script</td><td>08_ica_analysis.py</td></tr>
-</table></div>
+<div class="section" id="gauss4c_sigma1p0">
+<h2>Gaussian 4-Center — σ=1.0</h2>
+<p class="desc">4 isotropic Gaussian clusters in 50D, σ=1.0 (moderate overlap). 400 samples. Cluster radius approaches inter-center distance. ERICA=0.96, ARI=0.92 at K=4.</p>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Distribution</h3>
 <div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_vdx_3gene.png','PCA vs ICA — vdx_3gene')"><img src="../figures/erica_statistics/pca_vs_ica_vdx_3gene.png" loading="lazy"><div class="lbl">vdx_3gene</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p1.png','PCA vs ICA — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p1.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_gauss4c_sigma1p0.png','PCA vs ICA — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/pca_vs_ica_gauss4c_sigma1p0.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_gauss4c_sigma10p0.png','PCA vs ICA — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/pca_vs_ica_gauss4c_sigma10p0.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_well_separated.png','PCA vs ICA — well_separated')"><img src="../figures/erica_statistics/pca_vs_ica_well_separated.png" loading="lazy"><div class="lbl">well_separated</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_high_dim.png','PCA vs ICA — high_dim')"><img src="../figures/erica_statistics/pca_vs_ica_high_dim.png" loading="lazy"><div class="lbl">high_dim</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_overlapping.png','PCA vs ICA — overlapping')"><img src="../figures/erica_statistics/pca_vs_ica_overlapping.png" loading="lazy"><div class="lbl">overlapping</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_moons_2d.png','PCA vs ICA — moons_2d')"><img src="../figures/erica_statistics/pca_vs_ica_moons_2d.png" loading="lazy"><div class="lbl">moons_2d</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_blobs_2d.png','PCA vs ICA — blobs_2d')"><img src="../figures/erica_statistics/pca_vs_ica_blobs_2d.png" loading="lazy"><div class="lbl">blobs_2d</div></div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/dist_gauss4c_sigma1p0.png','Distributions — gauss4c sigma=1.0')">
+    <img src="../figures/erica_statistics/dist_gauss4c_sigma1p0.png" loading="lazy" alt="Distributions — gauss4c sigma=1.0">
+    <div class="caption">
+      <div class="fig-id">DIST-03</div>
+      <div class="fig-title">Distributions — gauss4c sigma=1.0</div>
+      <div class="fig-desc">Gaussian 4-center, σ=1.0 (moderate overlap, 400 samples, K*=4). ERICA stat mean=0.96 with a left tail — most samples are stably assigned but a few at cluster boundaries wobble. ARI=0.92 and AMI=0.95 show the partition comparison metrics feel the boundary uncertainty more than the per-sample measure.</div>
+      <div class="fig-method">erica_stat = max(CLAM[i,:]) / sum(CLAM[i,:]) · ARI/AMI per-iteration from predicted vs refit labels · B=200, 80/20 split</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Statistics vs K</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_kmeans.png','Stats vs K — gauss4c sigma=1.0 — K-Means')">
+    <img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_kmeans.png" loading="lazy" alt="Stats vs K — gauss4c sigma=1.0 — K-Means">
+    <div class="caption">
+      <div class="fig-id">SVK-05</div>
+      <div class="fig-title">Stats vs K — gauss4c σ=1.0 — K-Means</div>
+      <div class="fig-desc">Gaussian σ=1.0, K-Means. ERICA stat peaks at 0.96 at K*=4, ARI at 0.92, AMI at 0.95. Visible error bands appear — moderate overlap introduces iteration-to-iteration variance. The ARI band is wider than AMI, consistent with ARI's sensitivity to partition-level disagreement.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_agglomerative_ward.png','Stats vs K — gauss4c sigma=1.0 — Ward')">
+    <img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_agglomerative_ward.png" loading="lazy" alt="Stats vs K — gauss4c sigma=1.0 — Ward">
+    <div class="caption">
+      <div class="fig-id">SVK-06</div>
+      <div class="fig-title">Stats vs K — gauss4c σ=1.0 — Ward</div>
+      <div class="fig-desc">Gaussian σ=1.0, Ward linkage. Ward tracks K-Means closely at K*=4 but shows slightly wider ARI bands at higher K. The centroid-proxy prediction in Ward adds noise when forced to split already-overlapping clusters beyond the true count.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/method_compare_gauss4c_sigma1p0.png','Method Comparison — gauss4c sigma=1.0')">
+    <img src="../figures/erica_statistics/method_compare_gauss4c_sigma1p0.png" loading="lazy" alt="Method Comparison — gauss4c sigma=1.0">
+    <div class="caption">
+      <div class="fig-id">MC-03</div>
+      <div class="fig-title">Method Comparison — gauss4c σ=1.0</div>
+      <div class="fig-desc">Gaussian σ=1.0. K-Means and Ward both peak at K*=4, but Ward's ARI column shows wider error bands. The ERICA stat column is nearly identical between rows — per-sample consistency is robust to method choice. The ARI/AMI gap reveals that partition-level metrics are more method-sensitive.</div>
+      <div class="fig-method">2×3 grid · rows: K-Means, Ward · cols: ERICA stat, ARI, AMI · each cell: metric vs K with ±1 std band</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Spatial Views</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_kmeans.png','Confidence Map — gauss4c sigma=1.0 — K-Means')">
+    <img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_kmeans.png" loading="lazy" alt="Confidence Map — gauss4c sigma=1.0 — K-Means">
+    <div class="caption">
+      <div class="fig-id">SC-05</div>
+      <div class="fig-title">Confidence Map — gauss4c σ=1.0 — K-Means</div>
+      <div class="fig-desc">Gaussian σ=1.0 PCA projection, K-Means at K*=4. Mostly green with yellow fringes at cluster boundaries. The 400 samples form four overlapping clouds in PCA space — boundary samples (stat ~0.7–0.9) appear as a yellow ring around each cluster core.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_agglomerative_ward.png','Confidence Map — gauss4c sigma=1.0 — Ward')">
+    <img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_agglomerative_ward.png" loading="lazy" alt="Confidence Map — gauss4c sigma=1.0 — Ward">
+    <div class="caption">
+      <div class="fig-id">SC-06</div>
+      <div class="fig-title">Confidence Map — gauss4c σ=1.0 — Ward</div>
+      <div class="fig-desc">Gaussian σ=1.0 PCA projection, Ward at K*=4. Similar to K-Means but with slightly more yellow at boundaries. Ward's centroid proxy amplifies uncertainty for samples near the Voronoi edges between clusters, expanding the yellow fringe compared to SC-05.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · Ward at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma1p0_kmeans.png','Triptych — gauss4c sigma=1.0 — K-Means')">
+    <img src="../figures/erica_statistics/triptych_gauss4c_sigma1p0_kmeans.png" loading="lazy" alt="Triptych — gauss4c sigma=1.0 — K-Means">
+    <div class="caption">
+      <div class="fig-id">TR-05</div>
+      <div class="fig-title">Triptych — gauss4c σ=1.0 — K-Means</div>
+      <div class="fig-desc">Gaussian σ=1.0 triptych. Left: four overlapping clusters with moderate boundary ambiguity. Center: green cores with yellow fringes (ERICA stat 0.7–0.95 at boundaries). Right: entropy rises at the same boundary locations — the ERICA stat and entropy panels are complementary views of the same uncertainty.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma1p0_agglomerative_ward.png','Triptych — gauss4c sigma=1.0 — Ward')">
+    <img src="../figures/erica_statistics/triptych_gauss4c_sigma1p0_agglomerative_ward.png" loading="lazy" alt="Triptych — gauss4c sigma=1.0 — Ward">
+    <div class="caption">
+      <div class="fig-id">TR-06</div>
+      <div class="fig-title">Triptych — gauss4c σ=1.0 — Ward</div>
+      <div class="fig-desc">Gaussian σ=1.0 triptych, Ward. Left: cluster assignments differ slightly from K-Means at the margins. Center: slightly wider yellow fringes than K-Means. Right: entropy field correspondingly broader. Ward's proxy-based prediction amplifies the boundary effect visible in all three panels.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_gauss4c_sigma1p0.png','Method Scatter — gauss4c sigma=1.0')">
+    <img src="../figures/erica_statistics/scatter_method_compare_gauss4c_sigma1p0.png" loading="lazy" alt="Method Scatter — gauss4c sigma=1.0">
+    <div class="caption">
+      <div class="fig-id">MS-03</div>
+      <div class="fig-title">Method Scatter — gauss4c σ=1.0</div>
+      <div class="fig-desc">Gaussian σ=1.0, PCA projection. Both methods show yellow fringes at cluster boundaries but the Ward panel has slightly wider yellow zones. The core-to-boundary gradient is smoother in Ward, consistent with the centroid proxy's broader uncertainty footprint.</div>
+      <div class="fig-method">side-by-side K-Means | Ward · shared ERICA stat colorbar (RdYlGn, 0–1) · PCA or raw 2D</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCSP</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pcsp_gauss4c_sigma1p0_kmeans.png','PCSP — gauss4c sigma=1.0')">
+    <img src="../figures/erica_statistics/pcsp_gauss4c_sigma1p0_kmeans.png" loading="lazy" alt="PCSP — gauss4c sigma=1.0">
+    <div class="caption">
+      <div class="fig-id">PCSP-03</div>
+      <div class="fig-title">PCSP — gauss4c σ=1.0</div>
+      <div class="fig-desc">Gaussian σ=1.0 PCSP at K*=4. Most dots cluster near y=0, but each panel shows a handful of elevated points (y=0.1–0.3) — these are boundary samples that occasionally leak to adjacent clusters. The leakage pattern is symmetric between neighboring cluster pairs.</div>
+      <div class="fig-method">PCSP per source cluster · x: sample index · y: normalized assignment to target clusters · vertical dotted lines = target cluster boundaries · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">ICA &amp; ICAH</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_gauss4c_sigma1p0.png','PCA vs ICA — gauss4c sigma=1.0')">
+    <img src="../figures/erica_statistics/pca_vs_ica_gauss4c_sigma1p0.png" loading="lazy" alt="PCA vs ICA — gauss4c sigma=1.0">
+    <div class="caption">
+      <div class="fig-id">ICA-03</div>
+      <div class="fig-title">PCA vs ICA — gauss4c σ=1.0</div>
+      <div class="fig-desc">Gaussian σ=1.0. Both projections show four moderately overlapping clusters with yellow boundary fringes. ICA may rotate the cluster layout differently, but the color pattern (green cores, yellow edges) is consistent — ERICA stat instability is a data property, not a projection artifact.</div>
+      <div class="fig-method">1×2 panels · left: PCA(2) · right: FastICA(2) · color: ERICA stat (RdYlGn) · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/icah_gauss4c_sigma1p0_kmeans.png','ICAH — gauss4c sigma=1.0')">
+    <img src="../figures/erica_statistics/icah_gauss4c_sigma1p0_kmeans.png" loading="lazy" alt="ICAH — gauss4c sigma=1.0">
+    <div class="caption">
+      <div class="fig-id">ICAH-03</div>
+      <div class="fig-title">ICAH — gauss4c σ=1.0</div>
+      <div class="fig-desc">Gaussian σ=1.0, K=4. Strong diagonal (0.90–0.97) with small off-diagonal entries between adjacent cluster pairs. The ICAH reveals the adjacency structure: clusters that are spatially close in 50D show the most mutual leakage, while distant pairs remain near zero.</div>
+      <div class="fig-method">k×k heatmap · rows: source cluster · cols: target cluster · values: mean normalized CLAM assignment · RdYlGn · K-Means at K*</div>
+    </div>
+  </div>
+</div>
 </div>
 
-<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Inter-Cluster Assignment Heatmaps (9)</h3>
-<div class="section-placard"><table>
-  <tr><td>Plot type</td><td>Heatmap of inter-cluster assignment frequencies</td></tr>
-  <tr><td>Axes</td><td>Cluster i &times; Cluster j</td></tr>
-  <tr><td>Color</td><td>Assignment frequency from CLAM matrix</td></tr>
-  <tr><td>Method</td><td>K-Means only</td></tr>
-  <tr><td>Script</td><td>08_ica_analysis.py</td></tr>
-</table></div>
+<!-- ============================================================ -->
+<div class="section" id="gauss4c_sigma10p0">
+<h2>Gaussian 4-Center — σ=10.0</h2>
+<p class="desc">4 isotropic Gaussian clusters in 50D, σ=10.0 (massive overlap). 400 samples. Clusters indistinguishable. ERICA=0.49, ARI=0.05 — the null case.</p>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Distribution</h3>
 <div class="grid">
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_vdx_3gene_kmeans.png','ICAH — vdx_3gene')"><img src="../figures/erica_statistics/icah_vdx_3gene_kmeans.png" loading="lazy"><div class="lbl">vdx_3gene — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_gauss4c_sigma0p1_kmeans.png','ICAH — gauss4c sigma=0.1')"><img src="../figures/erica_statistics/icah_gauss4c_sigma0p1_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=0.1 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_gauss4c_sigma1p0_kmeans.png','ICAH — gauss4c sigma=1.0')"><img src="../figures/erica_statistics/icah_gauss4c_sigma1p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=1.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_gauss4c_sigma10p0_kmeans.png','ICAH — gauss4c sigma=10.0')"><img src="../figures/erica_statistics/icah_gauss4c_sigma10p0_kmeans.png" loading="lazy"><div class="lbl">gauss4c sigma=10.0 — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_well_separated_kmeans.png','ICAH — well_separated')"><img src="../figures/erica_statistics/icah_well_separated_kmeans.png" loading="lazy"><div class="lbl">well_separated — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_high_dim_kmeans.png','ICAH — high_dim')"><img src="../figures/erica_statistics/icah_high_dim_kmeans.png" loading="lazy"><div class="lbl">high_dim — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_overlapping_kmeans.png','ICAH — overlapping')"><img src="../figures/erica_statistics/icah_overlapping_kmeans.png" loading="lazy"><div class="lbl">overlapping — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_moons_2d_kmeans.png','ICAH — moons_2d')"><img src="../figures/erica_statistics/icah_moons_2d_kmeans.png" loading="lazy"><div class="lbl">moons_2d — kmeans</div></div>
-  <div class="card" onclick="openLightbox('../figures/erica_statistics/icah_blobs_2d_kmeans.png','ICAH — blobs_2d')"><img src="../figures/erica_statistics/icah_blobs_2d_kmeans.png" loading="lazy"><div class="lbl">blobs_2d — kmeans</div></div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/dist_gauss4c_sigma10p0.png','Distributions — gauss4c sigma=10.0')">
+    <img src="../figures/erica_statistics/dist_gauss4c_sigma10p0.png" loading="lazy" alt="Distributions — gauss4c sigma=10.0">
+    <div class="caption">
+      <div class="fig-id">DIST-04</div>
+      <div class="fig-title">Distributions — gauss4c sigma=10.0</div>
+      <div class="fig-desc">Gaussian 4-center, σ=10.0 (massive overlap). ERICA stat near random (0.49 ≈ 1/K), ARI near zero (0.05). Clustering is non-replicable — samples are noise.</div>
+      <div class="fig-method">erica_stat = max(CLAM[i,:]) / sum(CLAM[i,:]) · ARI/AMI per-iteration from predicted vs refit labels · B=200, 80/20 split</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Statistics vs K</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_kmeans.png','Stats vs K — gauss4c sigma=10.0 — K-Means')">
+    <img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_kmeans.png" loading="lazy" alt="Stats vs K — gauss4c sigma=10.0 — K-Means">
+    <div class="caption">
+      <div class="fig-id">SVK-07</div>
+      <div class="fig-title">Stats vs K — gauss4c σ=10.0 — K-Means</div>
+      <div class="fig-desc">Gaussian σ=10.0, K-Means. All three statistics are flat and low across all K values. No K value rescues replicability when clusters are indistinguishable. ERICA stat hovers near 0.49, ARI near 0.05, AMI near 0.06.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_agglomerative_ward.png','Stats vs K — gauss4c sigma=10.0 — Ward')">
+    <img src="../figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_agglomerative_ward.png" loading="lazy" alt="Stats vs K — gauss4c sigma=10.0 — Ward">
+    <div class="caption">
+      <div class="fig-id">SVK-08</div>
+      <div class="fig-title">Stats vs K — gauss4c σ=10.0 — Ward</div>
+      <div class="fig-desc">Gaussian σ=10.0, Ward linkage. Same flat, low profile as K-Means. Ward cannot extract structure that doesn't exist. The three lines are nearly indistinguishable from the K-Means version — the null case is method-invariant.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/method_compare_gauss4c_sigma10p0.png','Method Comparison — gauss4c sigma=10.0')">
+    <img src="../figures/erica_statistics/method_compare_gauss4c_sigma10p0.png" loading="lazy" alt="Method Comparison — gauss4c sigma=10.0">
+    <div class="caption">
+      <div class="fig-id">MC-04</div>
+      <div class="fig-title">Method Comparison — gauss4c σ=10.0</div>
+      <div class="fig-desc">Gaussian σ=10.0. Both methods produce flat, low values across all three statistics. Neither K-Means nor Ward can find replicable structure in noise.</div>
+      <div class="fig-method">2×3 grid · rows: K-Means, Ward · cols: ERICA stat, ARI, AMI · each cell: metric vs K with ±1 std band</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Spatial Views</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_kmeans.png','Confidence Map — gauss4c sigma=10.0 — K-Means')">
+    <img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_kmeans.png" loading="lazy" alt="Confidence Map — gauss4c sigma=10.0 — K-Means">
+    <div class="caption">
+      <div class="fig-id">SC-07</div>
+      <div class="fig-title">Confidence Map — gauss4c σ=10.0 — K-Means</div>
+      <div class="fig-desc">Gaussian σ=10.0 PCA projection. Uniform yellow/red — no sample is consistently assigned. The scatter shows no spatial structure because there is no cluster structure to find.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_agglomerative_ward.png','Confidence Map — gauss4c sigma=10.0 — Ward')">
+    <img src="../figures/erica_statistics/scatter_erica_gauss4c_sigma10p0_agglomerative_ward.png" loading="lazy" alt="Confidence Map — gauss4c sigma=10.0 — Ward">
+    <div class="caption">
+      <div class="fig-id">SC-08</div>
+      <div class="fig-title">Confidence Map — gauss4c σ=10.0 — Ward</div>
+      <div class="fig-desc">Gaussian σ=10.0 PCA projection, Ward. Identical to K-Means: a uniform yellow-red blob with no spatial pattern. The mean ERICA stat is ~0.49 everywhere — Ward cannot salvage structure that isn't there. Both methods' confidence maps converge to the same null pattern.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · Ward at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma10p0_kmeans.png','Triptych — gauss4c sigma=10.0 — K-Means')">
+    <img src="../figures/erica_statistics/triptych_gauss4c_sigma10p0_kmeans.png" loading="lazy" alt="Triptych — gauss4c sigma=10.0 — K-Means">
+    <div class="caption">
+      <div class="fig-id">TR-07</div>
+      <div class="fig-title">Triptych — gauss4c σ=10.0 — K-Means</div>
+      <div class="fig-desc">Gaussian σ=10.0 triptych. Left: four "clusters" that are arbitrary Voronoi cuts of a single blob. Center: uniform yellow-red (ERICA stat ≈ 0.49). Right: uniform bright (high entropy everywhere). Every panel screams "no structure" — the triptych is a diagnostic tool for detecting the null case.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_gauss4c_sigma10p0_agglomerative_ward.png','Triptych — gauss4c sigma=10.0 — Ward')">
+    <img src="../figures/erica_statistics/triptych_gauss4c_sigma10p0_agglomerative_ward.png" loading="lazy" alt="Triptych — gauss4c sigma=10.0 — Ward">
+    <div class="caption">
+      <div class="fig-id">TR-08</div>
+      <div class="fig-title">Triptych — gauss4c σ=10.0 — Ward</div>
+      <div class="fig-desc">Gaussian σ=10.0 triptych, Ward. Indistinguishable from K-Means — uniform yellow/red ERICA stat, uniform high entropy. The null case is method-invariant: when there's no structure, both algorithms and all three panels agree on the absence.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_gauss4c_sigma10p0.png','Method Scatter — gauss4c sigma=10.0')">
+    <img src="../figures/erica_statistics/scatter_method_compare_gauss4c_sigma10p0.png" loading="lazy" alt="Method Scatter — gauss4c sigma=10.0">
+    <div class="caption">
+      <div class="fig-id">MS-04</div>
+      <div class="fig-title">Method Scatter — gauss4c σ=10.0</div>
+      <div class="fig-desc">Gaussian σ=10.0, PCA projection. Both panels are uniformly yellow-red — neither method finds replicable structure. The side-by-side view confirms that the null case looks identical regardless of algorithm. Mean ERICA stat ≈ 0.49 in both.</div>
+      <div class="fig-method">side-by-side K-Means | Ward · shared ERICA stat colorbar (RdYlGn, 0–1) · PCA or raw 2D</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCSP</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pcsp_gauss4c_sigma10p0_kmeans.png','PCSP — gauss4c sigma=10.0')">
+    <img src="../figures/erica_statistics/pcsp_gauss4c_sigma10p0_kmeans.png" loading="lazy" alt="PCSP — gauss4c sigma=10.0">
+    <div class="caption">
+      <div class="fig-id">PCSP-04</div>
+      <div class="fig-title">PCSP — gauss4c σ=10.0</div>
+      <div class="fig-desc">Gaussian σ=10.0 PCSP. All panels show scattered points up to y=0.5+ — assignment mass is spread broadly across clusters. No source cluster retains its members consistently.</div>
+      <div class="fig-method">PCSP per source cluster · x: sample index · y: normalized assignment to target clusters · vertical dotted lines = target cluster boundaries · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">ICA &amp; ICAH</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_gauss4c_sigma10p0.png','PCA vs ICA — gauss4c sigma=10.0')">
+    <img src="../figures/erica_statistics/pca_vs_ica_gauss4c_sigma10p0.png" loading="lazy" alt="PCA vs ICA — gauss4c sigma=10.0">
+    <div class="caption">
+      <div class="fig-id">ICA-04</div>
+      <div class="fig-title">PCA vs ICA — gauss4c σ=10.0</div>
+      <div class="fig-desc">Gaussian σ=10.0. Neither PCA nor ICA reveals cluster structure. Both projections show uniform yellow-red scatter. ICA doesn't rescue what isn't there.</div>
+      <div class="fig-method">1×2 panels · left: PCA(2) · right: FastICA(2) · color: ERICA stat (RdYlGn) · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/icah_gauss4c_sigma10p0_kmeans.png','ICAH — gauss4c sigma=10.0')">
+    <img src="../figures/erica_statistics/icah_gauss4c_sigma10p0_kmeans.png" loading="lazy" alt="ICAH — gauss4c sigma=10.0">
+    <div class="caption">
+      <div class="fig-id">ICAH-04</div>
+      <div class="fig-title">ICAH — gauss4c σ=10.0</div>
+      <div class="fig-desc">Gaussian σ=10.0. The ICAH is nearly uniform — every cluster leaks equally to every other. The diagonal is barely above 1/K=0.25.</div>
+      <div class="fig-method">k×k heatmap · rows: source cluster · cols: target cluster · values: mean normalized CLAM assignment · RdYlGn · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="well_separated">
+<h2>Well-Separated</h2>
+<p class="desc">3 well-separated 2D clusters. 300 samples. Trivially replicable (all metrics=1.0). Control dataset.</p>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Distribution</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/dist_well_separated.png','Distributions — well_separated')">
+    <img src="../figures/erica_statistics/dist_well_separated.png" loading="lazy" alt="Distributions — well_separated">
+    <div class="caption">
+      <div class="fig-id">DIST-05</div>
+      <div class="fig-title">Distributions — well_separated</div>
+      <div class="fig-desc">Well-separated 3-cluster (2D, 300 samples, K*=3). All three statistics are perfect: ERICA=1.00, ARI=1.00, AMI=1.00. The histograms collapse to single bins at 1.0 — a baseline sanity check confirming that cleanly separated clusters are trivially replicable.</div>
+      <div class="fig-method">erica_stat = max(CLAM[i,:]) / sum(CLAM[i,:]) · ARI/AMI per-iteration from predicted vs refit labels · B=200, 80/20 split</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Statistics vs K</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_well_separated_kmeans.png','Stats vs K — well_separated — K-Means')">
+    <img src="../figures/erica_statistics/stats_vs_k_well_separated_kmeans.png" loading="lazy" alt="Stats vs K — well_separated — K-Means">
+    <div class="caption">
+      <div class="fig-id">SVK-09</div>
+      <div class="fig-title">Stats vs K — well_separated — K-Means</div>
+      <div class="fig-desc">Well-separated 3-cluster, K-Means. All three statistics are 1.0 at K*=3 with zero-width error bands. Beyond K=3, forced splits cause ARI/AMI to drop more steeply than ERICA stat — the per-sample measure is more tolerant of arbitrary sub-splits.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_well_separated_agglomerative_ward.png','Stats vs K — well_separated — Ward')">
+    <img src="../figures/erica_statistics/stats_vs_k_well_separated_agglomerative_ward.png" loading="lazy" alt="Stats vs K — well_separated — Ward">
+    <div class="caption">
+      <div class="fig-id">SVK-10</div>
+      <div class="fig-title">Stats vs K — well_separated — Ward</div>
+      <div class="fig-desc">Well-separated 3-cluster, Ward linkage. Perfect replicability at K*=3 mirrors K-Means. Ward's hierarchical structure means that at K=2 the three clusters merge predictably, so the K=2 statistics are also high. The profile is nearly identical to K-Means for this easy case.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/method_compare_well_separated.png','Method Comparison — well_separated')">
+    <img src="../figures/erica_statistics/method_compare_well_separated.png" loading="lazy" alt="Method Comparison — well_separated">
+    <div class="caption">
+      <div class="fig-id">MC-05</div>
+      <div class="fig-title">Method Comparison — well_separated</div>
+      <div class="fig-desc">Well-separated 3-cluster. All six panels show identical perfect profiles at K*=3. The 2×3 grid is a visual tautology for this easy case — both methods, all three metrics, no disagreement anywhere.</div>
+      <div class="fig-method">2×3 grid · rows: K-Means, Ward · cols: ERICA stat, ARI, AMI · each cell: metric vs K with ±1 std band</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Spatial Views</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_well_separated_kmeans.png','Confidence Map — well_separated — K-Means')">
+    <img src="../figures/erica_statistics/scatter_erica_well_separated_kmeans.png" loading="lazy" alt="Confidence Map — well_separated — K-Means">
+    <div class="caption">
+      <div class="fig-id">SC-09</div>
+      <div class="fig-title">Confidence Map — well_separated — K-Means</div>
+      <div class="fig-desc">Well-separated 3-cluster (2D, 300 samples), K-Means at K*=3. All points are deep green (stat=1.0). Three distinct clusters are visually obvious with large gaps between them — the confidence map confirms what the eye already sees.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_well_separated_agglomerative_ward.png','Confidence Map — well_separated — Ward')">
+    <img src="../figures/erica_statistics/scatter_erica_well_separated_agglomerative_ward.png" loading="lazy" alt="Confidence Map — well_separated — Ward">
+    <div class="caption">
+      <div class="fig-id">SC-10</div>
+      <div class="fig-title">Confidence Map — well_separated — Ward</div>
+      <div class="fig-desc">Well-separated 3-cluster (2D), Ward at K*=3. Identical to K-Means — all green, all 1.0. Ward's agglomerative merges produce the same three clusters as K-Means when the gaps are unambiguous.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · Ward at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_well_separated_kmeans.png','Triptych — well_separated — K-Means')">
+    <img src="../figures/erica_statistics/triptych_well_separated_kmeans.png" loading="lazy" alt="Triptych — well_separated — K-Means">
+    <div class="caption">
+      <div class="fig-id">TR-09</div>
+      <div class="fig-title">Triptych — well_separated — K-Means</div>
+      <div class="fig-desc">Well-separated 3-cluster triptych. Left: three cleanly separated groups. Center: solid green field. Right: uniformly zero entropy. The triptych is visually trivial — an ideal baseline showing what perfect replicability looks like in all three representations.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_well_separated_agglomerative_ward.png','Triptych — well_separated — Ward')">
+    <img src="../figures/erica_statistics/triptych_well_separated_agglomerative_ward.png" loading="lazy" alt="Triptych — well_separated — Ward">
+    <div class="caption">
+      <div class="fig-id">TR-10</div>
+      <div class="fig-title">Triptych — well_separated — Ward</div>
+      <div class="fig-desc">Well-separated 3-cluster triptych, Ward. Identical to K-Means: three clusters, all green, zero entropy. The triptych comparison between TR-09 and TR-10 confirms that method choice doesn't matter when the data has unambiguous structure.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_well_separated.png','Method Scatter — well_separated')">
+    <img src="../figures/erica_statistics/scatter_method_compare_well_separated.png" loading="lazy" alt="Method Scatter — well_separated">
+    <div class="caption">
+      <div class="fig-id">MS-05</div>
+      <div class="fig-title">Method Scatter — well_separated</div>
+      <div class="fig-desc">Well-separated 3-cluster, raw 2D. Both K-Means and Ward panels show identical green clusters with large inter-cluster gaps. The shared colorbar is pegged at 1.0 for all 300 samples in both panels.</div>
+      <div class="fig-method">side-by-side K-Means | Ward · shared ERICA stat colorbar (RdYlGn, 0–1) · PCA or raw 2D</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCSP</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pcsp_well_separated_kmeans.png','PCSP — well_separated')">
+    <img src="../figures/erica_statistics/pcsp_well_separated_kmeans.png" loading="lazy" alt="PCSP — well_separated">
+    <div class="caption">
+      <div class="fig-id">PCSP-05</div>
+      <div class="fig-title">PCSP — well_separated</div>
+      <div class="fig-desc">Well-separated 3-cluster PCSP at K*=3. Three panels, each flat along y=0 — zero leakage between clusters. The PCSP confirms the confidence map: with well-separated data, every sample is assigned to its home cluster 100% of the time across all 200 iterations.</div>
+      <div class="fig-method">PCSP per source cluster · x: sample index · y: normalized assignment to target clusters · vertical dotted lines = target cluster boundaries · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">ICA &amp; ICAH</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_well_separated.png','PCA vs ICA — well_separated')">
+    <img src="../figures/erica_statistics/pca_vs_ica_well_separated.png" loading="lazy" alt="PCA vs ICA — well_separated">
+    <div class="caption">
+      <div class="fig-id">ICA-05</div>
+      <div class="fig-title">PCA vs ICA — well_separated</div>
+      <div class="fig-desc">Well-separated 3-cluster. PCA and ICA show the same three clusters with different rotations. All points are green in both projections. For well-separated data, the projection choice is purely aesthetic — the stability information is identical.</div>
+      <div class="fig-method">1×2 panels · left: PCA(2) · right: FastICA(2) · color: ERICA stat (RdYlGn) · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/icah_well_separated_kmeans.png','ICAH — well_separated')">
+    <img src="../figures/erica_statistics/icah_well_separated_kmeans.png" loading="lazy" alt="ICAH — well_separated">
+    <div class="caption">
+      <div class="fig-id">ICAH-05</div>
+      <div class="fig-title">ICAH — well_separated</div>
+      <div class="fig-desc">Well-separated 3-cluster, K=3. A 3×3 identity matrix — diagonal is 1.0, off-diagonal is 0.0. No sample ever leaks to another cluster across 200 MC iterations. The ICAH is the purest possible confirmation of replicability.</div>
+      <div class="fig-method">k×k heatmap · rows: source cluster · cols: target cluster · values: mean normalized CLAM assignment · RdYlGn · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="high_dim">
+<h2>High-Dimensional</h2>
+<p class="desc">3 clusters in 20D. 300 samples. Perfectly replicable despite dimensionality. Tests whether ERICA handles high-D gracefully.</p>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Distribution</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/dist_high_dim.png','Distributions — high_dim')">
+    <img src="../figures/erica_statistics/dist_high_dim.png" loading="lazy" alt="Distributions — high_dim">
+    <div class="caption">
+      <div class="fig-id">DIST-06</div>
+      <div class="fig-title">Distributions — high_dim</div>
+      <div class="fig-desc">High-dimensional 3-cluster (20D, 300 samples, K*=3). ERICA=1.00, ARI=1.00, AMI=1.00. Despite 20 features, the clusters are sufficiently separated that dimensionality doesn't degrade replicability. All three distributions are point masses at 1.0.</div>
+      <div class="fig-method">erica_stat = max(CLAM[i,:]) / sum(CLAM[i,:]) · ARI/AMI per-iteration from predicted vs refit labels · B=200, 80/20 split</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Statistics vs K</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_high_dim_kmeans.png','Stats vs K — high_dim — K-Means')">
+    <img src="../figures/erica_statistics/stats_vs_k_high_dim_kmeans.png" loading="lazy" alt="Stats vs K — high_dim — K-Means">
+    <div class="caption">
+      <div class="fig-id">SVK-11</div>
+      <div class="fig-title">Stats vs K — high_dim — K-Means</div>
+      <div class="fig-desc">High-dimensional 3-cluster (20D), K-Means. Perfect 1.0 at K*=3 despite the 20-dimensional feature space. The separation-to-noise ratio is large enough that the curse of dimensionality doesn't bite. Error bands remain invisible at K*.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_high_dim_agglomerative_ward.png','Stats vs K — high_dim — Ward')">
+    <img src="../figures/erica_statistics/stats_vs_k_high_dim_agglomerative_ward.png" loading="lazy" alt="Stats vs K — high_dim — Ward">
+    <div class="caption">
+      <div class="fig-id">SVK-12</div>
+      <div class="fig-title">Stats vs K — high_dim — Ward</div>
+      <div class="fig-desc">High-dimensional 3-cluster (20D), Ward linkage. Matches K-Means exactly at K*=3 — all three metrics are 1.0. In high dimensions with well-separated clusters, Ward's merge order is unambiguous and replicability is trivial.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/method_compare_high_dim.png','Method Comparison — high_dim')">
+    <img src="../figures/erica_statistics/method_compare_high_dim.png" loading="lazy" alt="Method Comparison — high_dim">
+    <div class="caption">
+      <div class="fig-id">MC-06</div>
+      <div class="fig-title">Method Comparison — high_dim</div>
+      <div class="fig-desc">High-dimensional 3-cluster (20D). Despite the higher feature count, both methods achieve perfect replicability at K*=3. The 20-dimensional separation overwhelms any noise, making the 2×3 grid another perfect-symmetry case.</div>
+      <div class="fig-method">2×3 grid · rows: K-Means, Ward · cols: ERICA stat, ARI, AMI · each cell: metric vs K with ±1 std band</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Spatial Views</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_high_dim_kmeans.png','Confidence Map — high_dim — K-Means')">
+    <img src="../figures/erica_statistics/scatter_erica_high_dim_kmeans.png" loading="lazy" alt="Confidence Map — high_dim — K-Means">
+    <div class="caption">
+      <div class="fig-id">SC-11</div>
+      <div class="fig-title">Confidence Map — high_dim — K-Means</div>
+      <div class="fig-desc">High-dimensional 3-cluster (20D → PCA 2D), K-Means at K*=3. All green. The PCA projection compresses the 20D separation into two components — three well-separated clusters appear, and every sample has stat=1.0. Dimensionality is not a problem when signal dominates.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_high_dim_agglomerative_ward.png','Confidence Map — high_dim — Ward')">
+    <img src="../figures/erica_statistics/scatter_erica_high_dim_agglomerative_ward.png" loading="lazy" alt="Confidence Map — high_dim — Ward">
+    <div class="caption">
+      <div class="fig-id">SC-12</div>
+      <div class="fig-title">Confidence Map — high_dim — Ward</div>
+      <div class="fig-desc">High-dimensional 3-cluster (20D → PCA 2D), Ward at K*=3. All green, identical to K-Means. The high-dimensional separation ensures both methods trivially agree on cluster assignments with perfect per-sample consistency.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · Ward at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_high_dim_kmeans.png','Triptych — high_dim — K-Means')">
+    <img src="../figures/erica_statistics/triptych_high_dim_kmeans.png" loading="lazy" alt="Triptych — high_dim — K-Means">
+    <div class="caption">
+      <div class="fig-id">TR-11</div>
+      <div class="fig-title">Triptych — high_dim — K-Means</div>
+      <div class="fig-desc">High-dimensional 3-cluster triptych (20D → PCA 2D). Left: three clusters projected into PCA space. Center: all green. Right: zero entropy. The PCA projection may compress clusters visually, but the underlying 20D separation ensures perfect assignment consistency.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_high_dim_agglomerative_ward.png','Triptych — high_dim — Ward')">
+    <img src="../figures/erica_statistics/triptych_high_dim_agglomerative_ward.png" loading="lazy" alt="Triptych — high_dim — Ward">
+    <div class="caption">
+      <div class="fig-id">TR-12</div>
+      <div class="fig-title">Triptych — high_dim — Ward</div>
+      <div class="fig-desc">High-dimensional 3-cluster triptych, Ward. Matches K-Means exactly. In 20D with well-separated clusters, the PCA triptych shows the same perfect green/zero-entropy pattern. The method comparison adds nothing for this dataset.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_high_dim.png','Method Scatter — high_dim')">
+    <img src="../figures/erica_statistics/scatter_method_compare_high_dim.png" loading="lazy" alt="Method Scatter — high_dim">
+    <div class="caption">
+      <div class="fig-id">MS-06</div>
+      <div class="fig-title">Method Scatter — high_dim</div>
+      <div class="fig-desc">High-dimensional 3-cluster (20D → PCA 2D). Both panels are uniformly green. The PCA projection collapses the 20D data into two axes but the inter-cluster separation is preserved — both methods produce identical stability patterns.</div>
+      <div class="fig-method">side-by-side K-Means | Ward · shared ERICA stat colorbar (RdYlGn, 0–1) · PCA or raw 2D</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCSP</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pcsp_high_dim_kmeans.png','PCSP — high_dim')">
+    <img src="../figures/erica_statistics/pcsp_high_dim_kmeans.png" loading="lazy" alt="PCSP — high_dim">
+    <div class="caption">
+      <div class="fig-id">PCSP-06</div>
+      <div class="fig-title">PCSP — high_dim</div>
+      <div class="fig-desc">High-dimensional 3-cluster PCSP at K*=3. Three panels, all flat at y=0. Despite 20 features, the separation is large enough that no sample leaks to another cluster. The PCSP is indistinguishable from the well_separated case.</div>
+      <div class="fig-method">PCSP per source cluster · x: sample index · y: normalized assignment to target clusters · vertical dotted lines = target cluster boundaries · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">ICA &amp; ICAH</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_high_dim.png','PCA vs ICA — high_dim')">
+    <img src="../figures/erica_statistics/pca_vs_ica_high_dim.png" loading="lazy" alt="PCA vs ICA — high_dim">
+    <div class="caption">
+      <div class="fig-id">ICA-06</div>
+      <div class="fig-title">PCA vs ICA — high_dim</div>
+      <div class="fig-desc">High-dimensional 3-cluster (20D). PCA captures the top-2 variance directions; ICA finds statistically independent components. Both project the 20D data into 2D with three clearly separated green clusters. The ICA rotation may differ, but the ERICA stat coloring is invariant.</div>
+      <div class="fig-method">1×2 panels · left: PCA(2) · right: FastICA(2) · color: ERICA stat (RdYlGn) · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/icah_high_dim_kmeans.png','ICAH — high_dim')">
+    <img src="../figures/erica_statistics/icah_high_dim_kmeans.png" loading="lazy" alt="ICAH — high_dim">
+    <div class="caption">
+      <div class="fig-id">ICAH-06</div>
+      <div class="fig-title">ICAH — high_dim</div>
+      <div class="fig-desc">High-dimensional 3-cluster (20D), K=3. Another 3×3 identity matrix. The 20-dimensional separation is sufficient to produce zero inter-cluster leakage, identical to the well_separated case. Dimensionality does not degrade the ICAH when the signal-to-noise ratio is high.</div>
+      <div class="fig-method">k×k heatmap · rows: source cluster · cols: target cluster · values: mean normalized CLAM assignment · RdYlGn · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="overlapping">
+<h2>Overlapping</h2>
+<p class="desc">4 overlapping 2D clusters. 400 samples. ERICA=0.98, ARI=0.95. The overlap region creates a small tail of unstable samples.</p>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Distribution</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/dist_overlapping.png','Distributions — overlapping')">
+    <img src="../figures/erica_statistics/dist_overlapping.png" loading="lazy" alt="Distributions — overlapping">
+    <div class="caption">
+      <div class="fig-id">DIST-07</div>
+      <div class="fig-title">Distributions — overlapping</div>
+      <div class="fig-desc">Overlapping 4-cluster (2D, 400 samples). ERICA=0.98, ARI=0.95, AMI=0.97. High but not perfect — the overlap region creates a small tail of unstable samples.</div>
+      <div class="fig-method">erica_stat = max(CLAM[i,:]) / sum(CLAM[i,:]) · ARI/AMI per-iteration from predicted vs refit labels · B=200, 80/20 split</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Statistics vs K</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_overlapping_kmeans.png','Stats vs K — overlapping — K-Means')">
+    <img src="../figures/erica_statistics/stats_vs_k_overlapping_kmeans.png" loading="lazy" alt="Stats vs K — overlapping — K-Means">
+    <div class="caption">
+      <div class="fig-id">SVK-13</div>
+      <div class="fig-title">Stats vs K — overlapping — K-Means</div>
+      <div class="fig-desc">Overlapping 4-cluster (2D), K-Means. Peak at K*=4: ERICA=0.98, ARI=0.95, AMI=0.97. Error bands are narrow but visible. The small gap between ERICA stat and ARI localizes to the overlap regions where a few boundary samples contribute partition-level disagreement.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_overlapping_agglomerative_ward.png','Stats vs K — overlapping — Ward')">
+    <img src="../figures/erica_statistics/stats_vs_k_overlapping_agglomerative_ward.png" loading="lazy" alt="Stats vs K — overlapping — Ward">
+    <div class="caption">
+      <div class="fig-id">SVK-14</div>
+      <div class="fig-title">Stats vs K — overlapping — Ward</div>
+      <div class="fig-desc">Overlapping 4-cluster (2D), Ward linkage. The peak profile at K*=4 is similar to K-Means, but Ward's ARI error band is slightly wider — the centroid-proxy assignment amplifies boundary uncertainty. ERICA stat and AMI remain close to K-Means values.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/method_compare_overlapping.png','Method Comparison — overlapping')">
+    <img src="../figures/erica_statistics/method_compare_overlapping.png" loading="lazy" alt="Method Comparison — overlapping">
+    <div class="caption">
+      <div class="fig-id">MC-07</div>
+      <div class="fig-title">Method Comparison — overlapping</div>
+      <div class="fig-desc">Overlapping 4-cluster. K-Means and Ward produce similar ERICA stat profiles (~0.98 at K*=4). The interesting difference is in the ARI column: Ward's bands are slightly wider, especially at K values above K*. AMI tracks between them, providing a less noisy partition-comparison signal.</div>
+      <div class="fig-method">2×3 grid · rows: K-Means, Ward · cols: ERICA stat, ARI, AMI · each cell: metric vs K with ±1 std band</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Spatial Views</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_overlapping_kmeans.png','Confidence Map — overlapping — K-Means')">
+    <img src="../figures/erica_statistics/scatter_erica_overlapping_kmeans.png" loading="lazy" alt="Confidence Map — overlapping — K-Means">
+    <div class="caption">
+      <div class="fig-id">SC-13</div>
+      <div class="fig-title">Confidence Map — overlapping — K-Means</div>
+      <div class="fig-desc">Overlapping 4-cluster (2D, 400 samples), K-Means at K*=4. Mostly green with a thin seam of yellow/orange at the interface between overlapping clusters. The overlap region concentrates the unstable samples — about 5% of points have ERICA stat below 0.9.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_overlapping_agglomerative_ward.png','Confidence Map — overlapping — Ward')">
+    <img src="../figures/erica_statistics/scatter_erica_overlapping_agglomerative_ward.png" loading="lazy" alt="Confidence Map — overlapping — Ward">
+    <div class="caption">
+      <div class="fig-id">SC-14</div>
+      <div class="fig-title">Confidence Map — overlapping — Ward</div>
+      <div class="fig-desc">Overlapping 4-cluster (2D), Ward at K*=4. The yellow boundary seam is slightly wider than K-Means — Ward's centroid proxy is less precise at the Voronoi boundaries between overlapping clusters. The core regions remain solidly green in both methods.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · Ward at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_overlapping_kmeans.png','Triptych — overlapping — K-Means')">
+    <img src="../figures/erica_statistics/triptych_overlapping_kmeans.png" loading="lazy" alt="Triptych — overlapping — K-Means">
+    <div class="caption">
+      <div class="fig-id">TR-13</div>
+      <div class="fig-title">Triptych — overlapping — K-Means</div>
+      <div class="fig-desc">Overlapping 4-cluster triptych. Left: four cluster assignments with visible overlap zones. Center: ERICA stat drops to yellow/orange at the interfaces between adjacent clusters. Right: entropy peaks at the same interfaces. The triptych localizes the ~5% of unstable samples spatially.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_overlapping_agglomerative_ward.png','Triptych — overlapping — Ward')">
+    <img src="../figures/erica_statistics/triptych_overlapping_agglomerative_ward.png" loading="lazy" alt="Triptych — overlapping — Ward">
+    <div class="caption">
+      <div class="fig-id">TR-14</div>
+      <div class="fig-title">Triptych — overlapping — Ward</div>
+      <div class="fig-desc">Overlapping 4-cluster triptych, Ward. The uncertainty zones in the center and right panels are slightly broader than K-Means (TR-13). Ward's distance-based merging creates wider transition regions between clusters, resulting in more samples in the yellow-orange band.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_overlapping.png','Method Scatter — overlapping')">
+    <img src="../figures/erica_statistics/scatter_method_compare_overlapping.png" loading="lazy" alt="Method Scatter — overlapping">
+    <div class="caption">
+      <div class="fig-id">MS-07</div>
+      <div class="fig-title">Method Scatter — overlapping</div>
+      <div class="fig-desc">Overlapping 4-cluster, raw 2D. Both methods show green cores with yellow seams at cluster interfaces. The Ward panel has marginally wider yellow zones, but the spatial pattern is strikingly similar — the same samples are unstable under both algorithms.</div>
+      <div class="fig-method">side-by-side K-Means | Ward · shared ERICA stat colorbar (RdYlGn, 0–1) · PCA or raw 2D</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCSP</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pcsp_overlapping_kmeans.png','PCSP — overlapping')">
+    <img src="../figures/erica_statistics/pcsp_overlapping_kmeans.png" loading="lazy" alt="PCSP — overlapping">
+    <div class="caption">
+      <div class="fig-id">PCSP-07</div>
+      <div class="fig-title">PCSP — overlapping</div>
+      <div class="fig-desc">Overlapping 4-cluster PCSP at K*=4. Each of the four panels shows mostly low scatter with a few elevated points (y=0.05–0.2) at the boundary samples. The leakage is concentrated between spatially adjacent cluster pairs — non-adjacent clusters show near-zero cross-assignment.</div>
+      <div class="fig-method">PCSP per source cluster · x: sample index · y: normalized assignment to target clusters · vertical dotted lines = target cluster boundaries · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">ICA &amp; ICAH</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pca_vs_ica_overlapping.png','PCA vs ICA — overlapping')">
+    <img src="../figures/erica_statistics/pca_vs_ica_overlapping.png" loading="lazy" alt="PCA vs ICA — overlapping">
+    <div class="caption">
+      <div class="fig-id">ICA-07</div>
+      <div class="fig-title">PCA vs ICA — overlapping</div>
+      <div class="fig-desc">Overlapping 4-cluster. PCA and ICA both show four clusters with yellow boundary seams. The ICA projection may separate certain cluster pairs better than PCA due to its sensitivity to non-Gaussianity at the overlap regions, but the overall stability pattern is consistent.</div>
+      <div class="fig-method">1×2 panels · left: PCA(2) · right: FastICA(2) · color: ERICA stat (RdYlGn) · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/icah_overlapping_kmeans.png','ICAH — overlapping')">
+    <img src="../figures/erica_statistics/icah_overlapping_kmeans.png" loading="lazy" alt="ICAH — overlapping">
+    <div class="caption">
+      <div class="fig-id">ICAH-07</div>
+      <div class="fig-title">ICAH — overlapping</div>
+      <div class="fig-desc">Overlapping 4-cluster, K=4. The 4×4 heatmap shows a strong diagonal (0.95–0.98) with small off-diagonal entries (0.01–0.03) between adjacent clusters. The ICAH reveals the pairwise leakage structure that the scalar ERICA stat averages over — spatially adjacent clusters share more assignment mass.</div>
+      <div class="fig-method">k×k heatmap · rows: source cluster · cols: target cluster · values: mean normalized CLAM assignment · RdYlGn · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="moons_2d">
+<h2>Two Moons</h2>
+<p class="desc">Two interleaved half-moons. 300 samples, 2 features, K*=2. ERICA=0.99, ARI=0.87. The neck between moons is the instability zone — ERICA stat and ARI disagree most here.</p>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Distribution</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/dist_moons_2d.png','Distributions — moons_2d')">
+    <img src="../figures/erica_statistics/dist_moons_2d.png" loading="lazy" alt="Distributions — moons_2d">
+    <div class="caption">
+      <div class="fig-id">DIST-08</div>
+      <div class="fig-title">Distributions — moons_2d</div>
+      <div class="fig-desc">Two moons (300 samples, K*=2). ERICA=0.99 but ARI=0.87, AMI=0.84. The ERICA stat stays high because most samples are stably assigned, but the partition comparison metrics drop — the boundary region between moons causes iteration-to-iteration partition disagreement.</div>
+      <div class="fig-method">erica_stat = max(CLAM[i,:]) / sum(CLAM[i,:]) · ARI/AMI per-iteration from predicted vs refit labels · B=200, 80/20 split</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Statistics vs K</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_moons_2d_kmeans.png','Stats vs K — moons_2d — K-Means')">
+    <img src="../figures/erica_statistics/stats_vs_k_moons_2d_kmeans.png" loading="lazy" alt="Stats vs K — moons_2d — K-Means">
+    <div class="caption">
+      <div class="fig-id">SVK-15</div>
+      <div class="fig-title">Stats vs K — moons_2d — K-Means</div>
+      <div class="fig-desc">Two moons, K-Means. ERICA stat stays near 1.0 at K=2, then drops. ARI and AMI peak at K=2 but lower. The error band for ARI is wider than ERICA stat — partition-level comparison is noisier.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_moons_2d_agglomerative_ward.png','Stats vs K — moons_2d — Ward')">
+    <img src="../figures/erica_statistics/stats_vs_k_moons_2d_agglomerative_ward.png" loading="lazy" alt="Stats vs K — moons_2d — Ward">
+    <div class="caption">
+      <div class="fig-id">SVK-16</div>
+      <div class="fig-title">Stats vs K — moons_2d — Ward</div>
+      <div class="fig-desc">Two moons, Ward linkage. Ward struggles more than K-Means on non-convex shapes — the ARI/AMI at K=2 are lower and the error bands wider. ERICA stat is more forgiving because most samples away from the neck are stably assigned regardless of method.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/method_compare_moons_2d.png','Method Comparison — moons_2d')">
+    <img src="../figures/erica_statistics/method_compare_moons_2d.png" loading="lazy" alt="Method Comparison — moons_2d">
+    <div class="caption">
+      <div class="fig-id">MC-08</div>
+      <div class="fig-title">Method Comparison — moons_2d</div>
+      <div class="fig-desc">Two moons. The ERICA stat column is similar across rows (~0.99), but the ARI column diverges — K-Means (0.87) outperforms Ward on this non-convex shape. Ward's hierarchical merging is poorly suited to crescents, and the ARI/AMI columns reflect this with lower peaks and wider bands.</div>
+      <div class="fig-method">2×3 grid · rows: K-Means, Ward · cols: ERICA stat, ARI, AMI · each cell: metric vs K with ±1 std band</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Spatial Views</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_moons_2d_kmeans.png','Confidence Map — moons_2d — K-Means')">
+    <img src="../figures/erica_statistics/scatter_erica_moons_2d_kmeans.png" loading="lazy" alt="Confidence Map — moons_2d — K-Means">
+    <div class="caption">
+      <div class="fig-id">SC-15</div>
+      <div class="fig-title">Confidence Map — moons_2d — K-Means</div>
+      <div class="fig-desc">Two moons, raw 2D coordinates. Most points green except the neck region between moons — boundary samples are assignment-unstable.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_moons_2d_agglomerative_ward.png','Confidence Map — moons_2d — Ward')">
+    <img src="../figures/erica_statistics/scatter_erica_moons_2d_agglomerative_ward.png" loading="lazy" alt="Confidence Map — moons_2d — Ward">
+    <div class="caption">
+      <div class="fig-id">SC-16</div>
+      <div class="fig-title">Confidence Map — moons_2d — Ward</div>
+      <div class="fig-desc">Two moons, Ward at K*=2. The neck instability region is wider than K-Means — Ward's distance-based merging creates a broader uncertain zone between the crescents. Additional yellow points appear at the moon tips where Ward's Euclidean bias is least suited to the curved geometry.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · Ward at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_moons_2d_kmeans.png','Triptych — moons_2d — K-Means')">
+    <img src="../figures/erica_statistics/triptych_moons_2d_kmeans.png" loading="lazy" alt="Triptych — moons_2d — K-Means">
+    <div class="caption">
+      <div class="fig-id">TR-15</div>
+      <div class="fig-title">Triptych — moons_2d — K-Means</div>
+      <div class="fig-desc">Two moons triptych. Left: clean 2-cluster separation. Center: green everywhere except the bridge between moons. Right: entropy localizes to the exact neck region.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_moons_2d_agglomerative_ward.png','Triptych — moons_2d — Ward')">
+    <img src="../figures/erica_statistics/triptych_moons_2d_agglomerative_ward.png" loading="lazy" alt="Triptych — moons_2d — Ward">
+    <div class="caption">
+      <div class="fig-id">TR-16</div>
+      <div class="fig-title">Triptych — moons_2d — Ward</div>
+      <div class="fig-desc">Two moons triptych, Ward. Left: cluster boundary cuts differently than K-Means — Ward's Euclidean bias creates a straighter cut. Center: the yellow/orange zone extends beyond the neck into the tips. Right: entropy field is correspondingly broader. The non-convex shape amplifies method differences.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_moons_2d.png','Method Scatter — moons_2d')">
+    <img src="../figures/erica_statistics/scatter_method_compare_moons_2d.png" loading="lazy" alt="Method Scatter — moons_2d">
+    <div class="caption">
+      <div class="fig-id">MS-08</div>
+      <div class="fig-title">Method Scatter — moons_2d</div>
+      <div class="fig-desc">Two moons. Both methods correctly identify the neck as the instability zone. Ward shows slightly more red at the tips — the centroid proxy affects extreme-shape datasets.</div>
+      <div class="fig-method">side-by-side K-Means | Ward · shared ERICA stat colorbar (RdYlGn, 0–1) · PCA or raw 2D</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCSP</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pcsp_moons_2d_kmeans.png','PCSP — moons_2d')">
+    <img src="../figures/erica_statistics/pcsp_moons_2d_kmeans.png" loading="lazy" alt="PCSP — moons_2d">
+    <div class="caption">
+      <div class="fig-id">PCSP-08</div>
+      <div class="fig-title">PCSP — moons_2d</div>
+      <div class="fig-desc">Two moons PCSP. Two panels (K=2). Left panel (C1) shows most values near zero (low leakage to C2) with a few elevated points from the boundary. The boundary samples are the same ones that appear red in the scatter plots.</div>
+      <div class="fig-method">PCSP per source cluster · x: sample index · y: normalized assignment to target clusters · vertical dotted lines = target cluster boundaries · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">ICAH</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/icah_moons_2d_kmeans.png','ICAH — moons_2d')">
+    <img src="../figures/erica_statistics/icah_moons_2d_kmeans.png" loading="lazy" alt="ICAH — moons_2d">
+    <div class="caption">
+      <div class="fig-id">ICAH-08</div>
+      <div class="fig-title">ICAH — moons_2d</div>
+      <div class="fig-desc">Two moons, K=2. The 2×2 ICAH shows high diagonal (0.99+) with a small off-diagonal — the neck samples contribute the leakage.</div>
+      <div class="fig-method">k×k heatmap · rows: source cluster · cols: target cluster · values: mean normalized CLAM assignment · RdYlGn · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="section" id="blobs_2d">
+<h2>Blobs 2D</h2>
+<p class="desc">3 Gaussian blobs in 2D. 300 samples. Perfectly replicable (all metrics=1.0). Standard benchmark.</p>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Distribution</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/dist_blobs_2d.png','Distributions — blobs_2d')">
+    <img src="../figures/erica_statistics/dist_blobs_2d.png" loading="lazy" alt="Distributions — blobs_2d">
+    <div class="caption">
+      <div class="fig-id">DIST-09</div>
+      <div class="fig-title">Distributions — blobs_2d</div>
+      <div class="fig-desc">Simple 2D blobs (300 samples, K*=3). ERICA=1.00, ARI=1.00, AMI=1.00. Another trivially replicable case — the three well-separated isotropic Gaussian blobs produce identical partitions on every MC iteration. All three histograms are delta functions at 1.0.</div>
+      <div class="fig-method">erica_stat = max(CLAM[i,:]) / sum(CLAM[i,:]) · ARI/AMI per-iteration from predicted vs refit labels · B=200, 80/20 split</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Statistics vs K</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_blobs_2d_kmeans.png','Stats vs K — blobs_2d — K-Means')">
+    <img src="../figures/erica_statistics/stats_vs_k_blobs_2d_kmeans.png" loading="lazy" alt="Stats vs K — blobs_2d — K-Means">
+    <div class="caption">
+      <div class="fig-id">SVK-17</div>
+      <div class="fig-title">Stats vs K — blobs_2d — K-Means</div>
+      <div class="fig-desc">2D blobs, K-Means. Perfect 1.0 at K*=3 — the canonical easy case for K-Means. All three curves overlay exactly with zero error bands at the true K. The clean drop-off beyond K=3 confirms Algorithm 2 correctly selects K*.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/stats_vs_k_blobs_2d_agglomerative_ward.png','Stats vs K — blobs_2d — Ward')">
+    <img src="../figures/erica_statistics/stats_vs_k_blobs_2d_agglomerative_ward.png" loading="lazy" alt="Stats vs K — blobs_2d — Ward">
+    <div class="caption">
+      <div class="fig-id">SVK-18</div>
+      <div class="fig-title">Stats vs K — blobs_2d — Ward</div>
+      <div class="fig-desc">2D blobs, Ward linkage. Identical to K-Means for this easy dataset — perfect replicability at K*=3. Ward's dendrogram cuts produce the same partitions as K-Means centroids when clusters are isotropic and well-separated.</div>
+      <div class="fig-method">mean ± 1 std · ERICA stat: std across n_samples · ARI/AMI: std across 200 iterations · K* dashed line</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Method Comparison</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/method_compare_blobs_2d.png','Method Comparison — blobs_2d')">
+    <img src="../figures/erica_statistics/method_compare_blobs_2d.png" loading="lazy" alt="Method Comparison — blobs_2d">
+    <div class="caption">
+      <div class="fig-id">MC-09</div>
+      <div class="fig-title">Method Comparison — blobs_2d</div>
+      <div class="fig-desc">2D blobs. Another trivially perfect case — all six panels show 1.0 at K*=3. K-Means and Ward agree perfectly on isotropic, well-separated blobs. The grid confirms that method comparison is only informative when the data has ambiguity.</div>
+      <div class="fig-method">2×3 grid · rows: K-Means, Ward · cols: ERICA stat, ARI, AMI · each cell: metric vs K with ±1 std band</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">Spatial Views</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_blobs_2d_kmeans.png','Confidence Map — blobs_2d — K-Means')">
+    <img src="../figures/erica_statistics/scatter_erica_blobs_2d_kmeans.png" loading="lazy" alt="Confidence Map — blobs_2d — K-Means">
+    <div class="caption">
+      <div class="fig-id">SC-17</div>
+      <div class="fig-title">Confidence Map — blobs_2d — K-Means</div>
+      <div class="fig-desc">2D blobs (300 samples), K-Means at K*=3. Uniformly deep green — all 300 samples have stat=1.0. Three compact, well-separated clusters in raw 2D space. The confidence map adds no information beyond what the raw scatter already shows.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · K-Means at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_erica_blobs_2d_agglomerative_ward.png','Confidence Map — blobs_2d — Ward')">
+    <img src="../figures/erica_statistics/scatter_erica_blobs_2d_agglomerative_ward.png" loading="lazy" alt="Confidence Map — blobs_2d — Ward">
+    <div class="caption">
+      <div class="fig-id">SC-18</div>
+      <div class="fig-title">Confidence Map — blobs_2d — Ward</div>
+      <div class="fig-desc">2D blobs (300 samples), Ward at K*=3. Identical to K-Means — all green, all 1.0. Ward and K-Means produce the same partition on isotropic blobs. The confidence map is a uniform green canvas.</div>
+      <div class="fig-method">PCA(2) or raw 2D · color: ERICA stat (RdYlGn, 0–1) · size: 10 + 40×stat · Ward at K*</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_blobs_2d_kmeans.png','Triptych — blobs_2d — K-Means')">
+    <img src="../figures/erica_statistics/triptych_blobs_2d_kmeans.png" loading="lazy" alt="Triptych — blobs_2d — K-Means">
+    <div class="caption">
+      <div class="fig-id">TR-17</div>
+      <div class="fig-title">Triptych — blobs_2d — K-Means</div>
+      <div class="fig-desc">2D blobs triptych, K-Means. Left: three compact clusters. Center: uniform green (stat=1.0). Right: uniform zero entropy. The triptych is a baseline reference — this is what a perfectly replicable dataset looks like across all three panels.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/triptych_blobs_2d_agglomerative_ward.png','Triptych — blobs_2d — Ward')">
+    <img src="../figures/erica_statistics/triptych_blobs_2d_agglomerative_ward.png" loading="lazy" alt="Triptych — blobs_2d — Ward">
+    <div class="caption">
+      <div class="fig-id">TR-18</div>
+      <div class="fig-title">Triptych — blobs_2d — Ward</div>
+      <div class="fig-desc">2D blobs triptych, Ward. Identical to K-Means — three clusters, all green, zero entropy. For isotropic well-separated blobs, the method comparison triptych confirms that both algorithms produce the same perfect result.</div>
+      <div class="fig-method">3 panels · left: cluster colors · center: ERICA stat (RdYlGn) · right: entropy (RdYlGn_r, 0=certain, 1=confused)</div>
+    </div>
+  </div>
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/scatter_method_compare_blobs_2d.png','Method Scatter — blobs_2d')">
+    <img src="../figures/erica_statistics/scatter_method_compare_blobs_2d.png" loading="lazy" alt="Method Scatter — blobs_2d">
+    <div class="caption">
+      <div class="fig-id">MS-09</div>
+      <div class="fig-title">Method Scatter — blobs_2d</div>
+      <div class="fig-desc">2D blobs. Both panels identical — all green, all 1.0. The side-by-side comparison confirms that for isotropic, well-separated blobs, K-Means and Ward are interchangeable. The method scatter only becomes diagnostic for harder datasets.</div>
+      <div class="fig-method">side-by-side K-Means | Ward · shared ERICA stat colorbar (RdYlGn, 0–1) · PCA or raw 2D</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">PCSP</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/pcsp_blobs_2d_kmeans.png','PCSP — blobs_2d')">
+    <img src="../figures/erica_statistics/pcsp_blobs_2d_kmeans.png" loading="lazy" alt="PCSP — blobs_2d">
+    <div class="caption">
+      <div class="fig-id">PCSP-09</div>
+      <div class="fig-title">PCSP — blobs_2d</div>
+      <div class="fig-desc">2D blobs PCSP at K*=3. Three panels, all flat at y=0. Zero inter-cluster leakage for all 300 samples. The PCSP for blobs_2d is a visual flatline — the canonical easy case where the CLAM matrix is a perfect identity.</div>
+      <div class="fig-method">PCSP per source cluster · x: sample index · y: normalized assignment to target clusters · vertical dotted lines = target cluster boundaries · K-Means at K*</div>
+    </div>
+  </div>
+</div>
+<h3 style="font-size: 15px; font-weight: 400; color: var(--muted); margin: 20px 0 8px;">ICAH</h3>
+<div class="grid">
+<div class="figure" onclick="openLightbox('../figures/erica_statistics/icah_blobs_2d_kmeans.png','ICAH — blobs_2d')">
+    <img src="../figures/erica_statistics/icah_blobs_2d_kmeans.png" loading="lazy" alt="ICAH — blobs_2d">
+    <div class="caption">
+      <div class="fig-id">ICAH-09</div>
+      <div class="fig-title">ICAH — blobs_2d</div>
+      <div class="fig-desc">2D blobs, K=3. A 3×3 identity matrix — perfect diagonal, zero off-diagonal. The simplest possible ICAH, confirming that these well-separated isotropic blobs never exchange samples across 200 MC iterations. The heatmap is indistinguishable from well_separated and high_dim.</div>
+      <div class="fig-method">k×k heatmap · rows: source cluster · cols: target cluster · values: mean normalized CLAM assignment · RdYlGn · K-Means at K*</div>
+    </div>
+  </div>
 </div>
 </div>
 

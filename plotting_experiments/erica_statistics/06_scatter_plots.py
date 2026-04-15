@@ -35,7 +35,7 @@ DATA_DIR = os.path.join(SCRIPT_DIR, '..', 'data')
 FIGURES_DIR = os.path.join(SCRIPT_DIR, '..', 'figures', 'erica_statistics')
 
 DATASETS = [
-    'vdx_3gene', 'gauss4c_sigma0p1', 'gauss4c_sigma1p0', 'gauss4c_sigma10p0',
+    'vdx_3gene', 'gauss4c_sigma0p01', 'gauss4c_sigma0p1', 'gauss4c_sigma1p0', 'gauss4c_sigma10p0',
     'well_separated', 'high_dim', 'overlapping', 'moons_2d', 'blobs_2d',
 ]
 DATASETS_2D = {'moons_2d', 'blobs_2d'}
@@ -99,16 +99,23 @@ def _save(fig, stem):
     plt.close(fig)
 
 
+def _adaptive_range(values, floor=0.0):
+    """Colormap vmin from 5th percentile for better visual contrast."""
+    p5 = float(np.percentile(values, 5))
+    return max(floor, min(p5, 0.5))
+
+
 def plot_erica_confidence(X_2d, var_ratio, erica_stat, k, method, dataset_name):
     xlabel, ylabel = _variance_label(var_ratio)
 
     fig, ax = plt.subplots(figsize=(SINGLE_COL * 1.4, SINGLE_COL * 1.2))
 
+    vmin = _adaptive_range(erica_stat)
     sizes = 10 + 40 * erica_stat
     sc = ax.scatter(
         X_2d[:, 0], X_2d[:, 1],
         c=erica_stat, cmap='RdYlGn',
-        s=sizes, vmin=0, vmax=1,
+        s=sizes, vmin=vmin, vmax=1,
         alpha=0.75, edgecolors='none',
     )
 
@@ -132,7 +139,10 @@ def plot_triptych(X_2d, var_ratio, clam, k, method, dataset_name):
     ent = entropy_from_clam(clam)
     xlabel, ylabel = _variance_label(var_ratio)
 
-    fig, axes = plt.subplots(1, 3, figsize=(DOUBLE_COL * 1.3, SINGLE_COL * 1.2))
+    fig, axes = plt.subplots(
+        1, 3,
+        figsize=(DOUBLE_COL * 1.6, SINGLE_COL * 1.3),
+    )
 
     ax = axes[0]
     for c_idx in range(k):
@@ -147,15 +157,17 @@ def plot_triptych(X_2d, var_ratio, clam, k, method, dataset_name):
     ax.legend(fontsize=7, loc='best', markerscale=1.3,
               framealpha=0.7, handletextpad=0.3)
 
+    erica_vmin = _adaptive_range(erica_stat)
+
     ax = axes[1]
     sizes = 10 + 40 * erica_stat
     sc1 = ax.scatter(
         X_2d[:, 0], X_2d[:, 1],
         c=erica_stat, cmap='RdYlGn',
-        s=sizes, vmin=0.0, vmax=1.0,
+        s=sizes, vmin=erica_vmin, vmax=1.0,
         alpha=0.75, edgecolors='none',
     )
-    cb1 = fig.colorbar(sc1, ax=ax, fraction=0.046, pad=0.04)
+    cb1 = fig.colorbar(sc1, ax=ax, fraction=0.046, pad=0.06)
     cb1.set_label('ERICA stat', fontsize=8)
     cb1.ax.tick_params(labelsize=7)
     ax.set_title('ERICA statistic', fontsize=10)
@@ -167,7 +179,7 @@ def plot_triptych(X_2d, var_ratio, clam, k, method, dataset_name):
         s=12, vmin=0.0, vmax=1.0,
         alpha=0.75, edgecolors='none',
     )
-    cb2 = fig.colorbar(sc2, ax=ax, fraction=0.046, pad=0.04)
+    cb2 = fig.colorbar(sc2, ax=ax, fraction=0.046, pad=0.06)
     cb2.set_label('Norm. entropy', fontsize=8)
     cb2.ax.tick_params(labelsize=7)
     ax.set_title('Entropy', fontsize=10)
@@ -183,7 +195,8 @@ def plot_triptych(X_2d, var_ratio, clam, k, method, dataset_name):
         f'{dataset_name}  --  {METHOD_LABELS.get(method, method)}, K={k}',
         fontsize=12, y=1.02,
     )
-    fig.tight_layout()
+    fig.subplots_adjust(wspace=0.45)
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
     return fig
 
 
@@ -202,7 +215,11 @@ def plot_method_compare(X_2d, var_ratio, clam_by_method, k, dataset_name):
         axes = [axes]
 
     xlabel, ylabel = _variance_label(var_ratio)
-    norm = mcolors.Normalize(vmin=0.0, vmax=1.0)
+    all_estat = np.concatenate([
+        erica_stat_from_clam(clam_by_method[m]) for m in methods_with_data
+    ])
+    vmin = _adaptive_range(all_estat)
+    norm = mcolors.Normalize(vmin=vmin, vmax=1.0)
     cmap = plt.get_cmap('RdYlGn')
 
     for ax, method in zip(axes, methods_with_data):

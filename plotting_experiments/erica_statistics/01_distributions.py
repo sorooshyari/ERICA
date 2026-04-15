@@ -32,7 +32,7 @@ DATA_DIR = os.path.join(SCRIPT_DIR, '..', 'data')
 FIGURES_DIR = os.path.join(SCRIPT_DIR, '..', 'figures', 'erica_statistics')
 
 DATASETS = [
-    'vdx_3gene', 'gauss4c_sigma0p1', 'gauss4c_sigma1p0', 'gauss4c_sigma10p0',
+    'vdx_3gene', 'gauss4c_sigma0p01', 'gauss4c_sigma0p1', 'gauss4c_sigma1p0', 'gauss4c_sigma10p0',
     'well_separated', 'high_dim', 'overlapping', 'moons_2d', 'blobs_2d',
 ]
 

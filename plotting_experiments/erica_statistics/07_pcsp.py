@@ -34,7 +34,7 @@ DATA_DIR = os.path.join(SCRIPT_DIR, '..', 'data')
 FIGURES_DIR = os.path.join(SCRIPT_DIR, '..', 'figures', 'erica_statistics')
 
 DATASETS = [
-    'vdx_3gene', 'gauss4c_sigma0p1', 'gauss4c_sigma1p0', 'gauss4c_sigma10p0',
+    'vdx_3gene', 'gauss4c_sigma0p01', 'gauss4c_sigma0p1', 'gauss4c_sigma1p0', 'gauss4c_sigma10p0',
     'well_separated', 'high_dim', 'overlapping', 'moons_2d', 'blobs_2d',
 ]
 
@@ -64,15 +64,23 @@ def plot_pcsp(clam, k_val, dataset_name, method):
     clam_norm = clam / safe_sums
     primary = np.argmax(clam, axis=1)
 
-    fig, axes = plt.subplots(1, k_val, figsize=(4 * k_val, 3.5))
-    if k_val == 1:
-        axes = [axes]
+    ncols = min(k_val, 4)
+    nrows = int(np.ceil(k_val / ncols))
+    fig, axes = plt.subplots(
+        nrows, ncols,
+        figsize=(4 * ncols, 3.5 * nrows),
+        squeeze=False,
+    )
+    axes_flat = axes.flatten()
+
+    for idx in range(k_val, nrows * ncols):
+        axes_flat[idx].set_visible(False)
 
     for src_k in range(k_val):
-        ax = axes[src_k]
+        ax = axes_flat[src_k]
         mask = primary == src_k
         if not mask.any():
-            ax.set_title(f'C{src_k+1} (empty)')
+            ax.set_title(f'C{src_k+1} (empty)', fontsize=10)
             ax.set_ylim(-0.05, 1.05)
             continue
 
@@ -88,7 +96,7 @@ def plot_pcsp(clam, k_val, dataset_name, method):
             target_labels.append(f'C{tgt_k+1}')
 
         if not segments:
-            ax.set_title(f'C{src_k+1} (n={mask.sum()})')
+            ax.set_title(f'C{src_k+1} (n={mask.sum()})', fontsize=10)
             ax.set_ylim(-0.05, 1.05)
             continue
 
@@ -107,11 +115,12 @@ def plot_pcsp(clam, k_val, dataset_name, method):
             ax.text(mid, -0.12, label, ha='center', va='top', fontsize=7,
                     color='#555')
 
-        ax.set_title(f'C{src_k+1} (n={mask.sum()})')
-        ax.set_xlabel('Index')
-        if src_k == 0:
-            ax.set_ylabel('Assignment to other clusters')
+        ax.set_title(f'C{src_k+1} (n={mask.sum()})', fontsize=10)
+        ax.set_xlabel('Index', fontsize=8)
+        if src_k % ncols == 0:
+            ax.set_ylabel('Assignment to other clusters', fontsize=8)
         ax.set_ylim(-0.05, 1.05)
+        ax.tick_params(labelsize=7)
 
     method_label = 'K-Means' if method == 'kmeans' else method.replace('_', ' ').title()
     fig.suptitle(f'{dataset_name} — {method_label}, K={k_val} — PCSP',

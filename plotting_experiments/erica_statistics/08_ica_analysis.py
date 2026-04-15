@@ -34,7 +34,7 @@ DATA_DIR = os.path.join(SCRIPT_DIR, '..', 'data')
 FIGURES_DIR = os.path.join(SCRIPT_DIR, '..', 'figures', 'erica_statistics')
 
 DATASETS = [
-    'vdx_3gene', 'gauss4c_sigma0p1', 'gauss4c_sigma1p0', 'gauss4c_sigma10p0',
+    'vdx_3gene', 'gauss4c_sigma0p01', 'gauss4c_sigma0p1', 'gauss4c_sigma1p0', 'gauss4c_sigma10p0',
     'well_separated', 'high_dim', 'overlapping', 'moons_2d', 'blobs_2d',
 ]
 DATASETS_2D = {'moons_2d', 'blobs_2d'}
@@ -124,11 +124,12 @@ def plot_pca_vs_ica(X_pca, var_ratio, X_ica, erica_stat, dataset_name):
     fig.suptitle(f'{dataset_name} — PCA vs ICA (colored by ERICA stat)',
                  fontsize=11, y=1.02)
 
-    cbar = fig.colorbar(sc, ax=axes, fraction=0.03, pad=0.04)
+    fig.subplots_adjust(right=0.88)
+    cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.7])
+    cbar = fig.colorbar(sc, cax=cbar_ax)
     cbar.set_label('ERICA statistic', fontsize=9)
     cbar.ax.tick_params(labelsize=7)
 
-    fig.tight_layout()
     return fig
 
 
@@ -214,15 +215,18 @@ def main():
 
         erica_stat = erica_stat_from_clam(clam)
 
+        is_natively_2d = dataset_name in DATASETS_2D or X.shape[1] == 2
         X_pca, var_ratio = project_pca(X, dataset_name)
-        X_ica = project_ica(X, dataset_name)
+        X_ica = None if is_natively_2d else project_ica(X, dataset_name)
 
-        if X_ica is not None:
+        if is_natively_2d:
+            print(f'  [SKIP] PCA vs ICA for natively 2D dataset {dataset_name}')
+        elif X_ica is not None:
             fig = plot_pca_vs_ica(X_pca, var_ratio, X_ica, erica_stat,
                                   dataset_name)
             _save(fig, f'pca_vs_ica_{dataset_name}')
         else:
-            print(f'  [WARN] ICA did not converge for {dataset_name}')
+            print(f'  [WARN] ICA failed for {dataset_name}')
 
         icah = compute_icah(clam, k)
         fig = plot_icah(icah, k, dataset_name, method)
