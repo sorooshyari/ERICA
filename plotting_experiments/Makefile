@@ -1,4 +1,4 @@
-.PHONY: data pipeline plots scatter progressions batch gaussian literature erica-stats all clean
+.PHONY: data pipeline plots scatter progressions batch gaussian literature erica-stats all clean curate
 
 data:
 	python 01_generate_datasets.py
@@ -44,6 +44,10 @@ erica-stats: pipeline
 	cd erica_statistics && python 06_scatter_plots.py
 	cd erica_statistics && python 07_pcsp.py
 	cd erica_statistics && python 08_ica_analysis.py
+
+curate:
+	@if [ -z "$(HTML)" ]; then echo "Usage: make curate HTML=gallery.html"; exit 1; fi
+	python curate.py $(HTML)
 
 all: plots scatter progressions batch gaussian literature erica-stats
 

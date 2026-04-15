@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERICA — VDX &amp; Gaussian Gallery</title>
+<style>
+  :root { --bg: #0d0d0d; --text: #e0e0e0; --muted: #8a8a8a; --accent: #5cb88a; --border: #2a2a2a; --card-bg: #1a1a1a; --code-bg: #141414; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+  .masthead { max-width: 900px; margin: 0 auto; padding: 60px 40px 32px; }
+  .masthead h1 { font-size: 28px; font-weight: 400; letter-spacing: 1px; }
+  .masthead .subtitle { font-size: 15px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .masthead .meta { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  .nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-top: 2px solid var(--text); border-bottom: 1px solid var(--border); max-width: 900px; margin: 0 auto; padding: 0; display: flex; flex-wrap: wrap; }
+  .nav a { padding: 10px 14px; font-size: 12px; text-decoration: none; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+  .nav a:hover, .nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 0 40px 60px; }
+
+  .dataset-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 32px; }
+  .dataset-table th { text-align: left; padding: 6px 10px; border-bottom: 2px solid var(--text); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .dataset-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); }
+  .dataset-table tr:hover { background: #1e1e1e; }
+  .dataset-table .cat { font-weight: 600; color: var(--accent); }
+
+  .section { margin: 40px 0; padding-top: 20px; border-top: 1px solid var(--border); }
+  .section h2 { font-size: 20px; font-weight: 400; margin-bottom: 6px; }
+  .section .desc { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+
+  .subsection { margin: 28px 0 0; }
+  .subsection h3 { font-size: 15px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 10px; color: var(--text); border-left: 3px solid var(--accent); padding-left: 10px; }
+  .subsection .sub-desc { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+
+  .figure { margin: 16px 0; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+  .figure:hover { box-shadow: 0 2px 8px rgba(255,255,255,0.04); }
+  .figure img { width: 100%; display: block; padding: 8px; background: #fff; }
+  .figure .caption { padding: 12px 16px; border-top: 1px solid var(--border); }
+  .figure .caption .fig-id { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .figure .caption .fig-title { font-size: 15px; font-weight: 600; margin: 3px 0 6px; }
+  .figure .caption .fig-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .figure .caption .fig-method { font-size: 11px; color: var(--muted); margin-top: 6px; font-family: 'SF Mono', 'Fira Code', monospace; background: var(--code-bg); padding: 4px 8px; border-radius: 3px; display: inline-block; }
+
+  .figure-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .figure-pair .figure { margin: 0; }
+
+  .figure-trio { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .figure-trio .figure { margin: 0; }
+
+  .card { background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+  .card:hover { box-shadow: 0 2px 8px rgba(255,255,255,0.04); }
+  .card img { width: 100%; display: block; padding: 8px; background: #fff; }
+  .card .lbl { padding: 6px 10px; font-size: 11px; color: var(--muted); font-family: monospace; border-top: 1px solid var(--border); }
+
+  .placard { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; margin: 10px 0 16px; background: #141414; border-left: 3px solid var(--accent); padding: 8px 10px; }
+  .placard table { border-collapse: collapse; width: 100%; }
+  .placard td { padding: 2px 8px; vertical-align: top; border-bottom: 1px solid #222; }
+  .placard td:first-child { color: var(--accent); font-weight: 600; white-space: nowrap; width: 100px; }
+
+  .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; background: #fff; padding: 12px; box-shadow: 0 4px 40px rgba(0,0,0,0.5); }
+  .lightbox .lb-caption { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #ccc; font-size: 13px; text-align: center; max-width: 700px; }
+  .lightbox .lb-close { position: fixed; top: 20px; right: 24px; color: #aaa; font-size: 28px; cursor: pointer; }
+  .lightbox .lb-close:hover { color: #fff; }
+
+  footer { max-width: 900px; margin: 0 auto; padding: 32px 40px; border-top: 2px solid var(--text); text-align: center; font-size: 11px; color: var(--muted); }
+
+  details.expandable { margin: 12px 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 3px; }
+  details.expandable summary {
+    padding: 10px 14px; cursor: pointer; font-size: 12px; font-weight: 600;
+    font-family: 'SF Mono', 'Fira Code', monospace; color: var(--accent);
+    letter-spacing: 0.5px; text-transform: uppercase; list-style: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  details.expandable summary::-webkit-details-marker { display: none; }
+  details.expandable summary::before { content: '\25B6'; font-size: 9px; transition: transform 0.15s; }
+  details.expandable[open] summary::before { transform: rotate(90deg); }
+  details.expandable summary:hover { color: var(--text); }
+  details.expandable .detail-body { padding: 0 14px 14px; font-size: 13px; color: var(--muted); line-height: 1.7; }
+  details.expandable .detail-body h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text); margin: 14px 0 6px; font-weight: 600; }
+  details.expandable .detail-body h4:first-child { margin-top: 0; }
+  details.expandable .detail-body p { margin: 4px 0; }
+  details.expandable .detail-body ul { margin: 4px 0 8px 16px; }
+  details.expandable .detail-body li { margin: 2px 0; }
+  details.expandable .detail-body .ref { font-size: 12px; color: var(--muted); margin: 3px 0; }
+  details.expandable .detail-body .ref em { color: var(--text); font-style: normal; }
+  details.expandable .detail-body code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; background: var(--code-bg); padding: 1px 4px; border-radius: 2px; }
+
+  .dataset-brief { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; margin: 12px 0; background: #141414; padding: 8px 12px; border: 1px solid var(--border); }
+  .dataset-brief table { border-collapse: collapse; width: 100%; }
+  .dataset-brief th { text-align: left; padding: 3px 8px; border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); font-weight: 600; }
+  .dataset-brief td { padding: 3px 8px; border-bottom: 1px solid #1e1e1e; }
+
+  @media (max-width: 700px) {
+    .masthead, .content, footer { padding-left: 16px; padding-right: 16px; }
+    .figure-pair, .figure-trio { grid-template-columns: 1fr; }
+    .nav { padding: 0 8px; }
+    .nav a { padding: 8px 10px; font-size: 11px; }
+  }
+
+/* == Curator: museum cards, selection, notes == */
+.figure { position: relative; }
+
+.curator-star {
+  position: absolute; top: 8px; right: 8px; z-index: 10;
+  width: 28px; height: 28px; line-height: 28px; text-align: center;
+  font-size: 18px; cursor: pointer; border-radius: 50%;
+  background: rgba(0,0,0,0.6); color: #555;
+  transition: all 0.15s; user-select: none;
+}
+.curator-star:hover { color: #f0c040; transform: scale(1.15); }
+.figure.selected .curator-star { color: #f0c040; background: rgba(0,0,0,0.8); }
+.figure.selected { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent); }
+
+.curator-note-toggle {
+  display: inline-block; margin-top: 8px; font-size: 11px;
+  color: var(--muted); cursor: pointer; user-select: none;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.curator-note-toggle:hover { color: var(--accent); }
+
+.curator-note {
+  display: none; width: 100%; margin-top: 6px; padding: 8px 10px;
+  font-size: 12px; font-family: 'Palatino Linotype', Georgia, serif;
+  background: var(--code-bg); color: var(--text); border: 1px solid var(--border);
+  border-radius: 3px; resize: vertical; min-height: 48px; line-height: 1.5;
+}
+.curator-note:focus { border-color: var(--accent); outline: none; }
+.curator-note.open { display: block; }
+
+.museum-card {
+  font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px;
+  margin-top: 8px; background: #141414; border-left: 3px solid var(--accent);
+  padding: 6px 10px;
+}
+.museum-card table { border-collapse: collapse; width: 100%; }
+.museum-card td { padding: 2px 6px; vertical-align: top; }
+.museum-card td:first-child {
+  color: var(--accent); font-weight: 600; white-space: nowrap; width: 70px;
+  text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px;
+}
+
+.curator-toolbar {
+  position: fixed; bottom: 0; left: 0; width: 100%; z-index: 500;
+  background: #111; border-top: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; padding: 10px 20px; font-size: 13px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  flex-wrap: wrap;
+}
+.curator-toolbar .count { color: var(--accent); font-weight: 600; }
+.curator-toolbar .note-count { color: var(--muted); font-size: 11px; }
+.curator-toolbar button {
+  background: var(--accent); color: #000; border: none;
+  padding: 6px 14px; font-size: 11px; font-weight: 600;
+  cursor: pointer; border-radius: 3px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.curator-toolbar button:hover { opacity: 0.85; }
+.curator-toolbar button.secondary {
+  background: transparent; color: var(--muted); border: 1px solid var(--border);
+}
+.curator-toolbar button.secondary:hover { color: var(--text); border-color: var(--text); }
+
+body { padding-bottom: 56px !important; }
+
+@media (max-width: 700px) {
+  .curator-toolbar { gap: 8px; padding: 8px 12px; font-size: 11px; }
+  .curator-toolbar button { padding: 5px 10px; font-size: 10px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>ERICA &mdash; VDX &amp; Gaussian Gallery</h1>
+  <div class="subtitle">Two datasets that matter: real breast cancer gene expression and synthetic Gaussians under degradation</div>
+  <div class="meta">2026-04-14 &middot; Focused</div>
+</div>
+
+<div class="nav" id="topnav">
+  <a href="#assignment-profiles">Assignment Profiles</a>
+  <a href="#datasets">Datasets</a>
+  <a href="#vdx">VDX 3-Gene</a>
+  <a href="#gauss-sigma">Gaussian Sigma Series</a>
+  <a href="#gmm-variants">GMM Variants</a>
+  <a href="#sigma-analysis">Cross-Sigma Analysis</a>
+  <a href="#erica-stats">ERICA Statistics</a>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lb-close" onclick="closeLightbox()">&times;</span>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-caption" id="lb-caption"></div>
+</div>
+
+<div class="content">
+
+<p style="font-size: 14px; color: var(--muted); margin: 20px 0 12px;">
+  Riffing off the full gallery but narrowed to the two dataset families we actually care about right now: <strong style="color:var(--text)">VDX 3-gene</strong> (344 breast cancer samples, 3 genes from Parmigiani) and <strong style="color:var(--text)">Gaussian mixtures</strong> (synthetic, ground-truth K=4, across sigma from tight to diffuse, plus the GMM variant suite). All analyses: ERICA v0.1.4, B=200 MC iterations, 80/20 train-test, K-Means + Agglomerative Ward.
+</p>
+<p style="font-size: 13px; color: var(--muted); margin: 0 0 20px; border: 1px solid var(--border); padding: 10px 14px; background: #1a1a1a;">
+  <strong>Other galleries:</strong>
+  &nbsp;&middot;&nbsp;<a href="2026-03-30-gallery.html" style="color:var(--accent);">Full Figure Gallery</a> &mdash; all datasets, 612 figures
+  &nbsp;&middot;&nbsp;<a href="2026-03-30-playground.html" style="color:var(--accent);">Entropy &amp; ERICA Statistic Experiments</a>
+  &nbsp;&middot;&nbsp;<a href="2026-03-30-erica-statistic-playground.html" style="color:var(--accent);">ERICA Statistic Deep Dive</a>
+  &nbsp;&middot;&nbsp;<a href="literature_comparison/2026-03-31-literature-comparison.html" style="color:var(--accent);">Literature Comparison</a>
+  &nbsp;&middot;&nbsp;<a href="erica_statistics/2026-04-02-erica-statistics.html" style="color:var(--accent);">ERICA Statistics (Exploratory)</a>
+</p>
+
+<!-- ============================================================ -->
+<div class="section" id="assignment-profiles">
+<h2>Assignment Profiles</h2>
+<p class="desc">Per-cluster assignment fidelity analysis. For each primary cluster, how much do sample assignments leak to other clusters across B=200 Monte Carlo iterations? Diagonal dominance = stable clusters; off-diagonal spread = boundary ambiguity.</p>
+
+<div class="dataset-brief"><table>
+  <tr><th>Dataset</th><th>n</th><th>d</th><th>K analyzed</th><th>Why</th></tr>
+  <tr><td>VDX 3-gene</td><td>344</td><td>3</td><td>3, 6</td><td>Real breast cancer data, biological K=3 vs TWCRI K*=6</td></tr>
+  <tr><td>Gauss 4-cluster (&sigma;=0.01&ndash;10)</td><td>400</td><td>2</td><td>4</td><td>Controlled degradation: perfect separation &rarr; null</td></tr>
+  <tr><td>GMM variants</td><td>300&ndash;500</td><td>2</td><td>3, 5</td><td>Geometry stress tests: anisotropic, mixed variance, overlap</td></tr>
+</table></div>
+
+<div class="placard"><table>
+  <tr><td>origin</td><td>MATLAB clam_matrix_sort_18a.m &rarr; Python 12_assignment_profiles.py</td></tr>
+  <tr><td>input</td><td>CLAM matrix (n_samples &times; K), B=200 MC iterations</td></tr>
+  <tr><td>method</td><td>Normalize CLAM rows &rarr; primary cluster = argmax &rarr; scatter % to other clusters</td></tr>
+  <tr><td>output</td><td>Per-cluster scatter plots + K&times;K cross-assignment heatmaps + summary stats CSV</td></tr>
+</table></div>
+
+<details class="expandable">
+  <summary>Methodology &amp; References</summary>
+  <div class="detail-body">
+    <h4>Algorithm</h4>
+    <ol>
+      <li>Run ERICA&rsquo;s iterative subsampling: B=200 Monte Carlo train/test splits (80/20).</li>
+      <li>For each iteration, cluster the training set and predict cluster labels for the test set.</li>
+      <li>Accumulate assignments into the <strong>CLAM matrix</strong> (Cluster Label Assignment Matrix): <code>CLAM[i,j]</code> = number of iterations where sample <em>i</em> was assigned to cluster <em>j</em>.</li>
+      <li>Normalize each row by its sum to get assignment proportions.</li>
+      <li>Assign each sample to its <strong>primary cluster</strong> (argmax of its CLAM row).</li>
+      <li>For each primary cluster, plot the distribution of assignments to every <em>other</em> cluster &mdash; this is the leakage scatter.</li>
+      <li>Summarize as a K&times;K heatmap: <code>M[c,j]</code> = mean % of cluster-<em>c</em> samples assigned to cluster <em>j</em>.</li>
+    </ol>
+
+    <h4>Interpretation</h4>
+    <ul>
+      <li><strong>Diagonal &ge;95%</strong>: highly stable cluster &mdash; samples almost always return to same cluster.</li>
+      <li><strong>Off-diagonal spikes</strong>: systematic leakage to a specific neighbor &mdash; boundary ambiguity between those two clusters.</li>
+      <li><strong>Diffuse off-diagonal</strong>: sample wanders across many clusters &mdash; no stable assignment.</li>
+      <li><strong>Diagonal &asymp; 1/K</strong>: null model &mdash; no cluster structure detected (expected at high &sigma;).</li>
+    </ul>
+
+    <h4>Related work</h4>
+    <p class="ref"><em>Parmigiani et al.</em> (2023). &ldquo;Evaluating the replicability of clustering analyses.&rdquo; <em>Biostatistics</em>. &mdash; Defines the CLAM framework and replicability metrics (CRI/WCRI/TWCRI) that ERICA implements. The assignment profile analysis decomposes the CLAM row structure they propose.</p>
+    <p class="ref"><em>Monti et al.</em> (2003). &ldquo;Consensus clustering: A resampling-based method for class discovery and visualization of gene expression microarray data.&rdquo; <em>Machine Learning</em>, 52(1&ndash;2), 91&ndash;118. &mdash; Introduced the consensus matrix (co-association of sample pairs), the precursor to CLAM. Assignment profiles extend this from pairwise co-occurrence to per-sample cluster-level decomposition.</p>
+    <p class="ref"><em>Fred &amp; Jain</em> (2005). &ldquo;Combining multiple clusterings using evidence accumulation.&rdquo; <em>IEEE TPAMI</em>, 27(6), 835&ndash;850. &mdash; Evidence accumulation matrix approach. Like CLAM, counts how often samples co-cluster across ensemble runs.</p>
+    <p class="ref"><em>Strehl &amp; Ghosh</em> (2002). &ldquo;Cluster ensembles &mdash; a knowledge reuse framework for combining multiple partitions.&rdquo; <em>JMLR</em>, 3, 583&ndash;617. &mdash; Formalized cluster ensemble theory. The CLAM matrix can be viewed as an evidence accumulation matrix from an ensemble of subsampled partitions.</p>
+
+    <h4>Implementation</h4>
+    <p>Original analysis: MATLAB <code>clam_matrix_sort_18a.m</code> (K=6, hardcoded). Python port: <code>12_assignment_profiles.py</code> &mdash; generalized to arbitrary K, generates scatter grids + heatmaps + CSV stats for all dataset/method/K combinations. Uses ERICA&rsquo;s <code>.joblib</code> result files directly.</p>
+  </div>
+</details>
+
+<div class="subsection">
+  <h3>VDX 3-Gene &mdash; K=3 (Biological)</h3>
+  <p class="sub-desc">At the biological K: three breast cancer subtypes. Do samples stay within their assigned subtype across Monte Carlo iterations?</p>
+  <div class="figure" onclick="openLightbox('figures/assignment_scatter_vdx_3gene_kmeans_k3.png','Assignment scatter — VDX K-Means K=3')">
+    <img src="figures/assignment_scatter_vdx_3gene_kmeans_k3.png" alt="Assignment scatter VDX kmeans k3">
+    <div class="caption">
+      <div class="fig-id">AP-V1</div>
+      <div class="fig-title">Assignment Scatter &mdash; VDX, K-Means, K=3</div>
+      <div class="fig-desc">Per-cluster leakage scatter. Cluster 2 (n=190) is the dominant subtype. Clusters 1 and 3 show occasional leakage to C2.</div>
+      <span class="fig-method">method: kmeans &middot; K=3 &middot; origin: MATLAB port</span>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/assignment_heatmap_vdx_3gene_kmeans_k3.png','Assignment heatmap — VDX K-Means K=3')">
+      <img src="figures/assignment_heatmap_vdx_3gene_kmeans_k3.png" alt="Assignment heatmap VDX kmeans k3">
+      <div class="caption">
+        <div class="fig-id">AP-V2</div>
+        <div class="fig-title">Cross-Assignment Heatmap &mdash; K-Means, K=3</div>
+        <div class="fig-desc">Diagonal &ge;95%: high fidelity. Off-diagonal &le;2.7%: minimal leakage.</div>
+        <span class="fig-method">method: kmeans &middot; K=3</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/assignment_heatmap_vdx_3gene_agglomerative_ward_k3.png','Assignment heatmap — VDX Ward K=3')">
+      <img src="figures/assignment_heatmap_vdx_3gene_agglomerative_ward_k3.png" alt="Assignment heatmap VDX ward k3">
+      <div class="caption">
+        <div class="fig-id">AP-V3</div>
+        <div class="fig-title">Cross-Assignment Heatmap &mdash; Ward, K=3</div>
+        <div class="fig-desc">Compare Ward vs K-Means fidelity. Both methods show strong diagonal.</div>
+        <span class="fig-method">method: agglomerative_ward &middot; K=3</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>VDX 3-Gene &mdash; K=6 (TWCRI K*)</h3>
+  <p class="sub-desc">At the TWCRI-selected K*=6. More clusters = more leakage opportunities. How does the structure hold up?</p>
+  <div class="figure" onclick="openLightbox('figures/assignment_scatter_vdx_3gene_kmeans_k6.png','Assignment scatter — VDX K-Means K=6')">
+    <img src="figures/assignment_scatter_vdx_3gene_kmeans_k6.png" alt="Assignment scatter VDX kmeans k6">
+    <div class="caption">
+      <div class="fig-id">AP-V4</div>
+      <div class="fig-title">Assignment Scatter &mdash; VDX, K-Means, K=6</div>
+      <div class="fig-desc">Direct comparison to original MATLAB K=6 analysis. Six-cluster decomposition of VDX CLAM.</div>
+      <span class="fig-method">method: kmeans &middot; K=6 &middot; origin: MATLAB port</span>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/assignment_heatmap_vdx_3gene_kmeans_k6.png','Assignment heatmap — VDX K-Means K=6')">
+      <img src="figures/assignment_heatmap_vdx_3gene_kmeans_k6.png" alt="Assignment heatmap VDX kmeans k6">
+      <div class="caption">
+        <div class="fig-id">AP-V5</div>
+        <div class="fig-title">Cross-Assignment Heatmap &mdash; K-Means, K=6</div>
+        <div class="fig-desc">Fidelity at K=6. Smaller clusters show more cross-assignment to neighbors.</div>
+        <span class="fig-method">method: kmeans &middot; K=6</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/assignment_heatmap_vdx_3gene_agglomerative_ward_k6.png','Assignment heatmap — VDX Ward K=6')">
+      <img src="figures/assignment_heatmap_vdx_3gene_agglomerative_ward_k6.png" alt="Assignment heatmap VDX ward k6">
+      <div class="caption">
+        <div class="fig-id">AP-V6</div>
+        <div class="fig-title">Cross-Assignment Heatmap &mdash; Ward, K=6</div>
+        <div class="fig-desc">Ward at K=6. Hierarchical structure may produce different leakage patterns.</div>
+        <span class="fig-method">method: agglomerative_ward &middot; K=6</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>Gaussian Sigma Series &mdash; K=4 (True K)</h3>
+  <p class="sub-desc">Four Gaussian clusters under increasing sigma. Assignment profiles should degrade smoothly from perfect fidelity (&sigma;=0.01) to uniform noise (&sigma;=10).</p>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/assignment_heatmap_gauss4c_sigma0p01_kmeans_k4.png','Heatmap — sigma=0.01 K-Means')">
+      <img src="figures/assignment_heatmap_gauss4c_sigma0p01_kmeans_k4.png" alt="Heatmap gauss sigma 0.01">
+      <div class="caption">
+        <div class="fig-id">AP-G1</div>
+        <div class="fig-title">&sigma;=0.01 &mdash; Near-perfect</div>
+        <div class="fig-desc">Sanity check. Expect 100% diagonal.</div>
+        <span class="fig-method">method: kmeans &middot; K=4 &middot; &sigma;=0.01</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/assignment_heatmap_gauss4c_sigma0p1_kmeans_k4.png','Heatmap — sigma=0.1 K-Means')">
+      <img src="figures/assignment_heatmap_gauss4c_sigma0p1_kmeans_k4.png" alt="Heatmap gauss sigma 0.1">
+      <div class="caption">
+        <div class="fig-id">AP-G2</div>
+        <div class="fig-title">&sigma;=0.1 &mdash; Easy baseline</div>
+        <div class="fig-desc">Still strong diagonal. Leakage beginning?</div>
+        <span class="fig-method">method: kmeans &middot; K=4 &middot; &sigma;=0.1</span>
+      </div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/assignment_heatmap_gauss4c_sigma1p0_kmeans_k4.png','Heatmap — sigma=1.0 K-Means')">
+      <img src="figures/assignment_heatmap_gauss4c_sigma1p0_kmeans_k4.png" alt="Heatmap gauss sigma 1.0">
+      <div class="caption">
+        <div class="fig-id">AP-G3</div>
+        <div class="fig-title">&sigma;=1.0 &mdash; Overlap begins</div>
+        <div class="fig-desc">Interesting middle ground. Leakage should be measurable.</div>
+        <span class="fig-method">method: kmeans &middot; K=4 &middot; &sigma;=1.0</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/assignment_heatmap_gauss4c_sigma10p0_kmeans_k4.png','Heatmap — sigma=10.0 K-Means')">
+      <img src="figures/assignment_heatmap_gauss4c_sigma10p0_kmeans_k4.png" alt="Heatmap gauss sigma 10.0">
+      <div class="caption">
+        <div class="fig-id">AP-G4</div>
+        <div class="fig-title">&sigma;=10.0 &mdash; Null model</div>
+        <div class="fig-desc">No structure. Diagonal should approach 1/K = 25%.</div>
+        <span class="fig-method">method: kmeans &middot; K=4 &middot; &sigma;=10.0</span>
+      </div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/assignment_scatter_gauss4c_sigma1p0_kmeans_k4.png','Assignment scatter — sigma=1.0 K-Means K=4')">
+    <img src="figures/assignment_scatter_gauss4c_sigma1p0_kmeans_k4.png" alt="Assignment scatter gauss sigma 1.0">
+    <div class="caption">
+      <div class="fig-id">AP-G5</div>
+      <div class="fig-title">Assignment Scatter &mdash; &sigma;=1.0, K-Means, K=4</div>
+      <div class="fig-desc">The interesting case. Per-sample leakage patterns when clusters overlap but structure persists.</div>
+      <span class="fig-method">method: kmeans &middot; K=4 &middot; &sigma;=1.0 &middot; origin: MATLAB port</span>
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+<!-- ============================================================ -->
+<div class="section" id="datasets">
+<h2>Datasets</h2>
+<p class="desc">The two families covered in this gallery. Everything else (moons, circles, blobs, high-dim, well-separated, overlapping) is excluded.</p>
+
+<h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 16px 0 8px;">Real Data</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>Notes</th></tr>
+  <tr>
+    <td class="cat">vdx_3gene</td>
+    <td>344</td><td>3</td><td>Unknown</td>
+    <td>Breast cancer gene expression. 3-gene subset (ESR1, ERBB2, AURKA) from Parmigiani et al. (2023). The real-data anchor.</td>
+  </tr>
+</table>
+
+<h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 16px 0 8px;">Gaussian Sigma Series (4-cluster, ground truth K=4)</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>Features</th><th>True K</th><th>Sigma</th><th>Notes</th></tr>
+  <tr><td class="cat">gauss4c_sigma0p01</td><td>400</td><td>2</td><td>4</td><td>0.01</td><td>Near-perfect separation. Sanity check: ERICA should nail K=4.</td></tr>
+  <tr><td class="cat">gauss4c_sigma0p1</td><td>400</td><td>2</td><td>4</td><td>0.1</td><td>Easy but not trivial. Expected baseline.</td></tr>
+  <tr><td class="cat">gauss4c_sigma1p0</td><td>400</td><td>2</td><td>4</td><td>1.0</td><td>Clusters begin to overlap. Interesting middle ground.</td></tr>
+  <tr><td class="cat">gauss4c_sigma10p0</td><td>400</td><td>2</td><td>4</td><td>10.0</td><td>Completely diffuse. No structure. Null model behavior.</td></tr>
+</table>
+
+<h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 16px 0 8px;">GMM Variant Suite (2D, various true K)</h3>
+<table class="dataset-table">
+  <tr><th>Dataset</th><th>Samples</th><th>True K</th><th>Notes</th></tr>
+  <tr><td class="cat">gmm_spherical</td><td>300</td><td>3</td><td>Equal-variance spherical clusters. Clean baseline.</td></tr>
+  <tr><td class="cat">gmm_anisotropic</td><td>300</td><td>3</td><td>Stretched/rotated clusters. K-Means should struggle.</td></tr>
+  <tr><td class="cat">gmm_mixed_variance</td><td>300</td><td>3</td><td>Clusters of different sizes. Tests robustness.</td></tr>
+  <tr><td class="cat">gmm_overlapping_pair</td><td>300</td><td>3</td><td>One tight cluster, one overlapping pair. Hard boundary.</td></tr>
+  <tr><td class="cat">gmm_five_clusters</td><td>500</td><td>5</td><td>More clusters. Does K* selection scale?</td></tr>
+</table>
+</div>
+
+
+<!-- ============================================================ -->
+<div class="section" id="vdx">
+<h2>VDX 3-Gene</h2>
+<p class="desc">344 breast cancer samples from the VDX cohort (Buyse et al. 2006), projected onto 3 genes (ESR1, ERBB2, AURKA) by Parmigiani et al. This is the real-data benchmark: ERICA should find K=3 (luminal A, luminal B/HER2, basal-like), matching the literature.</p>
+
+<div class="subsection">
+  <h3>K* Selection</h3>
+  <div class="placard"><table>
+    <tr><td>dataset</td><td>vdx_3gene — 344 samples × 3 genes</td></tr>
+    <tr><td>K* (ERICA)</td><td>3 (K-Means), 3 (Agglomerative Ward)</td></tr>
+    <tr><td>methods</td><td>K-Means, Agglomerative Ward, HDBSCAN</td></tr>
+  </table></div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/kstar_bars.png','K* selection bars — all methods, vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/kstar_bars.png" alt="K* bars vdx_3gene">
+      <div class="caption">
+        <div class="fig-id">VDX-K1</div>
+        <div class="fig-title">K* Selection — All Methods</div>
+        <div class="fig-desc">TWCRI-based K* for K-Means and Ward. Both methods select K=3, consistent with the three-subtype biology.</div>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/kstar_vdx_3gene.png','K* selection curve — vdx_3gene')">
+      <img src="figures/kstar_vdx_3gene.png" alt="K* curve vdx_3gene">
+      <div class="caption">
+        <div class="fig-id">VDX-K2</div>
+        <div class="fig-title">K* Selection Curve</div>
+        <div class="fig-desc">TWCRI vs K with K* marked. Non-decreasing criterion applied.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>Metrics Curves</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/metrics_kmeans.png','Metrics curves K-Means — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/metrics_kmeans.png" alt="Metrics K-Means vdx_3gene">
+      <div class="caption">
+        <div class="fig-id">VDX-M1</div>
+        <div class="fig-title">Metrics vs K — K-Means</div>
+        <div class="fig-desc">CRI, WCRI, TWCRI across K=2..8. Error bands from B=200 MC iterations.</div>
+        <span class="fig-method">method: kmeans</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/metrics_agglomerative_ward.png','Metrics curves Ward — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/metrics_agglomerative_ward.png" alt="Metrics Ward vdx_3gene">
+      <div class="caption">
+        <div class="fig-id">VDX-M2</div>
+        <div class="fig-title">Metrics vs K — Agglomerative Ward</div>
+        <div class="fig-desc">Same metrics for Ward linkage. Compare shape with K-Means.</div>
+        <span class="fig-method">method: agglomerative_ward</span>
+      </div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/metrics_vdx_3gene_kmeans.png','Metrics full panel K-Means — vdx_3gene')">
+      <img src="figures/metrics_vdx_3gene_kmeans.png" alt="Metrics full K-Means vdx_3gene">
+      <div class="caption">
+        <div class="fig-id">VDX-M3</div>
+        <div class="fig-title">Metrics Full Panel — K-Means</div>
+        <div class="fig-desc">Extended metrics panel from script 05.</div>
+        <span class="fig-method">method: kmeans</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/metrics_vdx_3gene_agglomerative_ward.png','Metrics full panel Ward — vdx_3gene')">
+      <img src="figures/metrics_vdx_3gene_agglomerative_ward.png" alt="Metrics full Ward vdx_3gene">
+      <div class="caption">
+        <div class="fig-id">VDX-M4</div>
+        <div class="fig-title">Metrics Full Panel — Agglomerative Ward</div>
+        <div class="fig-desc">Extended metrics panel from script 05.</div>
+        <span class="fig-method">method: agglomerative_ward</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>Method Comparison</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/method_comparison.png','Method comparison — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/method_comparison.png" alt="Method comparison vdx_3gene">
+      <div class="caption">
+        <div class="fig-id">VDX-C1</div>
+        <div class="fig-title">Method Comparison</div>
+        <div class="fig-desc">TWCRI vs K overlaid for K-Means and Ward. Do they agree on K*?</div>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/method_vdx_3gene.png','Method comparison extended — vdx_3gene')">
+      <img src="figures/method_vdx_3gene.png" alt="Method vdx_3gene">
+      <div class="caption">
+        <div class="fig-id">VDX-C2</div>
+        <div class="fig-title">Method Comparison (script 06)</div>
+        <div class="fig-desc">Full method comparison panel.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>CLAM Heatmaps</h3>
+  <div class="figure" onclick="openLightbox('figures/clam_multipanel_vdx_3gene_kmeans.png','CLAM multipanel K-Means — vdx_3gene')">
+    <img src="figures/clam_multipanel_vdx_3gene_kmeans.png" alt="CLAM multipanel vdx_3gene">
+    <div class="caption">
+      <div class="fig-id">VDX-CL1</div>
+      <div class="fig-title">CLAM Multipanel — K-Means</div>
+      <div class="fig-desc">Full multipanel CLAM visualization: raw, sorted, and annotated views at K=3.</div>
+      <span class="fig-method">method: kmeans · K=3</span>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/clam_raw_vdx_3gene_kmeans_k3.png','CLAM raw K-Means K=3 — vdx_3gene')">
+      <img src="figures/clam_raw_vdx_3gene_kmeans_k3.png" alt="CLAM raw vdx_3gene kmeans k3">
+      <div class="caption">
+        <div class="fig-id">VDX-CL2</div>
+        <div class="fig-title">CLAM Raw — K-Means, K=3</div>
+        <div class="fig-desc">Raw co-assignment matrix before sorting.</div>
+        <span class="fig-method">method: kmeans · K=3</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/clam_sorted_vdx_3gene_kmeans_k3.png','CLAM sorted K-Means K=3 — vdx_3gene')">
+      <img src="figures/clam_sorted_vdx_3gene_kmeans_k3.png" alt="CLAM sorted vdx_3gene kmeans k3">
+      <div class="caption">
+        <div class="fig-id">VDX-CL3</div>
+        <div class="fig-title">CLAM Sorted — K-Means, K=3</div>
+        <div class="fig-desc">Sorted by cluster assignment. Block structure reveals stability.</div>
+        <span class="fig-method">method: kmeans · K=3</span>
+      </div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/clam_sorted_kmeans_k3.png','CLAM sorted by_dataset K-Means — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/clam_sorted_kmeans_k3.png" alt="CLAM sorted kmeans vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-CL4</div>
+        <div class="fig-title">CLAM Sorted — K-Means, K=3 (batch)</div>
+        <div class="fig-desc">From the batch plot suite.</div>
+        <span class="fig-method">method: kmeans · K=3</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/clam_sorted_hdbscan_modal_k2.png','CLAM sorted HDBSCAN modal — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/clam_sorted_hdbscan_modal_k2.png" alt="CLAM hdbscan vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-CL5</div>
+        <div class="fig-title">CLAM Sorted — HDBSCAN modal K=2</div>
+        <div class="fig-desc">HDBSCAN modal solution. Note: HDBSCAN integration still experimental.</div>
+        <span class="fig-method">method: hdbscan · K=2</span>
+      </div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/clam_progression_kmeans.png','CLAM progression K-Means — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/clam_progression_kmeans.png" alt="CLAM progression kmeans vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-CL6</div>
+        <div class="fig-title">CLAM Progression — K-Means</div>
+        <div class="fig-desc">CLAM matrices across K=2..8. Watch block structure emerge.</div>
+        <span class="fig-method">method: kmeans</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/clam_progression_agglomerative_ward.png','CLAM progression Ward — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/clam_progression_agglomerative_ward.png" alt="CLAM progression ward vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-CL7</div>
+        <div class="fig-title">CLAM Progression — Agglomerative Ward</div>
+        <div class="fig-desc">Ward progression. Compare hierarchical vs flat clustering structure.</div>
+        <span class="fig-method">method: agglomerative_ward</span>
+      </div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/clam_sorted_vdx_3gene_hdbscan.png','CLAM HDBSCAN extended — vdx_3gene')">
+    <img src="figures/clam_sorted_vdx_3gene_hdbscan.png" alt="CLAM HDBSCAN vdx">
+    <div class="caption">
+      <div class="fig-id">VDX-CL8</div>
+      <div class="fig-title">CLAM Sorted — HDBSCAN (extended)</div>
+      <div class="fig-desc">Extended HDBSCAN CLAM view from script 03.</div>
+      <span class="fig-method">method: hdbscan</span>
+    </div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>Stability Strips</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/stability_kmeans_k3.png','Stability K-Means K=3 — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/stability_kmeans_k3.png" alt="Stability kmeans vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-S1</div>
+        <div class="fig-title">Stability Strips — K-Means, K=3</div>
+        <div class="fig-desc">Per-sample ERICA statistic shown as horizontal color strip, sorted by cluster then confidence.</div>
+        <span class="fig-method">method: kmeans · K=3</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/stability_vdx_3gene_kmeans_k3.png','Stability extended K-Means — vdx_3gene')">
+      <img src="figures/stability_vdx_3gene_kmeans_k3.png" alt="Stability full kmeans vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-S2</div>
+        <div class="fig-title">Stability — K-Means (script 04)</div>
+        <div class="fig-desc">Full stability strip from script 04.</div>
+        <span class="fig-method">method: kmeans · K=3</span>
+      </div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/stability_vdx_3gene_agglomerative_ward_k3.png','Stability Ward K=3 — vdx_3gene')">
+    <img src="figures/stability_vdx_3gene_agglomerative_ward_k3.png" alt="Stability ward vdx">
+    <div class="caption">
+      <div class="fig-id">VDX-S3</div>
+      <div class="fig-title">Stability Strips — Agglomerative Ward, K=3</div>
+      <div class="fig-desc">Ward stability strips. Compare distribution of high/low confidence samples against K-Means.</div>
+      <span class="fig-method">method: agglomerative_ward · K=3</span>
+    </div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>Surface Plots &amp; TWCRI Landscape</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/surface_clam_kmeans_k3.png','Surface CLAM K-Means K=3 — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/surface_clam_kmeans_k3.png" alt="Surface clam kmeans vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-T1</div>
+        <div class="fig-title">CLAM Surface — K-Means, K=3</div>
+        <div class="fig-desc">3D surface of co-assignment probabilities at K=3.</div>
+        <span class="fig-method">method: kmeans · K=3</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/twcri_landscape.png','TWCRI landscape — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/twcri_landscape.png" alt="TWCRI landscape vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-T2</div>
+        <div class="fig-title">TWCRI Landscape</div>
+        <div class="fig-desc">TWCRI across K and method. The terrain that K* selection navigates.</div>
+      </div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/landscape_twcri_vdx_3gene_2d.png','TWCRI landscape 2D extended — vdx_3gene')">
+      <img src="figures/landscape_twcri_vdx_3gene_2d.png" alt="TWCRI 2D vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-T3</div>
+        <div class="fig-title">TWCRI Landscape 2D (script 07)</div>
+        <div class="fig-desc">Extended 2D surface view from script 07.</div>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/landscape_twcri_vdx_3gene_3d.png','TWCRI landscape 3D extended — vdx_3gene')">
+      <img src="figures/landscape_twcri_vdx_3gene_3d.png" alt="TWCRI 3D vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-T4</div>
+        <div class="fig-title">TWCRI Landscape 3D (script 07)</div>
+        <div class="fig-desc">Rotated 3D view of same surface.</div>
+      </div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/surface_progression_kmeans.png','Surface progression K-Means — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/surface_progression_kmeans.png" alt="Surface progression kmeans vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-T5</div>
+        <div class="fig-title">Surface Progression — K-Means</div>
+        <div class="fig-desc">Surface plots across all K values. Watch topology change.</div>
+        <span class="fig-method">method: kmeans</span>
+      </div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/vdx_3gene/surface_progression_agglomerative_ward.png','Surface progression Ward — vdx_3gene')">
+      <img src="figures/by_dataset/vdx_3gene/surface_progression_agglomerative_ward.png" alt="Surface progression ward vdx">
+      <div class="caption">
+        <div class="fig-id">VDX-T6</div>
+        <div class="fig-title">Surface Progression — Agglomerative Ward</div>
+        <div class="fig-desc">Ward surface progression across K.</div>
+        <span class="fig-method">method: agglomerative_ward</span>
+      </div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/surface_clam_vdx_3gene_kmeans_k3.png','Surface CLAM extended K-Means K=3 — vdx_3gene')">
+    <img src="figures/surface_clam_vdx_3gene_kmeans_k3.png" alt="Surface clam ext kmeans vdx">
+    <div class="caption">
+      <div class="fig-id">VDX-T7</div>
+      <div class="fig-title">CLAM Surface — K-Means, K=3 (script 07)</div>
+      <div class="fig-desc">Extended surface from script 07.</div>
+      <span class="fig-method">method: kmeans · K=3</span>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- ============================================================ -->
+<div class="section" id="gauss-sigma">
+<h2>Gaussian Sigma Series</h2>
+<p class="desc">4-cluster isotropic 2D Gaussians with shared covariance &sigma;I, swept from tight (&sigma;=0.01, trivial) to diffuse (&sigma;=10, null). Ground truth is always K=4. This is the degradation probe: how does ERICA behave as structure degrades to noise?</p>
+
+<!-- SIGMA 0.01 -->
+<div class="subsection">
+  <h3>gauss4c &sigma;=0.01 — Nearly Perfect Separation</h3>
+  <div class="placard"><table>
+    <tr><td>sigma</td><td>0.01 — clusters are effectively non-overlapping</td></tr>
+    <tr><td>K* expect</td><td>4 (both methods should recover true K)</td></tr>
+  </table></div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/kstar_bars.png','K* bars sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/kstar_bars.png" alt="K* sigma0p01">
+      <div class="caption"><div class="fig-id">G01-K1</div><div class="fig-title">K* Selection</div><div class="fig-desc">&sigma;=0.01. Should be an easy win for K=4.</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/method_comparison.png','Method comparison sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/method_comparison.png" alt="Method sigma0p01">
+      <div class="caption"><div class="fig-id">G01-C1</div><div class="fig-title">Method Comparison</div><div class="fig-desc">K-Means vs Ward at &sigma;=0.01.</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/metrics_kmeans.png','Metrics K-Means sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/metrics_kmeans.png" alt="Metrics kmeans sigma0p01">
+      <div class="caption"><div class="fig-id">G01-M1</div><div class="fig-title">Metrics — K-Means</div><span class="fig-method">kmeans · &sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/metrics_agglomerative_ward.png','Metrics Ward sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/metrics_agglomerative_ward.png" alt="Metrics ward sigma0p01">
+      <div class="caption"><div class="fig-id">G01-M2</div><div class="fig-title">Metrics — Ward</div><span class="fig-method">agglomerative_ward · &sigma;=0.01</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/clam_sorted_kmeans_k4.png','CLAM sorted K-Means K=4 sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/clam_sorted_kmeans_k4.png" alt="CLAM kmeans k4 sigma0p01">
+      <div class="caption"><div class="fig-id">G01-CL1</div><div class="fig-title">CLAM Sorted — K-Means, K=4</div><div class="fig-desc">Expect crisp 4-block diagonal.</div><span class="fig-method">kmeans · K=4 · &sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/clam_sorted_hdbscan_modal_k4.png','CLAM HDBSCAN modal sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/clam_sorted_hdbscan_modal_k4.png" alt="CLAM hdbscan sigma0p01">
+      <div class="caption"><div class="fig-id">G01-CL2</div><div class="fig-title">CLAM Sorted — HDBSCAN modal K=4</div><span class="fig-method">hdbscan · &sigma;=0.01</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/clam_progression_kmeans.png','CLAM progression K-Means sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/clam_progression_kmeans.png" alt="CLAM prog kmeans sigma0p01">
+      <div class="caption"><div class="fig-id">G01-CL3</div><div class="fig-title">CLAM Progression — K-Means</div><span class="fig-method">kmeans · &sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/clam_progression_agglomerative_ward.png','CLAM progression Ward sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/clam_progression_agglomerative_ward.png" alt="CLAM prog ward sigma0p01">
+      <div class="caption"><div class="fig-id">G01-CL4</div><div class="fig-title">CLAM Progression — Ward</div><span class="fig-method">agglomerative_ward · &sigma;=0.01</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/stability_kmeans_k4.png','Stability K-Means K=4 sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/stability_kmeans_k4.png" alt="Stability sigma0p01">
+      <div class="caption"><div class="fig-id">G01-S1</div><div class="fig-title">Stability Strips — K=4</div><span class="fig-method">kmeans · K=4 · &sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/surface_clam_kmeans_k4.png','Surface K=4 sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/surface_clam_kmeans_k4.png" alt="Surface sigma0p01">
+      <div class="caption"><div class="fig-id">G01-T1</div><div class="fig-title">CLAM Surface — K=4</div><span class="fig-method">kmeans · K=4 · &sigma;=0.01</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p01/twcri_landscape.png','TWCRI landscape sigma=0.01')">
+      <img src="figures/by_dataset/gauss4c_sigma0p01/twcri_landscape.png" alt="TWCRI sigma0p01">
+      <div class="caption"><div class="fig-id">G01-T2</div><div class="fig-title">TWCRI Landscape</div><span class="fig-method">&sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/gaussian_study/k_progression_gauss4c_sigma0p01.png','K progression sigma=0.01')">
+      <img src="figures/gaussian_study/k_progression_gauss4c_sigma0p01.png" alt="K progression sigma0p01">
+      <div class="caption"><div class="fig-id">G01-P1</div><div class="fig-title">K Progression</div><span class="fig-method">&sigma;=0.01</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGMA 0.1 -->
+<div class="subsection">
+  <h3>gauss4c &sigma;=0.1 — Easy Case</h3>
+  <div class="placard"><table>
+    <tr><td>sigma</td><td>0.1 — well-separated, minimal overlap</td></tr>
+    <tr><td>K* expect</td><td>4</td></tr>
+  </table></div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p1/kstar_bars.png','K* bars sigma=0.1')">
+      <img src="figures/by_dataset/gauss4c_sigma0p1/kstar_bars.png" alt="K* sigma0p1">
+      <div class="caption"><div class="fig-id">G1-K1</div><div class="fig-title">K* Selection</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p1/method_comparison.png','Method comparison sigma=0.1')">
+      <img src="figures/by_dataset/gauss4c_sigma0p1/method_comparison.png" alt="Method sigma0p1">
+      <div class="caption"><div class="fig-id">G1-C1</div><div class="fig-title">Method Comparison</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p1/metrics_kmeans.png','Metrics K-Means sigma=0.1')">
+      <img src="figures/by_dataset/gauss4c_sigma0p1/metrics_kmeans.png" alt="Metrics kmeans sigma0p1">
+      <div class="caption"><div class="fig-id">G1-M1</div><div class="fig-title">Metrics — K-Means</div><span class="fig-method">kmeans · &sigma;=0.1</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p1/metrics_agglomerative_ward.png','Metrics Ward sigma=0.1')">
+      <img src="figures/by_dataset/gauss4c_sigma0p1/metrics_agglomerative_ward.png" alt="Metrics ward sigma0p1">
+      <div class="caption"><div class="fig-id">G1-M2</div><div class="fig-title">Metrics — Ward</div><span class="fig-method">agglomerative_ward · &sigma;=0.1</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p1/clam_sorted_kmeans_k4.png','CLAM sorted K=4 sigma=0.1')">
+      <img src="figures/by_dataset/gauss4c_sigma0p1/clam_sorted_kmeans_k4.png" alt="CLAM kmeans sigma0p1">
+      <div class="caption"><div class="fig-id">G1-CL1</div><div class="fig-title">CLAM Sorted — K-Means, K=4</div><span class="fig-method">kmeans · K=4 · &sigma;=0.1</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p1/clam_sorted_hdbscan_modal_k4.png','CLAM HDBSCAN modal sigma=0.1')">
+      <img src="figures/by_dataset/gauss4c_sigma0p1/clam_sorted_hdbscan_modal_k4.png" alt="CLAM hdbscan sigma0p1">
+      <div class="caption"><div class="fig-id">G1-CL2</div><div class="fig-title">CLAM Sorted — HDBSCAN modal</div><span class="fig-method">hdbscan · &sigma;=0.1</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p1/clam_progression_kmeans.png','CLAM progression K-Means sigma=0.1')">
+      <img src="figures/by_dataset/gauss4c_sigma0p1/clam_progression_kmeans.png" alt="CLAM prog kmeans sigma0p1">
+      <div class="caption"><div class="fig-id">G1-CL3</div><div class="fig-title">CLAM Progression — K-Means</div><span class="fig-method">kmeans · &sigma;=0.1</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p1/twcri_landscape.png','TWCRI landscape sigma=0.1')">
+      <img src="figures/by_dataset/gauss4c_sigma0p1/twcri_landscape.png" alt="TWCRI sigma0p1">
+      <div class="caption"><div class="fig-id">G1-T1</div><div class="fig-title">TWCRI Landscape</div><span class="fig-method">&sigma;=0.1</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma0p1/stability_kmeans_k4.png','Stability sigma=0.1')">
+      <img src="figures/by_dataset/gauss4c_sigma0p1/stability_kmeans_k4.png" alt="Stability sigma0p1">
+      <div class="caption"><div class="fig-id">G1-S1</div><div class="fig-title">Stability Strips — K=4</div><span class="fig-method">kmeans · K=4 · &sigma;=0.1</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/gaussian_study/k_progression_gauss4c_sigma0p1.png','K progression sigma=0.1')">
+      <img src="figures/gaussian_study/k_progression_gauss4c_sigma0p1.png" alt="K progression sigma0p1">
+      <div class="caption"><div class="fig-id">G1-P1</div><div class="fig-title">K Progression</div><span class="fig-method">&sigma;=0.1</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGMA 1.0 -->
+<div class="subsection">
+  <h3>gauss4c &sigma;=1.0 — Overlapping Clusters</h3>
+  <div class="placard"><table>
+    <tr><td>sigma</td><td>1.0 — significant cluster overlap, boundary samples ambiguous</td></tr>
+    <tr><td>K* expect</td><td>4 (may drift — interesting to watch)</td></tr>
+  </table></div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma1p0/kstar_bars.png','K* bars sigma=1.0')">
+      <img src="figures/by_dataset/gauss4c_sigma1p0/kstar_bars.png" alt="K* sigma1p0">
+      <div class="caption"><div class="fig-id">G10-K1</div><div class="fig-title">K* Selection</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma1p0/method_comparison.png','Method comparison sigma=1.0')">
+      <img src="figures/by_dataset/gauss4c_sigma1p0/method_comparison.png" alt="Method sigma1p0">
+      <div class="caption"><div class="fig-id">G10-C1</div><div class="fig-title">Method Comparison</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma1p0/metrics_kmeans.png','Metrics K-Means sigma=1.0')">
+      <img src="figures/by_dataset/gauss4c_sigma1p0/metrics_kmeans.png" alt="Metrics kmeans sigma1p0">
+      <div class="caption"><div class="fig-id">G10-M1</div><div class="fig-title">Metrics — K-Means</div><span class="fig-method">kmeans · &sigma;=1.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma1p0/metrics_agglomerative_ward.png','Metrics Ward sigma=1.0')">
+      <img src="figures/by_dataset/gauss4c_sigma1p0/metrics_agglomerative_ward.png" alt="Metrics ward sigma1p0">
+      <div class="caption"><div class="fig-id">G10-M2</div><div class="fig-title">Metrics — Ward</div><span class="fig-method">agglomerative_ward · &sigma;=1.0</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma1p0/clam_sorted_kmeans_k4.png','CLAM sorted K=4 sigma=1.0')">
+      <img src="figures/by_dataset/gauss4c_sigma1p0/clam_sorted_kmeans_k4.png" alt="CLAM kmeans sigma1p0">
+      <div class="caption"><div class="fig-id">G10-CL1</div><div class="fig-title">CLAM Sorted — K-Means, K=4</div><div class="fig-desc">Blocks less clean than &sigma;=0.1. Off-diagonal co-assignment grows.</div><span class="fig-method">kmeans · K=4 · &sigma;=1.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma1p0/clam_sorted_hdbscan_modal_k2.png','CLAM HDBSCAN modal sigma=1.0')">
+      <img src="figures/by_dataset/gauss4c_sigma1p0/clam_sorted_hdbscan_modal_k2.png" alt="CLAM hdbscan sigma1p0">
+      <div class="caption"><div class="fig-id">G10-CL2</div><div class="fig-title">CLAM Sorted — HDBSCAN modal K=2</div><div class="fig-desc">HDBSCAN merges clusters at this sigma.</div><span class="fig-method">hdbscan · &sigma;=1.0</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma1p0/clam_progression_kmeans.png','CLAM progression sigma=1.0')">
+      <img src="figures/by_dataset/gauss4c_sigma1p0/clam_progression_kmeans.png" alt="CLAM prog sigma1p0">
+      <div class="caption"><div class="fig-id">G10-CL3</div><div class="fig-title">CLAM Progression — K-Means</div><span class="fig-method">kmeans · &sigma;=1.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma1p0/twcri_landscape.png','TWCRI landscape sigma=1.0')">
+      <img src="figures/by_dataset/gauss4c_sigma1p0/twcri_landscape.png" alt="TWCRI sigma1p0">
+      <div class="caption"><div class="fig-id">G10-T1</div><div class="fig-title">TWCRI Landscape</div><span class="fig-method">&sigma;=1.0</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma1p0/stability_kmeans_k4.png','Stability sigma=1.0')">
+      <img src="figures/by_dataset/gauss4c_sigma1p0/stability_kmeans_k4.png" alt="Stability sigma1p0">
+      <div class="caption"><div class="fig-id">G10-S1</div><div class="fig-title">Stability Strips — K=4</div><span class="fig-method">kmeans · K=4 · &sigma;=1.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/gaussian_study/k_progression_gauss4c_sigma1p0.png','K progression sigma=1.0')">
+      <img src="figures/gaussian_study/k_progression_gauss4c_sigma1p0.png" alt="K progression sigma1p0">
+      <div class="caption"><div class="fig-id">G10-P1</div><div class="fig-title">K Progression</div><span class="fig-method">&sigma;=1.0</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGMA 10.0 -->
+<div class="subsection">
+  <h3>gauss4c &sigma;=10.0 — Null Structure</h3>
+  <div class="placard"><table>
+    <tr><td>sigma</td><td>10.0 — completely diffuse, no recoverable structure</td></tr>
+    <tr><td>K* expect</td><td>anything (ERICA should give low TWCRI across all K)</td></tr>
+  </table></div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma10p0/kstar_bars.png','K* bars sigma=10.0')">
+      <img src="figures/by_dataset/gauss4c_sigma10p0/kstar_bars.png" alt="K* sigma10p0">
+      <div class="caption"><div class="fig-id">G100-K1</div><div class="fig-title">K* Selection</div><div class="fig-desc">With no structure, what does ERICA land on?</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma10p0/method_comparison.png','Method comparison sigma=10.0')">
+      <img src="figures/by_dataset/gauss4c_sigma10p0/method_comparison.png" alt="Method sigma10p0">
+      <div class="caption"><div class="fig-id">G100-C1</div><div class="fig-title">Method Comparison</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma10p0/metrics_kmeans.png','Metrics K-Means sigma=10.0')">
+      <img src="figures/by_dataset/gauss4c_sigma10p0/metrics_kmeans.png" alt="Metrics kmeans sigma10p0">
+      <div class="caption"><div class="fig-id">G100-M1</div><div class="fig-title">Metrics — K-Means</div><div class="fig-desc">TWCRI should be flat or erratic with no real signal.</div><span class="fig-method">kmeans · &sigma;=10.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma10p0/metrics_agglomerative_ward.png','Metrics Ward sigma=10.0')">
+      <img src="figures/by_dataset/gauss4c_sigma10p0/metrics_agglomerative_ward.png" alt="Metrics ward sigma10p0">
+      <div class="caption"><div class="fig-id">G100-M2</div><div class="fig-title">Metrics — Ward</div><span class="fig-method">agglomerative_ward · &sigma;=10.0</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma10p0/clam_sorted_kmeans_k4.png','CLAM sorted sigma=10.0')">
+      <img src="figures/by_dataset/gauss4c_sigma10p0/clam_sorted_kmeans_k4.png" alt="CLAM sigma10p0">
+      <div class="caption"><div class="fig-id">G100-CL1</div><div class="fig-title">CLAM Sorted — K-Means, K=4</div><div class="fig-desc">Expect a featureless uniform heatmap. No blocks.</div><span class="fig-method">kmeans · K=4 · &sigma;=10.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma10p0/clam_progression_kmeans.png','CLAM progression sigma=10.0')">
+      <img src="figures/by_dataset/gauss4c_sigma10p0/clam_progression_kmeans.png" alt="CLAM prog sigma10p0">
+      <div class="caption"><div class="fig-id">G100-CL2</div><div class="fig-title">CLAM Progression — K-Means</div><span class="fig-method">kmeans · &sigma;=10.0</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma10p0/stability_kmeans_k4.png','Stability sigma=10.0')">
+      <img src="figures/by_dataset/gauss4c_sigma10p0/stability_kmeans_k4.png" alt="Stability sigma10p0">
+      <div class="caption"><div class="fig-id">G100-S1</div><div class="fig-title">Stability Strips — K=4</div><div class="fig-desc">All samples equally unstable? Or forced low-ERICA?</div><span class="fig-method">kmeans · K=4 · &sigma;=10.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/gaussian_study/k_progression_gauss4c_sigma10p0.png','K progression sigma=10.0')">
+      <img src="figures/gaussian_study/k_progression_gauss4c_sigma10p0.png" alt="K progression sigma10p0">
+      <div class="caption"><div class="fig-id">G100-P1</div><div class="fig-title">K Progression</div><span class="fig-method">&sigma;=10.0</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma10p0/twcri_landscape.png','TWCRI landscape sigma=10.0')">
+      <img src="figures/by_dataset/gauss4c_sigma10p0/twcri_landscape.png" alt="TWCRI sigma10p0">
+      <div class="caption"><div class="fig-id">G100-T1</div><div class="fig-title">TWCRI Landscape</div><span class="fig-method">&sigma;=10.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gauss4c_sigma10p0/surface_clam_kmeans_k4.png','Surface sigma=10.0')">
+      <img src="figures/by_dataset/gauss4c_sigma10p0/surface_clam_kmeans_k4.png" alt="Surface sigma10p0">
+      <div class="caption"><div class="fig-id">G100-T2</div><div class="fig-title">CLAM Surface — K=4</div><span class="fig-method">kmeans · K=4 · &sigma;=10.0</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- ============================================================ -->
+<div class="section" id="gmm-variants">
+<h2>GMM Variants</h2>
+<p class="desc">Five 2D synthetic datasets with known ground-truth K. Different geometric challenges: spherical baselines, anisotropic stretching, mixed variance, overlapping boundaries, and higher cluster count.</p>
+
+<!-- GMM SPHERICAL -->
+<div class="subsection">
+  <h3>gmm_spherical — 3-Cluster Baseline</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/scatter_raw_gmm_spherical.png','Raw scatter gmm_spherical')">
+      <img src="figures/scatter_raw_gmm_spherical.png" alt="Scatter raw gmm_spherical">
+      <div class="caption"><div class="fig-id">GS-R1</div><div class="fig-title">Raw Data Scatter</div><div class="fig-desc">Equal-variance spherical clusters. K-Means native habitat.</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_spherical/kstar_bars.png','K* bars gmm_spherical')">
+      <img src="figures/by_dataset/gmm_spherical/kstar_bars.png" alt="K* gmm_spherical">
+      <div class="caption"><div class="fig-id">GS-K1</div><div class="fig-title">K* Selection</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_spherical/metrics_kmeans.png','Metrics K-Means gmm_spherical')">
+      <img src="figures/by_dataset/gmm_spherical/metrics_kmeans.png" alt="Metrics kmeans spherical">
+      <div class="caption"><div class="fig-id">GS-M1</div><div class="fig-title">Metrics — K-Means</div><span class="fig-method">kmeans · K*=3</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_spherical/method_comparison.png','Method comparison gmm_spherical')">
+      <img src="figures/by_dataset/gmm_spherical/method_comparison.png" alt="Method spherical">
+      <div class="caption"><div class="fig-id">GS-C1</div><div class="fig-title">Method Comparison</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_spherical/confidence_kmeans_k3.png','Confidence K-Means gmm_spherical')">
+      <img src="figures/by_dataset/gmm_spherical/confidence_kmeans_k3.png" alt="Confidence spherical kmeans">
+      <div class="caption"><div class="fig-id">GS-SC1</div><div class="fig-title">Confidence Scatter — K-Means, K=3</div><div class="fig-desc">Scatter colored by ERICA statistic. Boundary samples are low-confidence.</div><span class="fig-method">kmeans · K=3</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_spherical/confidence_agglomerative_ward_k3.png','Confidence Ward gmm_spherical')">
+      <img src="figures/by_dataset/gmm_spherical/confidence_agglomerative_ward_k3.png" alt="Confidence spherical ward">
+      <div class="caption"><div class="fig-id">GS-SC2</div><div class="fig-title">Confidence Scatter — Ward, K=3</div><span class="fig-method">agglomerative_ward · K=3</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_spherical/clam_sorted_kmeans_k3.png','CLAM K-Means gmm_spherical')">
+      <img src="figures/by_dataset/gmm_spherical/clam_sorted_kmeans_k3.png" alt="CLAM spherical kmeans">
+      <div class="caption"><div class="fig-id">GS-CL1</div><div class="fig-title">CLAM Sorted — K-Means, K=3</div><span class="fig-method">kmeans · K=3</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_spherical/clam_progression_kmeans.png','CLAM progression gmm_spherical')">
+      <img src="figures/by_dataset/gmm_spherical/clam_progression_kmeans.png" alt="CLAM prog spherical">
+      <div class="caption"><div class="fig-id">GS-CL2</div><div class="fig-title">CLAM Progression</div><span class="fig-method">kmeans</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_spherical/stability_kmeans_k3.png','Stability gmm_spherical')">
+      <img src="figures/by_dataset/gmm_spherical/stability_kmeans_k3.png" alt="Stability spherical">
+      <div class="caption"><div class="fig-id">GS-S1</div><div class="fig-title">Stability Strips</div><span class="fig-method">kmeans · K=3</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/k_progression_gmm_spherical.png','K progression gmm_spherical')">
+      <img src="figures/k_progression_gmm_spherical.png" alt="K progression spherical">
+      <div class="caption"><div class="fig-id">GS-P1</div><div class="fig-title">K Progression</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GMM ANISOTROPIC -->
+<div class="subsection">
+  <h3>gmm_anisotropic — Stretched Clusters</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/scatter_raw_gmm_anisotropic.png','Raw scatter gmm_anisotropic')">
+      <img src="figures/scatter_raw_gmm_anisotropic.png" alt="Scatter raw anisotropic">
+      <div class="caption"><div class="fig-id">GA-R1</div><div class="fig-title">Raw Data Scatter</div><div class="fig-desc">Elliptical clusters. K-Means will impose circular boundaries.</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_anisotropic/kstar_bars.png','K* bars gmm_anisotropic')">
+      <img src="figures/by_dataset/gmm_anisotropic/kstar_bars.png" alt="K* anisotropic">
+      <div class="caption"><div class="fig-id">GA-K1</div><div class="fig-title">K* Selection</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_anisotropic/confidence_kmeans_k3.png','Confidence K-Means gmm_anisotropic')">
+      <img src="figures/by_dataset/gmm_anisotropic/confidence_kmeans_k3.png" alt="Confidence anisotropic kmeans">
+      <div class="caption"><div class="fig-id">GA-SC1</div><div class="fig-title">Confidence Scatter — K-Means</div><div class="fig-desc">Where does K-Means lose confidence on anisotropic data?</div><span class="fig-method">kmeans · K=3</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_anisotropic/confidence_agglomerative_ward_k3.png','Confidence Ward gmm_anisotropic')">
+      <img src="figures/by_dataset/gmm_anisotropic/confidence_agglomerative_ward_k3.png" alt="Confidence anisotropic ward">
+      <div class="caption"><div class="fig-id">GA-SC2</div><div class="fig-title">Confidence Scatter — Ward</div><span class="fig-method">agglomerative_ward · K=3</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_anisotropic/method_comparison.png','Method comparison gmm_anisotropic')">
+      <img src="figures/by_dataset/gmm_anisotropic/method_comparison.png" alt="Method anisotropic">
+      <div class="caption"><div class="fig-id">GA-C1</div><div class="fig-title">Method Comparison</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_anisotropic/clam_sorted_kmeans_k3.png','CLAM K-Means gmm_anisotropic')">
+      <img src="figures/by_dataset/gmm_anisotropic/clam_sorted_kmeans_k3.png" alt="CLAM anisotropic kmeans">
+      <div class="caption"><div class="fig-id">GA-CL1</div><div class="fig-title">CLAM Sorted — K-Means, K=3</div><span class="fig-method">kmeans · K=3</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_anisotropic/metrics_kmeans.png','Metrics K-Means gmm_anisotropic')">
+      <img src="figures/by_dataset/gmm_anisotropic/metrics_kmeans.png" alt="Metrics kmeans anisotropic">
+      <div class="caption"><div class="fig-id">GA-M1</div><div class="fig-title">Metrics — K-Means</div><span class="fig-method">kmeans</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/k_progression_gmm_anisotropic.png','K progression gmm_anisotropic')">
+      <img src="figures/k_progression_gmm_anisotropic.png" alt="K progression anisotropic">
+      <div class="caption"><div class="fig-id">GA-P1</div><div class="fig-title">K Progression</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GMM MIXED VARIANCE -->
+<div class="subsection">
+  <h3>gmm_mixed_variance — Unequal Cluster Sizes</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/scatter_raw_gmm_mixed_variance.png','Raw scatter gmm_mixed_variance')">
+      <img src="figures/scatter_raw_gmm_mixed_variance.png" alt="Scatter raw mixed_variance">
+      <div class="caption"><div class="fig-id">GMV-R1</div><div class="fig-title">Raw Data Scatter</div><div class="fig-desc">One tight, one medium, one diffuse cluster. Heterogeneous stability expected.</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_mixed_variance/kstar_bars.png','K* bars gmm_mixed_variance')">
+      <img src="figures/by_dataset/gmm_mixed_variance/kstar_bars.png" alt="K* mixed_variance">
+      <div class="caption"><div class="fig-id">GMV-K1</div><div class="fig-title">K* Selection</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_mixed_variance/confidence_kmeans_k3.png','Confidence K-Means gmm_mixed_variance')">
+      <img src="figures/by_dataset/gmm_mixed_variance/confidence_kmeans_k3.png" alt="Confidence mixed_variance kmeans">
+      <div class="caption"><div class="fig-id">GMV-SC1</div><div class="fig-title">Confidence Scatter — K-Means</div><span class="fig-method">kmeans · K=3</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_mixed_variance/confidence_agglomerative_ward_k3.png','Confidence Ward gmm_mixed_variance')">
+      <img src="figures/by_dataset/gmm_mixed_variance/confidence_agglomerative_ward_k3.png" alt="Confidence mixed_variance ward">
+      <div class="caption"><div class="fig-id">GMV-SC2</div><div class="fig-title">Confidence Scatter — Ward</div><span class="fig-method">agglomerative_ward · K=3</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_mixed_variance/method_comparison.png','Method comparison gmm_mixed_variance')">
+      <img src="figures/by_dataset/gmm_mixed_variance/method_comparison.png" alt="Method mixed_variance">
+      <div class="caption"><div class="fig-id">GMV-C1</div><div class="fig-title">Method Comparison</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/k_progression_gmm_mixed_variance.png','K progression gmm_mixed_variance')">
+      <img src="figures/k_progression_gmm_mixed_variance.png" alt="K progression mixed_variance">
+      <div class="caption"><div class="fig-id">GMV-P1</div><div class="fig-title">K Progression</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GMM OVERLAPPING PAIR -->
+<div class="subsection">
+  <h3>gmm_overlapping_pair — Hard Boundary</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/scatter_raw_gmm_overlapping_pair.png','Raw scatter gmm_overlapping_pair')">
+      <img src="figures/scatter_raw_gmm_overlapping_pair.png" alt="Scatter raw overlapping_pair">
+      <div class="caption"><div class="fig-id">GOP-R1</div><div class="fig-title">Raw Data Scatter</div><div class="fig-desc">One isolated cluster, two heavily overlapping. Can ERICA distinguish signal from noise at the boundary?</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_overlapping_pair/kstar_bars.png','K* bars gmm_overlapping_pair')">
+      <img src="figures/by_dataset/gmm_overlapping_pair/kstar_bars.png" alt="K* overlapping_pair">
+      <div class="caption"><div class="fig-id">GOP-K1</div><div class="fig-title">K* Selection</div><div class="fig-desc">Does ERICA find K=3 or collapse to K=2?</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_overlapping_pair/confidence_kmeans_k3.png','Confidence K-Means gmm_overlapping_pair')">
+      <img src="figures/by_dataset/gmm_overlapping_pair/confidence_kmeans_k3.png" alt="Confidence overlapping kmeans">
+      <div class="caption"><div class="fig-id">GOP-SC1</div><div class="fig-title">Confidence Scatter — K-Means</div><span class="fig-method">kmeans · K=3</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_overlapping_pair/confidence_agglomerative_ward_k3.png','Confidence Ward gmm_overlapping_pair')">
+      <img src="figures/by_dataset/gmm_overlapping_pair/confidence_agglomerative_ward_k3.png" alt="Confidence overlapping ward">
+      <div class="caption"><div class="fig-id">GOP-SC2</div><div class="fig-title">Confidence Scatter — Ward</div><span class="fig-method">agglomerative_ward · K=3</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_overlapping_pair/method_comparison.png','Method comparison gmm_overlapping_pair')">
+      <img src="figures/by_dataset/gmm_overlapping_pair/method_comparison.png" alt="Method overlapping">
+      <div class="caption"><div class="fig-id">GOP-C1</div><div class="fig-title">Method Comparison</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/k_progression_gmm_overlapping_pair.png','K progression gmm_overlapping_pair')">
+      <img src="figures/k_progression_gmm_overlapping_pair.png" alt="K progression overlapping">
+      <div class="caption"><div class="fig-id">GOP-P1</div><div class="fig-title">K Progression</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GMM FIVE CLUSTERS -->
+<div class="subsection">
+  <h3>gmm_five_clusters — K=5 Stress Test</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/scatter_raw_gmm_five_clusters.png','Raw scatter gmm_five_clusters')">
+      <img src="figures/scatter_raw_gmm_five_clusters.png" alt="Scatter raw five_clusters">
+      <div class="caption"><div class="fig-id">GF-R1</div><div class="fig-title">Raw Data Scatter</div><div class="fig-desc">Five clusters. Does K* selection scale cleanly beyond K=3?</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_five_clusters/kstar_bars.png','K* bars gmm_five_clusters')">
+      <img src="figures/by_dataset/gmm_five_clusters/kstar_bars.png" alt="K* five_clusters">
+      <div class="caption"><div class="fig-id">GF-K1</div><div class="fig-title">K* Selection</div><div class="fig-desc">True K=5 recovery test.</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_five_clusters/confidence_kmeans_k5.png','Confidence K-Means gmm_five_clusters')">
+      <img src="figures/by_dataset/gmm_five_clusters/confidence_kmeans_k5.png" alt="Confidence five_clusters kmeans">
+      <div class="caption"><div class="fig-id">GF-SC1</div><div class="fig-title">Confidence Scatter — K-Means, K=5</div><span class="fig-method">kmeans · K=5</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_five_clusters/confidence_agglomerative_ward_k5.png','Confidence Ward gmm_five_clusters')">
+      <img src="figures/by_dataset/gmm_five_clusters/confidence_agglomerative_ward_k5.png" alt="Confidence five_clusters ward">
+      <div class="caption"><div class="fig-id">GF-SC2</div><div class="fig-title">Confidence Scatter — Ward, K=5</div><span class="fig-method">agglomerative_ward · K=5</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_five_clusters/method_comparison.png','Method comparison gmm_five_clusters')">
+      <img src="figures/by_dataset/gmm_five_clusters/method_comparison.png" alt="Method five_clusters">
+      <div class="caption"><div class="fig-id">GF-C1</div><div class="fig-title">Method Comparison</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_five_clusters/clam_sorted_kmeans_k5.png','CLAM K-Means K=5 gmm_five_clusters')">
+      <img src="figures/by_dataset/gmm_five_clusters/clam_sorted_kmeans_k5.png" alt="CLAM five_clusters kmeans">
+      <div class="caption"><div class="fig-id">GF-CL1</div><div class="fig-title">CLAM Sorted — K-Means, K=5</div><span class="fig-method">kmeans · K=5</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/by_dataset/gmm_five_clusters/metrics_kmeans.png','Metrics K-Means gmm_five_clusters')">
+      <img src="figures/by_dataset/gmm_five_clusters/metrics_kmeans.png" alt="Metrics kmeans five_clusters">
+      <div class="caption"><div class="fig-id">GF-M1</div><div class="fig-title">Metrics — K-Means</div><span class="fig-method">kmeans</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/k_progression_gmm_five_clusters.png','K progression gmm_five_clusters')">
+      <img src="figures/k_progression_gmm_five_clusters.png" alt="K progression five_clusters">
+      <div class="caption"><div class="fig-id">GF-P1</div><div class="fig-title">K Progression</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- ============================================================ -->
+<div class="section" id="sigma-analysis">
+<h2>Cross-Sigma Analysis</h2>
+<p class="desc">Aggregated views across the sigma sweep, plus the VDX-vs-Gaussian comparison. These are the summary figures from the Gaussian mixture study — watch TWCRI, ARI, AMI, and K* as structure degrades.</p>
+
+<div class="figure" onclick="openLightbox('figures/gaussian_study/sigma_twcri_curves.png','Sigma TWCRI curves')">
+  <img src="figures/gaussian_study/sigma_twcri_curves.png" alt="Sigma TWCRI curves">
+  <div class="caption">
+    <div class="fig-id">SA-1</div>
+    <div class="fig-title">TWCRI Degradation Across Sigma</div>
+    <div class="fig-desc">TWCRI (mean ± std) at K=4 vs &sigma; for K-Means and Ward. The money shot: how quickly does replicability fall apart?</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('figures/gaussian_study/sigma_ari_ami_curves.png','Sigma ARI AMI curves')">
+  <img src="figures/gaussian_study/sigma_ari_ami_curves.png" alt="Sigma ARI AMI curves">
+  <div class="caption">
+    <div class="fig-id">SA-2</div>
+    <div class="fig-title">ARI &amp; AMI Degradation Across Sigma</div>
+    <div class="fig-desc">ERICA-ARI and ERICA-AMI vs &sigma;. Compare degradation rate with TWCRI.</div>
+  </div>
+</div>
+
+<div class="figure" onclick="openLightbox('figures/gaussian_study/sigma_kstar_summary.png','Sigma K* summary')">
+  <img src="figures/gaussian_study/sigma_kstar_summary.png" alt="Sigma K* summary">
+  <div class="caption">
+    <div class="fig-id">SA-3</div>
+    <div class="fig-title">K* vs Sigma — Summary</div>
+    <div class="fig-desc">Which K does ERICA select at each sigma level? At what sigma does K* diverge from true K=4?</div>
+  </div>
+</div>
+
+<div class="figure-pair">
+  <div class="figure" onclick="openLightbox('figures/gaussian_study/sigma_hdbscan_noise.png','Sigma HDBSCAN noise')">
+    <img src="figures/gaussian_study/sigma_hdbscan_noise.png" alt="Sigma HDBSCAN noise">
+    <div class="caption">
+      <div class="fig-id">SA-4</div>
+      <div class="fig-title">HDBSCAN Noise Fraction vs Sigma</div>
+      <div class="fig-desc">As clusters diffuse, more samples become noise points.</div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/gaussian_study/vdx_gaussian_comparison.png','VDX vs Gaussian comparison')">
+    <img src="figures/gaussian_study/vdx_gaussian_comparison.png" alt="VDX Gaussian comparison">
+    <div class="caption">
+      <div class="fig-id">SA-5</div>
+      <div class="fig-title">VDX vs Gaussian Comparison</div>
+      <div class="fig-desc">Direct comparison: where does VDX sit on the sigma degradation spectrum? What effective sigma does the breast cancer data correspond to?</div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- ============================================================ -->
+<div class="section" id="erica-stats">
+<h2>ERICA Statistics</h2>
+<p class="desc">ERICA statistic, ERICA-ARI, and ERICA-AMI — three views of replicability — for VDX and the Gaussian sigma series. Figures from the <a href="erica_statistics/2026-04-02-erica-statistics.html" style="color:var(--accent)">ERICA Statistics gallery</a>, filtered to just these two dataset families.</p>
+
+<div class="subsection">
+  <h3>Distribution Panels</h3>
+  <p class="sub-desc">Per-sample ERICA statistic and per-iteration ARI/AMI histograms at K*. N differs: n_samples for ERICA stat (per-sample) vs 200 for ARI/AMI (per-MC iteration).</p>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/dist_vdx_3gene.png','Distributions VDX')">
+      <img src="figures/erica_statistics/dist_vdx_3gene.png" alt="Dist vdx">
+      <div class="caption"><div class="fig-id">ES-D1</div><div class="fig-title">Distributions — VDX 3-Gene</div><div class="fig-desc">1×3 panel: ERICA stat | ERICA-ARI | ERICA-AMI at K*.</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/dist_gauss4c_sigma0p01.png','Distributions gauss sigma=0.01')">
+      <img src="figures/erica_statistics/dist_gauss4c_sigma0p01.png" alt="Dist gauss0p01">
+      <div class="caption"><div class="fig-id">ES-D2</div><div class="fig-title">Distributions — Gauss &sigma;=0.01</div><div class="fig-desc">Near-perfect separation. All statistics at ceiling.</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/dist_gauss4c_sigma0p1.png','Distributions gauss sigma=0.1')">
+      <img src="figures/erica_statistics/dist_gauss4c_sigma0p1.png" alt="Dist gauss0p1">
+      <div class="caption"><div class="fig-id">ES-D3</div><div class="fig-title">Distributions — Gauss &sigma;=0.1</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/dist_gauss4c_sigma1p0.png','Distributions gauss sigma=1.0')">
+      <img src="figures/erica_statistics/dist_gauss4c_sigma1p0.png" alt="Dist gauss1p0">
+      <div class="caption"><div class="fig-id">ES-D4</div><div class="fig-title">Distributions — Gauss &sigma;=1.0</div><div class="fig-desc">Distribution starts to flatten as clusters overlap.</div></div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/erica_statistics/dist_gauss4c_sigma10p0.png','Distributions gauss sigma=10.0')">
+    <img src="figures/erica_statistics/dist_gauss4c_sigma10p0.png" alt="Dist gauss10p0">
+    <div class="caption"><div class="fig-id">ES-D5</div><div class="fig-title">Distributions — Gauss &sigma;=10.0</div><div class="fig-desc">Null case: all three statistics near their random baseline.</div></div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>Statistics vs K</h3>
+  <p class="sub-desc">ERICA stat mean ± std, ERICA-ARI, ERICA-AMI vs K. K* marked with vertical dashed line.</p>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/stats_vs_k_vdx_3gene_kmeans.png','Stats vs K VDX kmeans')">
+      <img src="figures/erica_statistics/stats_vs_k_vdx_3gene_kmeans.png" alt="Stats vs K vdx kmeans">
+      <div class="caption"><div class="fig-id">ES-SK1</div><div class="fig-title">Stats vs K — VDX, K-Means</div><span class="fig-method">kmeans · vdx_3gene</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/stats_vs_k_vdx_3gene_agglomerative_ward.png','Stats vs K VDX ward')">
+      <img src="figures/erica_statistics/stats_vs_k_vdx_3gene_agglomerative_ward.png" alt="Stats vs K vdx ward">
+      <div class="caption"><div class="fig-id">ES-SK2</div><div class="fig-title">Stats vs K — VDX, Ward</div><span class="fig-method">agglomerative_ward · vdx_3gene</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/stats_vs_k_gauss4c_sigma0p01_kmeans.png','Stats vs K gauss 0.01 kmeans')">
+      <img src="figures/erica_statistics/stats_vs_k_gauss4c_sigma0p01_kmeans.png" alt="Stats vs K gauss0p01 kmeans">
+      <div class="caption"><div class="fig-id">ES-SK3</div><div class="fig-title">Stats vs K — Gauss &sigma;=0.01, K-Means</div><div class="fig-desc">Near-perfect. All three should peak cleanly at K=4.</div><span class="fig-method">kmeans · &sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_kmeans.png','Stats vs K gauss 0.1 kmeans')">
+      <img src="figures/erica_statistics/stats_vs_k_gauss4c_sigma0p1_kmeans.png" alt="Stats vs K gauss0p1 kmeans">
+      <div class="caption"><div class="fig-id">ES-SK4</div><div class="fig-title">Stats vs K — Gauss &sigma;=0.1, K-Means</div><span class="fig-method">kmeans · &sigma;=0.1</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_kmeans.png','Stats vs K gauss 1.0 kmeans')">
+      <img src="figures/erica_statistics/stats_vs_k_gauss4c_sigma1p0_kmeans.png" alt="Stats vs K gauss1p0 kmeans">
+      <div class="caption"><div class="fig-id">ES-SK5</div><div class="fig-title">Stats vs K — Gauss &sigma;=1.0, K-Means</div><span class="fig-method">kmeans · &sigma;=1.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/stats_vs_k_gauss4c_sigma0p01_agglomerative_ward.png','Stats vs K gauss 0.01 ward')">
+      <img src="figures/erica_statistics/stats_vs_k_gauss4c_sigma0p01_agglomerative_ward.png" alt="Stats vs K gauss0p01 ward">
+      <div class="caption"><div class="fig-id">ES-SK6</div><div class="fig-title">Stats vs K — Gauss &sigma;=0.01, Ward</div><span class="fig-method">agglomerative_ward · &sigma;=0.01</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_kmeans.png','Stats vs K gauss 10.0 kmeans')">
+      <img src="figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_kmeans.png" alt="Stats vs K gauss10p0 kmeans">
+      <div class="caption"><div class="fig-id">ES-SK5</div><div class="fig-title">Stats vs K — Gauss &sigma;=10.0, K-Means</div><div class="fig-desc">Null behavior. All three statistics should show no clear peak.</div><span class="fig-method">kmeans · &sigma;=10.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_agglomerative_ward.png','Stats vs K gauss 10.0 ward')">
+      <img src="figures/erica_statistics/stats_vs_k_gauss4c_sigma10p0_agglomerative_ward.png" alt="Stats vs K gauss10p0 ward">
+      <div class="caption"><div class="fig-id">ES-SK6</div><div class="fig-title">Stats vs K — Gauss &sigma;=10.0, Ward</div><span class="fig-method">agglomerative_ward · &sigma;=10.0</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>Triptych Scatters (Cluster | ERICA Stat | ARI Contribution)</h3>
+  <p class="sub-desc">1×4 panels: cluster assignment | ERICA stat colormap | per-sample ARI contribution | normalized entropy. High-D datasets use PCA(2) projection.</p>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/triptych_vdx_3gene_kmeans.png','Triptych VDX kmeans')">
+      <img src="figures/erica_statistics/triptych_vdx_3gene_kmeans.png" alt="Triptych vdx kmeans">
+      <div class="caption"><div class="fig-id">ES-TR1</div><div class="fig-title">Triptych — VDX, K-Means</div><span class="fig-method">kmeans · vdx_3gene</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/triptych_vdx_3gene_agglomerative_ward.png','Triptych VDX ward')">
+      <img src="figures/erica_statistics/triptych_vdx_3gene_agglomerative_ward.png" alt="Triptych vdx ward">
+      <div class="caption"><div class="fig-id">ES-TR2</div><div class="fig-title">Triptych — VDX, Ward</div><span class="fig-method">agglomerative_ward · vdx_3gene</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/triptych_gauss4c_sigma0p01_kmeans.png','Triptych gauss 0.01 kmeans')">
+      <img src="figures/erica_statistics/triptych_gauss4c_sigma0p01_kmeans.png" alt="Triptych gauss0p01 kmeans">
+      <div class="caption"><div class="fig-id">ES-TR3</div><div class="fig-title">Triptych — Gauss &sigma;=0.01, K-Means</div><div class="fig-desc">Near-perfect baseline. All panels should show clean cluster structure.</div><span class="fig-method">kmeans · &sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/triptych_gauss4c_sigma0p1_kmeans.png','Triptych gauss 0.1 kmeans')">
+      <img src="figures/erica_statistics/triptych_gauss4c_sigma0p1_kmeans.png" alt="Triptych gauss0p1 kmeans">
+      <div class="caption"><div class="fig-id">ES-TR4</div><div class="fig-title">Triptych — Gauss &sigma;=0.1, K-Means</div><span class="fig-method">kmeans · &sigma;=0.1</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/triptych_gauss4c_sigma1p0_kmeans.png','Triptych gauss 1.0 kmeans')">
+      <img src="figures/erica_statistics/triptych_gauss4c_sigma1p0_kmeans.png" alt="Triptych gauss1p0 kmeans">
+      <div class="caption"><div class="fig-id">ES-TR5</div><div class="fig-title">Triptych — Gauss &sigma;=1.0, K-Means</div><span class="fig-method">kmeans · &sigma;=1.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/triptych_gauss4c_sigma0p01_agglomerative_ward.png','Triptych gauss 0.01 ward')">
+      <img src="figures/erica_statistics/triptych_gauss4c_sigma0p01_agglomerative_ward.png" alt="Triptych gauss0p01 ward">
+      <div class="caption"><div class="fig-id">ES-TR6</div><div class="fig-title">Triptych — Gauss &sigma;=0.01, Ward</div><span class="fig-method">agglomerative_ward · &sigma;=0.01</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/triptych_gauss4c_sigma10p0_kmeans.png','Triptych gauss 10.0 kmeans')">
+      <img src="figures/erica_statistics/triptych_gauss4c_sigma10p0_kmeans.png" alt="Triptych gauss10p0 kmeans">
+      <div class="caption"><div class="fig-id">ES-TR5</div><div class="fig-title">Triptych — Gauss &sigma;=10.0, K-Means</div><div class="fig-desc">Null case. Spatial structure should be absent from all four panels.</div><span class="fig-method">kmeans · &sigma;=10.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/triptych_gauss4c_sigma10p0_agglomerative_ward.png','Triptych gauss 10.0 ward')">
+      <img src="figures/erica_statistics/triptych_gauss4c_sigma10p0_agglomerative_ward.png" alt="Triptych gauss10p0 ward">
+      <div class="caption"><div class="fig-id">ES-TR6</div><div class="fig-title">Triptych — Gauss &sigma;=10.0, Ward</div><span class="fig-method">agglomerative_ward · &sigma;=10.0</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>Method Comparison Scatters (K-Means | Ward, shared colorbar)</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_method_compare_vdx_3gene.png','Scatter method compare VDX')">
+      <img src="figures/erica_statistics/scatter_method_compare_vdx_3gene.png" alt="Scatter method compare vdx">
+      <div class="caption"><div class="fig-id">ES-MC1</div><div class="fig-title">Method Compare Scatter — VDX</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p1.png','Scatter method compare gauss 0.1')">
+      <img src="figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p1.png" alt="Scatter method compare gauss0p1">
+      <div class="caption"><div class="fig-id">ES-MC2</div><div class="fig-title">Method Compare Scatter — Gauss &sigma;=0.1</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p01.png','Scatter method compare gauss 0.01')">
+      <img src="figures/erica_statistics/scatter_method_compare_gauss4c_sigma0p01.png" alt="Scatter method compare gauss0p01">
+      <div class="caption"><div class="fig-id">ES-MC3</div><div class="fig-title">Method Compare Scatter — Gauss &sigma;=0.01</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_method_compare_gauss4c_sigma1p0.png','Scatter method compare gauss 1.0')">
+      <img src="figures/erica_statistics/scatter_method_compare_gauss4c_sigma1p0.png" alt="Scatter method compare gauss1p0">
+      <div class="caption"><div class="fig-id">ES-MC4</div><div class="fig-title">Method Compare Scatter — Gauss &sigma;=1.0</div></div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_method_compare_gauss4c_sigma10p0.png','Scatter method compare gauss 10.0')">
+    <img src="figures/erica_statistics/scatter_method_compare_gauss4c_sigma10p0.png" alt="Scatter method compare gauss10p0">
+    <div class="caption"><div class="fig-id">ES-MC5</div><div class="fig-title">Method Compare Scatter — Gauss &sigma;=10.0</div></div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>ERICA Scatter — Per-Method</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_erica_vdx_3gene_kmeans.png','ERICA scatter VDX kmeans')">
+      <img src="figures/erica_statistics/scatter_erica_vdx_3gene_kmeans.png" alt="ERICA scatter vdx kmeans">
+      <div class="caption"><div class="fig-id">ES-E1</div><div class="fig-title">ERICA Scatter — VDX, K-Means</div><span class="fig-method">kmeans · vdx_3gene</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_erica_vdx_3gene_agglomerative_ward.png','ERICA scatter VDX ward')">
+      <img src="figures/erica_statistics/scatter_erica_vdx_3gene_agglomerative_ward.png" alt="ERICA scatter vdx ward">
+      <div class="caption"><div class="fig-id">ES-E2</div><div class="fig-title">ERICA Scatter — VDX, Ward</div><span class="fig-method">agglomerative_ward · vdx_3gene</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_erica_gauss4c_sigma0p01_kmeans.png','ERICA scatter gauss 0.01 kmeans')">
+      <img src="figures/erica_statistics/scatter_erica_gauss4c_sigma0p01_kmeans.png" alt="ERICA scatter gauss0p01 kmeans">
+      <div class="caption"><div class="fig-id">ES-E3</div><div class="fig-title">ERICA Scatter — Gauss &sigma;=0.01, K-Means</div><span class="fig-method">kmeans · &sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_kmeans.png','ERICA scatter gauss 0.1 kmeans')">
+      <img src="figures/erica_statistics/scatter_erica_gauss4c_sigma0p1_kmeans.png" alt="ERICA scatter gauss0p1 kmeans">
+      <div class="caption"><div class="fig-id">ES-E4</div><div class="fig-title">ERICA Scatter — Gauss &sigma;=0.1, K-Means</div><span class="fig-method">kmeans · &sigma;=0.1</span></div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_kmeans.png','ERICA scatter gauss 1.0 kmeans')">
+    <img src="figures/erica_statistics/scatter_erica_gauss4c_sigma1p0_kmeans.png" alt="ERICA scatter gauss1p0 kmeans">
+    <div class="caption"><div class="fig-id">ES-E5</div><div class="fig-title">ERICA Scatter — Gauss &sigma;=1.0, K-Means</div><span class="fig-method">kmeans · &sigma;=1.0</span></div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>PCSP &amp; ICAH</h3>
+  <p class="sub-desc">Per-cluster stability profiles (PCSP) and ICA-based heatmaps (ICAH). K-Means only.</p>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/pcsp_vdx_3gene_kmeans.png','PCSP VDX')">
+      <img src="figures/erica_statistics/pcsp_vdx_3gene_kmeans.png" alt="PCSP vdx">
+      <div class="caption"><div class="fig-id">ES-PC1</div><div class="fig-title">PCSP — VDX</div><div class="fig-desc">Per-cluster stability profile: how consistently does each cluster form across MC iterations?</div><span class="fig-method">kmeans · vdx_3gene</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/icah_vdx_3gene_kmeans.png','ICAH VDX')">
+      <img src="figures/erica_statistics/icah_vdx_3gene_kmeans.png" alt="ICAH vdx">
+      <div class="caption"><div class="fig-id">ES-IH1</div><div class="fig-title">ICAH — VDX</div><span class="fig-method">kmeans · vdx_3gene</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/pcsp_gauss4c_sigma0p01_kmeans.png','PCSP gauss 0.01')">
+      <img src="figures/erica_statistics/pcsp_gauss4c_sigma0p01_kmeans.png" alt="PCSP gauss0p01">
+      <div class="caption"><div class="fig-id">ES-PC2</div><div class="fig-title">PCSP — Gauss &sigma;=0.01</div><div class="fig-desc">Near-perfect separation baseline. Leakage should be near zero for all clusters.</div><span class="fig-method">kmeans · &sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/pcsp_gauss4c_sigma0p1_kmeans.png','PCSP gauss 0.1')">
+      <img src="figures/erica_statistics/pcsp_gauss4c_sigma0p1_kmeans.png" alt="PCSP gauss0p1">
+      <div class="caption"><div class="fig-id">ES-PC3</div><div class="fig-title">PCSP — Gauss &sigma;=0.1</div><span class="fig-method">kmeans · &sigma;=0.1</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/pcsp_gauss4c_sigma1p0_kmeans.png','PCSP gauss 1.0')">
+      <img src="figures/erica_statistics/pcsp_gauss4c_sigma1p0_kmeans.png" alt="PCSP gauss1p0">
+      <div class="caption"><div class="fig-id">ES-PC4</div><div class="fig-title">PCSP — Gauss &sigma;=1.0</div><span class="fig-method">kmeans · &sigma;=1.0</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/pcsp_gauss4c_sigma10p0_kmeans.png','PCSP gauss 10.0 — null case')">
+      <img src="figures/erica_statistics/pcsp_gauss4c_sigma10p0_kmeans.png" alt="PCSP gauss10p0">
+      <div class="caption"><div class="fig-id">ES-PC5</div><div class="fig-title">PCSP — Gauss &sigma;=10.0 (Null Case)</div><div class="fig-desc">With no cluster structure, per-cluster leakage should be uniformly spread across all target clusters. This is the PCSP equivalent of the MATLAB clam_matrix_sort_18a scatter plots.</div><span class="fig-method">kmeans · &sigma;=10.0</span></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/icah_gauss4c_sigma0p01_kmeans.png','ICAH gauss 0.01')">
+      <img src="figures/erica_statistics/icah_gauss4c_sigma0p01_kmeans.png" alt="ICAH gauss0p01">
+      <div class="caption"><div class="fig-id">ES-IH2</div><div class="fig-title">ICAH — Gauss &sigma;=0.01</div><span class="fig-method">kmeans · &sigma;=0.01</span></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/icah_gauss4c_sigma0p1_kmeans.png','ICAH gauss 0.1')">
+      <img src="figures/erica_statistics/icah_gauss4c_sigma0p1_kmeans.png" alt="ICAH gauss0p1">
+      <div class="caption"><div class="fig-id">ES-IH3</div><div class="fig-title">ICAH — Gauss &sigma;=0.1</div><span class="fig-method">kmeans · &sigma;=0.1</span></div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/erica_statistics/icah_gauss4c_sigma10p0_kmeans.png','ICAH gauss 10.0')">
+    <img src="figures/erica_statistics/icah_gauss4c_sigma10p0_kmeans.png" alt="ICAH gauss10p0">
+    <div class="caption"><div class="fig-id">ES-IH4</div><div class="fig-title">ICAH — Gauss &sigma;=10.0</div><div class="fig-desc">Null case reference.</div><span class="fig-method">kmeans · &sigma;=10.0</span></div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>PCA vs ICA Projections</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/pca_vs_ica_vdx_3gene.png','PCA vs ICA VDX')">
+      <img src="figures/erica_statistics/pca_vs_ica_vdx_3gene.png" alt="PCA vs ICA vdx">
+      <div class="caption"><div class="fig-id">ES-PI1</div><div class="fig-title">PCA vs ICA — VDX</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p01.png','PCA vs ICA gauss 0.01')">
+      <img src="figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p01.png" alt="PCA vs ICA gauss0p01">
+      <div class="caption"><div class="fig-id">ES-PI2</div><div class="fig-title">PCA vs ICA — Gauss &sigma;=0.01</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p1.png','PCA vs ICA gauss 0.1')">
+      <img src="figures/erica_statistics/pca_vs_ica_gauss4c_sigma0p1.png" alt="PCA vs ICA gauss0p1">
+      <div class="caption"><div class="fig-id">ES-PI3</div><div class="fig-title">PCA vs ICA — Gauss &sigma;=0.1</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/pca_vs_ica_gauss4c_sigma1p0.png','PCA vs ICA gauss 1.0')">
+      <img src="figures/erica_statistics/pca_vs_ica_gauss4c_sigma1p0.png" alt="PCA vs ICA gauss1p0">
+      <div class="caption"><div class="fig-id">ES-PI4</div><div class="fig-title">PCA vs ICA — Gauss &sigma;=1.0</div></div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/erica_statistics/pca_vs_ica_gauss4c_sigma10p0.png','PCA vs ICA gauss 10.0')">
+    <img src="figures/erica_statistics/pca_vs_ica_gauss4c_sigma10p0.png" alt="PCA vs ICA gauss10p0">
+    <div class="caption"><div class="fig-id">ES-PI5</div><div class="fig-title">PCA vs ICA — Gauss &sigma;=10.0</div></div>
+  </div>
+</div>
+
+<div class="subsection">
+  <h3>Method Comparison Panels</h3>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/method_compare_vdx_3gene.png','Method compare VDX erica_stats')">
+      <img src="figures/erica_statistics/method_compare_vdx_3gene.png" alt="Method compare vdx">
+      <div class="caption"><div class="fig-id">ES-MCP1</div><div class="fig-title">Method Compare — VDX</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/method_compare_gauss4c_sigma0p01.png','Method compare gauss 0.01')">
+      <img src="figures/erica_statistics/method_compare_gauss4c_sigma0p01.png" alt="Method compare gauss0p01">
+      <div class="caption"><div class="fig-id">ES-MCP2</div><div class="fig-title">Method Compare — Gauss &sigma;=0.01</div></div>
+    </div>
+  </div>
+  <div class="figure-pair">
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/method_compare_gauss4c_sigma0p1.png','Method compare gauss 0.1')">
+      <img src="figures/erica_statistics/method_compare_gauss4c_sigma0p1.png" alt="Method compare gauss0p1">
+      <div class="caption"><div class="fig-id">ES-MCP3</div><div class="fig-title">Method Compare — Gauss &sigma;=0.1</div></div>
+    </div>
+    <div class="figure" onclick="openLightbox('figures/erica_statistics/method_compare_gauss4c_sigma1p0.png','Method compare gauss 1.0')">
+      <img src="figures/erica_statistics/method_compare_gauss4c_sigma1p0.png" alt="Method compare gauss1p0">
+      <div class="caption"><div class="fig-id">ES-MCP4</div><div class="fig-title">Method Compare — Gauss &sigma;=1.0</div></div>
+    </div>
+  </div>
+  <div class="figure" onclick="openLightbox('figures/erica_statistics/method_compare_gauss4c_sigma10p0.png','Method compare gauss 10.0')">
+    <img src="figures/erica_statistics/method_compare_gauss4c_sigma10p0.png" alt="Method compare gauss10p0">
+    <div class="caption"><div class="fig-id">ES-MCP5</div><div class="fig-title">Method Compare — Gauss &sigma;=10.0</div></div>
+  </div>
+</div>
+
+</div>
+
+</div><!-- /content -->
+
+<footer>
+  VDX &amp; Gaussian Gallery &mdash; 2026-04-14 &middot; ERICA v0.1.4 &middot; B=200 MC iterations
+</footer>
+
+<script>
+function openLightbox(src, caption) {
+  document.getElementById('lb-img').src = src;
+  document.getElementById('lb-caption').textContent = caption;
+  document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.getElementById('lb-img').src = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// Sticky nav highlight
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+<!-- curator-injected -->
+<script>
+
+(function() {
+  var PAGE_KEY = 'curator:' + location.pathname;
+  var state = {};
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function loadState() {
+    try { state = JSON.parse(localStorage.getItem(PAGE_KEY) || '{}'); }
+    catch(e) { state = {}; }
+  }
+
+  function saveState() {
+    var s = {};
+    document.querySelectorAll('.figure[data-fig-id]').forEach(function(fig) {
+      var id = fig.dataset.figId;
+      var selected = fig.classList.contains('selected');
+      var noteEl = fig.querySelector('.curator-note');
+      var note = noteEl ? noteEl.value : '';
+      if (selected || note) s[id] = { selected: selected, note: note };
+    });
+    state = s;
+    localStorage.setItem(PAGE_KEY, JSON.stringify(s));
+    updateToolbar();
+  }
+
+  function applyState(figures) {
+    Object.keys(figures).forEach(function(id) {
+      var info = figures[id];
+      var fig = document.querySelector('[data-fig-id="' + id + '"]');
+      if (!fig) return;
+      if (info.selected) fig.classList.add('selected');
+      else fig.classList.remove('selected');
+      var noteEl = fig.querySelector('.curator-note');
+      if (noteEl && info.note) {
+        noteEl.value = info.note;
+        noteEl.classList.add('open');
+      }
+      updateToggleLabel(fig);
+    });
+    saveState();
+  }
+
+  function toggleSelect(fig) {
+    fig.classList.toggle('selected');
+    saveState();
+  }
+
+  function toggleNote(fig) {
+    var note = fig.querySelector('.curator-note');
+    if (!note) return;
+    note.classList.toggle('open');
+    if (note.classList.contains('open')) note.focus();
+    updateToggleLabel(fig);
+    saveState();
+  }
+
+  function updateToggleLabel(fig) {
+    var toggle = fig.querySelector('.curator-note-toggle');
+    var note = fig.querySelector('.curator-note');
+    if (!toggle || !note) return;
+    var isOpen = note.classList.contains('open');
+    var hasText = note.value.trim().length > 0;
+    toggle.textContent = isOpen ? 'close' : (hasText ? 'edit note' : 'add note');
+    toggle.style.color = hasText && !isOpen ? 'var(--accent)' : '';
+  }
+
+  function parseMethod(text) {
+    if (!text) return {};
+    var p = {};
+    var cleaned = text.replace(/^method:\s*/i, '');
+    var tokens = cleaned.split(/\s*\u00b7\s*/);
+    tokens.forEach(function(tok, i) {
+      if (i === 0) { p.method = tok.trim(); return; }
+      var eq = tok.indexOf('=');
+      if (eq > 0) p[tok.slice(0, eq).trim().toLowerCase()] = tok.slice(eq + 1).trim();
+    });
+    return p;
+  }
+
+  function buildMuseumCard(fig) {
+    var methodEl = fig.querySelector('.fig-method');
+    var parsed = parseMethod(methodEl ? methodEl.textContent.trim() : '');
+    var section = fig.closest('.section');
+    var sectionTitle = section ? (section.querySelector('h2') || {}).textContent || '' : '';
+    var sub = fig.closest('.subsection');
+    var subTitle = sub ? (sub.querySelector('h3') || {}).textContent || '' : '';
+
+    var imgSrc = (fig.querySelector('img') || {}).getAttribute('src') || '';
+    var dsMatch = imgSrc.match(/by_dataset\/([^\/]+)\//);
+    var fnMatch = imgSrc.match(/(?:clam|metrics|stability|kstar|method|surface|landscape|scatter|confidence)_([a-z0-9_]+?)(?:_(?:kmeans|agglom|hdbscan)|\.)/);
+    var dataset = dsMatch ? dsMatch[1] : (fnMatch ? fnMatch[1] : '');
+
+    var rows = [];
+    if (dataset) rows.push(['dataset', dataset]);
+    if (parsed.method) rows.push(['method', parsed.method]);
+    if (parsed.k) rows.push(['K', parsed.k]);
+    Object.keys(parsed).forEach(function(k) {
+      if (k !== 'method' && k !== 'k') rows.push([k, parsed[k]]);
+    });
+    if (sectionTitle) rows.push(['section', sectionTitle]);
+    if (subTitle && subTitle !== sectionTitle) rows.push(['group', subTitle]);
+
+    if (rows.length === 0) return;
+
+    var card = document.createElement('div');
+    card.className = 'museum-card';
+    var tableEl = document.createElement('table');
+    rows.forEach(function(r) {
+      var tr = document.createElement('tr');
+      var tdKey = document.createElement('td');
+      tdKey.textContent = r[0];
+      var tdVal = document.createElement('td');
+      tdVal.textContent = r[1];
+      tr.appendChild(tdKey);
+      tr.appendChild(tdVal);
+      tableEl.appendChild(tr);
+    });
+    card.appendChild(tableEl);
+
+    var caption = fig.querySelector('.caption');
+    if (methodEl) {
+      methodEl.style.display = 'none';
+      methodEl.parentNode.insertBefore(card, methodEl.nextSibling);
+    } else if (caption) {
+      caption.appendChild(card);
+    }
+  }
+
+  function updateToolbar() {
+    var sel = document.querySelectorAll('.figure.selected').length;
+    var noted = 0;
+    document.querySelectorAll('.curator-note').forEach(function(n) {
+      if (n.value.trim()) noted++;
+    });
+    var countEl = document.querySelector('.curator-toolbar .count');
+    var noteEl = document.querySelector('.curator-toolbar .note-count');
+    var exportBtn = document.querySelector('.curator-toolbar .export-btn');
+    if (countEl) countEl.textContent = sel > 0 ? '\u2605 ' + sel + ' selected' : 'No figures selected';
+    if (noteEl) noteEl.textContent = noted ? noted + ' with notes' : '';
+    if (exportBtn) exportBtn.disabled = sel === 0;
+  }
+
+  /* -- Save / Load state as JSON (git-shareable) -- */
+
+  function saveStateToFile() {
+    var s = {};
+    document.querySelectorAll('.figure[data-fig-id]').forEach(function(fig) {
+      var id = fig.dataset.figId;
+      var selected = fig.classList.contains('selected');
+      var noteEl = fig.querySelector('.curator-note');
+      var note = noteEl ? noteEl.value : '';
+      if (selected || note) s[id] = { selected: selected, note: note };
+    });
+    var data = {
+      meta: {
+        source: location.pathname.split('/').pop() || '',
+        date: new Date().toISOString().slice(0, 10),
+        title: (document.querySelector('.masthead h1') || {}).textContent || ''
+      },
+      figures: s
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    var name = (location.pathname.split('/').pop() || 'gallery').replace(/\.html$/, '').replace('.curated', '');
+    a.download = name + '.curation.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  function loadStateFromFile() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          var data = JSON.parse(ev.target.result);
+          var figures = data.figures || data;
+          applyState(figures);
+        } catch(err) {
+          alert('Error loading curation file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  function tryAutoLoadState() {
+    if (Object.keys(state).length > 0) return;
+    var name = (location.pathname.split('/').pop() || '').replace(/\.html$/, '').replace('.curated', '');
+    if (!name) return;
+    fetch(name + '.curation.json').then(function(r) {
+      if (!r.ok) return;
+      return r.json();
+    }).then(function(data) {
+      if (data && data.figures) applyState(data.figures);
+    }).catch(function() { /* no state file or CORS — fine */ });
+  }
+
+  /* -- Export favorites as standalone HTML -- */
+
+  function buildFavoritesCSS() {
+    var pageCSS = (document.querySelector('style') || {}).textContent || '';
+    return pageCSS +
+      '\n.curator-toolbar { display: none !important; }' +
+      '\nbody { padding-bottom: 0 !important; }' +
+      '\n.curator-note-display { margin: 12px 0; padding: 10px 14px; background: #1e1e1e; border-left: 3px solid #d4a853; font-size: 13px; line-height: 1.6; }' +
+      '\n.curator-note-display strong { color: #d4a853; }' +
+      '\n.favorite-entry { margin-bottom: 32px; }' +
+      '\n.figure { cursor: pointer; }' +
+      '\n@media print {' +
+      '\n  body { background: #fff; color: #000; }' +
+      '\n  .figure { border-color: #ccc; break-inside: avoid; }' +
+      '\n  .figure img { background: #fff; }' +
+      '\n  .caption { border-top-color: #ccc; }' +
+      '\n  .fig-id { color: #2a7a4a; }' +
+      '\n  .fig-desc { color: #555; }' +
+      '\n  .museum-card { background: #f5f5f5; border-color: #2a7a4a; }' +
+      '\n  .museum-card td:first-child { color: #2a7a4a; }' +
+      '\n  .curator-note-display { background: #fef9e7; border-color: #b8860b; color: #000; }' +
+      '\n  footer { border-top-color: #000; color: #555; }' +
+      '\n}';
+  }
+
+  function exportFavorites() {
+    var selected = Array.from(document.querySelectorAll('.figure.selected'));
+    if (!selected.length) return;
+
+    var title = (document.querySelector('.masthead h1') || {}).textContent || 'Gallery';
+    var date = new Date().toISOString().slice(0, 10);
+
+    var figuresHTML = '';
+    selected.forEach(function(fig) {
+      var clone = fig.cloneNode(true);
+      var star = clone.querySelector('.curator-star'); if (star) star.remove();
+      var toggle = clone.querySelector('.curator-note-toggle'); if (toggle) toggle.remove();
+      var noteEl = clone.querySelector('.curator-note');
+      var noteText = noteEl ? noteEl.value.trim() : '';
+      if (noteEl) noteEl.remove();
+      clone.classList.remove('selected');
+      clone.removeAttribute('onclick');
+      clone.removeAttribute('data-fig-id');
+      clone.style.cursor = 'pointer';
+
+      var noteBlock = '';
+      if (noteText) {
+        var noteDiv = document.createElement('div');
+        noteDiv.className = 'curator-note-display';
+        var strong = document.createElement('strong');
+        strong.textContent = 'Note: ';
+        noteDiv.appendChild(strong);
+        noteDiv.appendChild(document.createTextNode(noteText));
+        noteBlock = noteDiv.outerHTML;
+      }
+      figuresHTML += '<div class="favorite-entry">' + clone.outerHTML + noteBlock + '</div>\n';
+    });
+
+    var doc = document.implementation.createHTMLDocument('Favorites');
+    doc.documentElement.lang = 'en';
+
+    var meta = doc.createElement('meta');
+    meta.setAttribute('charset', 'UTF-8');
+    doc.head.appendChild(meta);
+
+    var viewport = doc.createElement('meta');
+    viewport.name = 'viewport';
+    viewport.content = 'width=device-width, initial-scale=1.0';
+    doc.head.appendChild(viewport);
+
+    doc.title = 'Favorites \u2014 ' + title;
+
+    var style = doc.createElement('style');
+    style.textContent = buildFavoritesCSS();
+    doc.head.appendChild(style);
+
+    doc.body.insertAdjacentHTML('beforeend',
+      '<div class="masthead">' +
+      '<h1>Favorites \u2014 ' + esc(title) + '</h1>' +
+      '<div class="subtitle">Curated selection for publication review</div>' +
+      '<div class="meta">Curated ' + date + ' \u00b7 ' + selected.length +
+        ' figure' + (selected.length !== 1 ? 's' : '') + '</div>' +
+      '</div>' +
+      '<div class="lightbox" id="lightbox" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;cursor:zoom-out">' +
+      '<span class="lb-close" style="position:fixed;top:20px;right:24px;color:#aaa;font-size:28px;cursor:pointer">\u00d7</span>' +
+      '<img id="lb-img" src="" alt="" style="max-width:92vw;max-height:92vh;object-fit:contain;background:#fff;padding:12px">' +
+      '</div>' +
+      '<div class="content">' + figuresHTML + '</div>' +
+      '<footer>Favorites from: ' + esc(title) + ' \u00b7 Curated ' + date + '</footer>'
+    );
+
+    var script = doc.createElement('script');
+    script.textContent =
+      'document.querySelectorAll(".figure").forEach(function(fig){' +
+      'fig.addEventListener("click",function(){' +
+      'document.getElementById("lb-img").src=fig.querySelector("img").src;' +
+      'var lb=document.getElementById("lightbox");lb.style.display="flex";lb.classList.add("active");' +
+      '});});' +
+      'document.getElementById("lightbox").addEventListener("click",function(){this.style.display="none";this.classList.remove("active");});' +
+      'document.addEventListener("keydown",function(e){if(e.key==="Escape"){var lb=document.getElementById("lightbox");lb.style.display="none";lb.classList.remove("active");}});';
+    doc.body.appendChild(script);
+
+    var serializer = new XMLSerializer();
+    var html = '<!DOCTYPE html>\n' + serializer.serializeToString(doc.documentElement);
+
+    var blob = new Blob([html], { type: 'text/html' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    var srcName = (location.pathname.split('/').pop() || 'gallery').replace(/\.html$/, '').replace('.curated', '');
+    a.download = 'favorites-' + srcName + '-' + date + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  function exportCSV() {
+    var selected = Array.from(document.querySelectorAll('.figure.selected'));
+    if (!selected.length) return;
+    var rows = [['fig_id', 'title', 'dataset', 'method', 'k', 'section', 'group', 'image_path', 'note']];
+    selected.forEach(function(fig) {
+      var figId = fig.dataset.figId || '';
+      var titleEl = fig.querySelector('.fig-title');
+      var title = titleEl ? titleEl.textContent.trim() : '';
+      var methodEl = fig.querySelector('.fig-method');
+      var parsed = parseMethod(methodEl ? methodEl.textContent.trim() : '');
+      var imgSrc = (fig.querySelector('img') || {}).getAttribute('src') || '';
+      var dsMatch = imgSrc.match(/by_dataset\/([^\/]+)\//);
+      var fnMatch = imgSrc.match(/(?:clam|metrics|stability|kstar|method|surface|landscape|scatter|confidence)_([a-z0-9_]+?)(?:_(?:kmeans|agglom|hdbscan)|\.)/);
+      var dataset = dsMatch ? dsMatch[1] : (fnMatch ? fnMatch[1] : '');
+      var section = fig.closest('.section');
+      var sectionTitle = section ? (section.querySelector('h2') || {}).textContent || '' : '';
+      var sub = fig.closest('.subsection');
+      var subTitle = sub ? (sub.querySelector('h3') || {}).textContent || '' : '';
+      var noteEl = fig.querySelector('.curator-note');
+      var note = noteEl ? noteEl.value.trim() : '';
+      rows.push([figId, title, dataset, parsed.method || '', parsed.k || '',
+                 sectionTitle, subTitle, imgSrc, note]);
+    });
+    var csv = rows.map(function(r) {
+      return r.map(function(cell) {
+        var s = String(cell).replace(/"/g, '""');
+        return '"' + s + '"';
+      }).join(',');
+    }).join('\n');
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    var srcName = (location.pathname.split('/').pop() || 'gallery').replace(/\.html$/, '').replace('.curated', '');
+    var date = new Date().toISOString().slice(0, 10);
+    a.download = 'selections-' + srcName + '-' + date + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  function clearAll() {
+    if (!confirm('Clear all selections and notes?')) return;
+    document.querySelectorAll('.figure.selected').forEach(function(f) { f.classList.remove('selected'); });
+    document.querySelectorAll('.curator-note').forEach(function(n) { n.value = ''; n.classList.remove('open'); });
+    document.querySelectorAll('.figure').forEach(function(f) { updateToggleLabel(f); });
+    state = {};
+    localStorage.removeItem(PAGE_KEY);
+    updateToolbar();
+  }
+
+  /* -- Init -- */
+
+  document.addEventListener('DOMContentLoaded', function() {
+    loadState();
+
+    document.querySelectorAll('.figure').forEach(function(fig, i) {
+      var figIdEl = fig.querySelector('.fig-id');
+      var figId = figIdEl ? figIdEl.textContent.trim() : 'fig-' + i;
+      fig.dataset.figId = figId;
+
+      buildMuseumCard(fig);
+
+      var star = document.createElement('div');
+      star.className = 'curator-star';
+      star.textContent = '\u2605';
+      star.title = 'Select / deselect';
+      star.addEventListener('click', function(e) { e.stopPropagation(); toggleSelect(fig); });
+      fig.prepend(star);
+
+      var caption = fig.querySelector('.caption');
+      if (caption) {
+        var toggle = document.createElement('span');
+        toggle.className = 'curator-note-toggle';
+        toggle.textContent = 'add note';
+        toggle.addEventListener('click', function(e) { e.stopPropagation(); toggleNote(fig); });
+        caption.appendChild(toggle);
+
+        var noteArea = document.createElement('textarea');
+        noteArea.className = 'curator-note';
+        noteArea.placeholder = 'Notes for this figure...';
+        noteArea.addEventListener('click', function(e) { e.stopPropagation(); });
+        noteArea.addEventListener('input', function() { updateToggleLabel(fig); saveState(); });
+        caption.appendChild(noteArea);
+
+        var saved = state[figId];
+        if (saved) {
+          if (saved.selected) fig.classList.add('selected');
+          if (saved.note) { noteArea.value = saved.note; noteArea.classList.add('open'); }
+          updateToggleLabel(fig);
+        }
+      }
+    });
+
+    var toolbar = document.createElement('div');
+    toolbar.className = 'curator-toolbar';
+
+    var countSpan = document.createElement('span');
+    countSpan.className = 'count';
+    countSpan.textContent = 'No figures selected';
+    toolbar.appendChild(countSpan);
+
+    var noteSpan = document.createElement('span');
+    noteSpan.className = 'note-count';
+    toolbar.appendChild(noteSpan);
+
+    var exportBtn = document.createElement('button');
+    exportBtn.className = 'export-btn';
+    exportBtn.textContent = 'Export Favorites';
+    exportBtn.addEventListener('click', exportFavorites);
+    toolbar.appendChild(exportBtn);
+
+    var csvBtn = document.createElement('button');
+    csvBtn.className = 'secondary csv-btn';
+    csvBtn.textContent = 'CSV';
+    csvBtn.title = 'Download selected figures as CSV (fig_id, method, dataset, notes)';
+    csvBtn.addEventListener('click', exportCSV);
+    toolbar.appendChild(csvBtn);
+
+    var saveBtn = document.createElement('button');
+    saveBtn.className = 'secondary save-btn';
+    saveBtn.textContent = 'Save';
+    saveBtn.title = 'Download curation state as JSON (commit to git)';
+    saveBtn.addEventListener('click', saveStateToFile);
+    toolbar.appendChild(saveBtn);
+
+    var loadBtn = document.createElement('button');
+    loadBtn.className = 'secondary load-btn';
+    loadBtn.textContent = 'Load';
+    loadBtn.title = 'Load curation state from JSON file';
+    loadBtn.addEventListener('click', loadStateFromFile);
+    toolbar.appendChild(loadBtn);
+
+    var clearBtn = document.createElement('button');
+    clearBtn.className = 'secondary clear-btn';
+    clearBtn.textContent = 'Clear All';
+    clearBtn.addEventListener('click', clearAll);
+    toolbar.appendChild(clearBtn);
+
+    document.body.appendChild(toolbar);
+
+    updateToolbar();
+    tryAutoLoadState();
+  });
+})();
+
+</script>
+</body>
+</html>
