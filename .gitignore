@@ -171,4 +171,4 @@ docs/superpowers/
 # Plotting experiments artifacts
 plotting_experiments/data/
 plotting_experiments/results/
-plotting_experiments/figures/
+plotting_experiments/figures/**/*.pdf

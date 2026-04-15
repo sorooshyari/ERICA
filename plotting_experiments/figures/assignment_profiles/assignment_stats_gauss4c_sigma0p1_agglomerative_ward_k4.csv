@@ -1,0 +1,17 @@
+dataset,method,K,primary_cluster,target_cluster,n_samples,mean_pct,var_pct,std_pct
+gauss4c_sigma0p1,agglomerative_ward,4,1,1,100,100.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,1,2,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,1,3,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,1,4,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,2,1,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,2,2,100,100.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,2,3,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,2,4,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,3,1,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,3,2,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,3,3,100,100.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,3,4,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,4,1,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,4,2,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,4,3,100,0.0,0.0,0.0
+gauss4c_sigma0p1,agglomerative_ward,4,4,4,100,100.0,0.0,0.0
