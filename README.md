@@ -50,7 +50,7 @@ print(f"Recommended K: {k_star['kmeans']}")
 |----------|-------------|
 | [Documentation Index](docs/README.md) | Complete documentation |
 | [Getting Started](docs/GETTING_STARTED.md) | Installation and tutorial |
-| [Metrics Guide](docs/METRICS_GUIDE.md) | CRI, WCRI, TWCRI explained |
+| [Metrics Guide](docs/METRICS_GUIDE.md) | ERICA Statistic, WCRI, TWCRI explained |
 | [API Reference](docs/API_REFERENCE.md) | Function documentation |
 | [Methodology](docs/METHODOLOGY.md) | The science behind the magic |
 
@@ -81,12 +81,12 @@ ERICA implements two families of replicability metrics:
 
 ### ERICA Metrics (CLAM-based)
 
-**CRI (Clustering Replicability Index)** is the core metric. It measures how consistently samples are assigned to their primary cluster across Monte Carlo iterations.
+**ERICA Statistic (Clustering Replicability Index)** is the core metric. It measures how consistently samples are assigned to their primary cluster across Monte Carlo iterations.
 
 | Metric | Role | Definition |
 |--------|------|------------|
-| **CRI** | Core metric | Proportion of iterations where samples are assigned to their primary cluster |
-| WCRI | Derived | CRI weighted by cluster size |
+| **ERICA Statistic** | Core metric | Proportion of iterations where samples are assigned to their primary cluster |
+| WCRI | Derived | CRI (i.e. ERICA statistic) weighted by cluster size |
 | TWCRI | Aggregate | Sum of WCRI (used for K* selection) |
 
 ### Parmigiani Metrics (Partition Comparison)
