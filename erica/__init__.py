@@ -34,7 +34,7 @@ Advanced Usage:
     >>> metrics = compute_cri(results['clam_matrix'])
 """
 
-__version__ = "0.1.4"
+__version__ = "0.2.0"
 __author__ = "Siamak Sorooshyari, Shawn Shirazi"
 __license__ = "MIT"
 
@@ -58,11 +58,6 @@ from erica.metrics import (
     compute_metrics_for_clam,
     select_optimal_k,
     select_optimal_k_by_method,
-    # Parmigiani metrics (partition comparison)
-    compute_ari,
-    compute_ami,
-    compute_parmigiani_metrics,
-    aggregate_parmigiani_metrics,
 )
 
 # Import plotting functions (if available)
@@ -76,6 +71,33 @@ try:
     )
 except ImportError:
     # Plotting dependencies not installed
+    pass
+
+# Matplotlib plotting (optional)
+# Re-export matplotlib-backed primitives. Uses explicit aliases for the
+# CLAM heatmap and cluster-sizes functions to avoid shadowing the existing
+# plotly versions exported above.
+try:
+    from erica.plotting_mpl import (
+        set_publication_style,
+        save_figure,
+        plot_metric_vs_k,
+        plot_metrics_vs_k,
+        plot_clam_heatmap as plot_clam_heatmap_mpl,
+        plot_cluster_sizes as plot_cluster_sizes_mpl,
+        compute_icah,
+        plot_icah,
+        plot_pcsp,
+        plot_replicability_metrics,
+        extract_metric_curves,
+        METHOD_COLORS,
+        METRIC_COLORS,
+        METRIC_DASHES,
+        SINGLE_COL,
+        DOUBLE_COL,
+    )
+except ImportError:
+    # Matplotlib not installed
     pass
 
 # Import data utilities
@@ -112,19 +134,32 @@ __all__ = [
     'compute_metrics_for_clam',
     'select_optimal_k',
     'select_optimal_k_by_method',
-    # Parmigiani Metrics (partition comparison)
-    'compute_ari',
-    'compute_ami',
-    'compute_parmigiani_metrics',
-    'aggregate_parmigiani_metrics',
-    
+
     # Plotting (conditional)
     'plot_metrics',
     'plot_optimal_k',
     'create_metrics_plots',
     'plot_k_star_selection',
     'plot_k_star_by_method',
-    
+
+    # Matplotlib plotting (optional)
+    'set_publication_style',
+    'save_figure',
+    'plot_metric_vs_k',
+    'plot_metrics_vs_k',
+    'plot_clam_heatmap_mpl',
+    'plot_cluster_sizes_mpl',
+    'compute_icah',
+    'plot_icah',
+    'plot_pcsp',
+    'plot_replicability_metrics',
+    'extract_metric_curves',
+    'METHOD_COLORS',
+    'METRIC_COLORS',
+    'METRIC_DASHES',
+    'SINGLE_COL',
+    'DOUBLE_COL',
+
     # Data utilities
     'load_data',
     'prepare_samples_array',

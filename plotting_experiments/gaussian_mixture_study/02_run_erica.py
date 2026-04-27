@@ -66,12 +66,10 @@ def main():
             if 4 in er['metrics'] and method in er['metrics'][4]:
                 m = er['metrics'][4][method]
                 twcri = m.get('TWCRI', float('nan'))
-                ari = m.get('ARI_mean', float('nan'))
                 tw_s = f'{twcri:.3f}' if not math.isnan(twcri) else '  NaN'
-                ar_s = f'{ari:.3f}' if not math.isnan(ari) else '  NaN'
             else:
-                tw_s, ar_s = '  N/A', '  N/A'
-            print(f'  {method:25s} K*={ks:>2}  TWCRI@4={tw_s}  ARI@4={ar_s}')
+                tw_s = '  N/A'
+            print(f'  {method:25s} K*={ks:>2}  TWCRI@4={tw_s}')
 
         hdb = er.get('auto_k', {}).get('hdbscan', {})
         print(f'  {"hdbscan":25s} modal_k={hdb.get("modal_k","?"):>2}  '

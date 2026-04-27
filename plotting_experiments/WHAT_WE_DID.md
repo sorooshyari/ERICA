@@ -2,6 +2,13 @@
 
 *2026-03-30 — Shawn Shirazi*
 
+> **Update 2026-04-26:** ARI/AMI (Parmigiani-style partition comparison
+> metrics) was dropped from ERICA and from these scripts. The sections
+> below describing ARI/AMI work (ERICA-ARI / ERICA-AMI explorations,
+> sigma ARI/AMI curves, ARI rows in comparison figures) are kept as
+> historical record. The actual scripts no longer reference those keys.
+> See `2026-04-26-metric-scope-decision.md` for rationale.
+
 ---
 
 ## What This Is

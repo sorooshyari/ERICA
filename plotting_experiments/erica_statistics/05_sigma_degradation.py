@@ -1,7 +1,7 @@
 """Sigma degradation study for Gaussian 4-center datasets.
 
-Three-line plot showing ERICA stat, ERICA-ARI, and ERICA-AMI vs sigma,
-side-by-side for K-Means and Ward.
+Single-line plot showing the ERICA statistic vs sigma, side-by-side for
+K-Means and Ward.
 """
 
 import sys
@@ -9,7 +9,6 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import joblib
-from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from style import set_publication_style, DOUBLE_COL, SINGLE_COL, METRIC_COLORS
@@ -29,21 +28,7 @@ K_EVAL = 4
 
 LINE_STYLES = {
     'ERICA stat': {'color': '#009E73', 'label': 'ERICA stat'},
-    'ERICA-ARI':  {'color': '#E69F00', 'label': 'ERICA-ARI'},
-    'ERICA-AMI':  {'color': '#CC79A7', 'label': 'ERICA-AMI'},
 }
-
-
-def compute_per_iteration_ari_ami(iteration_labels):
-    predicted = iteration_labels["predicted"]
-    true_labels = iteration_labels["true"]
-    n = len(predicted)
-    ari_vals = np.empty(n)
-    ami_vals = np.empty(n)
-    for i in range(n):
-        ari_vals[i] = adjusted_rand_score(true_labels[i], predicted[i])
-        ami_vals[i] = adjusted_mutual_info_score(true_labels[i], predicted[i])
-    return ari_vals, ami_vals
 
 
 def erica_stat_from_clam(clam):
@@ -53,11 +38,9 @@ def erica_stat_from_clam(clam):
 
 
 def collect_metrics(method):
-    """Return arrays of (sigmas, means, stds) for all three metrics."""
+    """Return arrays of (sigmas, means, stds) for the ERICA statistic."""
     sigmas = []
     estat_mean, estat_std = [], []
-    ari_mean, ari_std = [], []
-    ami_mean, ami_std = [], []
 
     for dataset, sigma in SIGMA_DATASETS:
         path = os.path.join(RESULTS_DIR, f'{dataset}.joblib')
@@ -79,30 +62,14 @@ def collect_metrics(method):
         estat_mean.append(float(np.mean(e_vals)))
         estat_std.append(float(np.std(e_vals)))
 
-        il = res_entry.get('iteration_labels')
-        if il is not None:
-            a_vals, m_vals = compute_per_iteration_ari_ami(il)
-            ari_mean.append(float(np.mean(a_vals)))
-            ari_std.append(float(np.std(a_vals)))
-            ami_mean.append(float(np.mean(m_vals)))
-            ami_std.append(float(np.std(m_vals)))
-        else:
-            m_dict = er.get('metrics', {}).get(K_EVAL, {}).get(method, {})
-            ari_mean.append(float(m_dict.get('ARI_mean', np.nan)))
-            ari_std.append(float(m_dict.get('ARI_std', 0.0)))
-            ami_mean.append(float(m_dict.get('AMI_mean', np.nan)))
-            ami_std.append(float(m_dict.get('AMI_std', 0.0)))
-
     return (
         np.array(sigmas),
         np.array(estat_mean), np.array(estat_std),
-        np.array(ari_mean), np.array(ari_std),
-        np.array(ami_mean), np.array(ami_std),
     )
 
 
 def plot_panel(ax, sigmas, means_dict, stds_dict, title):
-    for key in ['ERICA stat', 'ERICA-ARI', 'ERICA-AMI']:
+    for key in ['ERICA stat']:
         m_vals = means_dict[key]
         s_vals = stds_dict[key]
         style = LINE_STYLES[key]
@@ -130,9 +97,9 @@ def main():
     os.makedirs(FIGURES_DIR, exist_ok=True)
 
     print('Collecting K-Means metrics ...')
-    km_s, km_em, km_es, km_am, km_as_, km_mm, km_ms = collect_metrics('kmeans')
+    km_s, km_em, km_es = collect_metrics('kmeans')
     print('Collecting Ward metrics ...')
-    wd_s, wd_em, wd_es, wd_am, wd_as_, wd_mm, wd_ms = collect_metrics('agglomerative_ward')
+    wd_s, wd_em, wd_es = collect_metrics('agglomerative_ward')
 
     if len(km_s) == 0 and len(wd_s) == 0:
         print('No data found for either method. Exiting.')
@@ -141,21 +108,21 @@ def main():
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(DOUBLE_COL * 1.2, 3.5), sharey=True)
 
     if len(km_s) > 0:
-        km_means = {'ERICA stat': km_em, 'ERICA-ARI': km_am, 'ERICA-AMI': km_mm}
-        km_stds = {'ERICA stat': km_es, 'ERICA-ARI': km_as_, 'ERICA-AMI': km_ms}
+        km_means = {'ERICA stat': km_em}
+        km_stds = {'ERICA stat': km_es}
         plot_panel(ax1, km_s, km_means, km_stds, 'K-Means')
     else:
         ax1.set_title('K-Means (no data)', fontweight='bold', fontsize=11)
 
     if len(wd_s) > 0:
-        wd_means = {'ERICA stat': wd_em, 'ERICA-ARI': wd_am, 'ERICA-AMI': wd_mm}
-        wd_stds = {'ERICA stat': wd_es, 'ERICA-ARI': wd_as_, 'ERICA-AMI': wd_ms}
+        wd_means = {'ERICA stat': wd_em}
+        wd_stds = {'ERICA stat': wd_es}
         plot_panel(ax2, wd_s, wd_means, wd_stds, 'Ward')
         ax2.set_ylabel('')
     else:
         ax2.set_title('Ward (no data)', fontweight='bold', fontsize=11)
 
-    fig.suptitle(r'Replicability Degradation — Gaussian 4-center (K=4)',
+    fig.suptitle(r'Replicability Degradation - Gaussian 4-center (K=4)',
                  fontsize=12, fontweight='bold', y=1.02)
     fig.tight_layout()
 

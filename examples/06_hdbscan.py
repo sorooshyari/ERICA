@@ -40,8 +40,7 @@ print(f"Optimal K* (TWCRI): {k_star.get('kmeans', 'N/A')}")
 
 for k in [2, 3, 4, 5]:
     m = results['metrics'][k]['kmeans']
-    print(f"  K={k}: TWCRI={m['TWCRI']:.4f}, "
-          f"ARI={m['ARI_mean']:.4f} +/- {m['ARI_std']:.4f}")
+    print(f"  K={k}: CRI={m['CRI']:.4f}, WCRI={m['WCRI']:.4f}, TWCRI={m['TWCRI']:.4f}")
 
 # --- Auto-K results ---
 print("\n--- Auto-K Results (HDBSCAN) ---")
@@ -50,10 +49,6 @@ print(f"Modal K: {hdb['modal_k']}")
 print(f"K distribution: {hdb['k_distribution']}")
 print(f"K agreement rate: {hdb['k_agreement_rate']:.2f}")
 print(f"Iterations used for CLAM: {hdb['n_iterations_used']}")
-
-if 'ARI_mean' in hdb:
-    print(f"ARI: {hdb['ARI_mean']:.4f} +/- {hdb['ARI_std']:.4f}")
-    print(f"AMI: {hdb['AMI_mean']:.4f} +/- {hdb['AMI_std']:.4f}")
 
 if 'metrics_at_modal_k' in hdb:
     mk = hdb['metrics_at_modal_k']

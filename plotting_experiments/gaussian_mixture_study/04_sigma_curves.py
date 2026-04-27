@@ -1,11 +1,10 @@
 """Sigma-sweep curves for the Gaussian mixture study.
 
-Generates four figures:
+Generates three figures:
   A) TWCRI at K=4 vs sigma (log x-axis), one line per K-based method,
      HDBSCAN as discrete markers.
-  B) ARI at K=4 vs sigma (same format), AMI as dashed lines.
   C) HDBSCAN noise fraction vs sigma.
-  D) K* summary bar chart — grouped bars, one group per sigma, bars per method.
+  D) K* summary bar chart - grouped bars, one group per sigma, bars per method.
 
 Note: Uses joblib to load locally-generated ERICA results from 02_run_erica.py.
 """
@@ -120,72 +119,6 @@ def plot_twcri_vs_sigma(results):
     return fig
 
 
-def plot_ari_ami_vs_sigma(results):
-    """Figure B: ARI and AMI at K=4 vs sigma."""
-    fig, ax = plt.subplots(figsize=(SINGLE_COL * 1.8, 3.5))
-
-    sigmas = np.array([s for s, _, _ in results])
-
-    for method in METHODS:
-        color = METHOD_COLORS[method]
-        ari_vals, ari_sigmas = [], []
-        ami_vals, ami_sigmas = [], []
-        nan_sigmas = []
-
-        for sigma, er, _ in results:
-            m_dict = er['metrics'].get(K_EVAL, {}).get(method, {})
-            ari = float(m_dict.get('ARI_mean', np.nan))
-            ami = float(m_dict.get('AMI_mean', np.nan))
-
-            if np.isnan(ari):
-                nan_sigmas.append(sigma)
-            else:
-                ari_vals.append(ari)
-                ari_sigmas.append(sigma)
-
-            if not np.isnan(ami):
-                ami_vals.append(ami)
-                ami_sigmas.append(sigma)
-
-        label_base = METHOD_LABELS[method]
-        if ari_sigmas:
-            ax.plot(ari_sigmas, ari_vals, 'o-', color=color,
-                    label=f'{label_base} ARI', markersize=6)
-        if ami_sigmas:
-            ax.plot(ami_sigmas, ami_vals, 's--', color=color,
-                    label=f'{label_base} AMI', markersize=5, alpha=0.7)
-        if nan_sigmas:
-            ax.plot(nan_sigmas, [0] * len(nan_sigmas), 'x', color=color,
-                    markersize=10, markeredgewidth=2)
-
-    # HDBSCAN discrete markers
-    for metric_key, marker, ls_label in [('ARI_mean', 'D', 'ARI'), ('AMI_mean', 'd', 'AMI')]:
-        hdb_s, hdb_v = [], []
-        for sigma, er, _ in results:
-            hdb = er.get('auto_k', {}).get('hdbscan', {})
-            val = float(hdb.get(metric_key, np.nan))
-            if not np.isnan(val):
-                hdb_s.append(sigma)
-                hdb_v.append(val)
-        if hdb_s:
-            ls = '-' if ls_label == 'ARI' else '--'
-            ax.plot(hdb_s, hdb_v, marker, color=METHOD_COLORS['hdbscan'],
-                    label=f'HDBSCAN {ls_label}', markersize=7,
-                    markeredgecolor='black', markeredgewidth=0.5,
-                    linestyle='none')
-
-    ax.set_xscale('log')
-    ax.set_xlabel(r'$\sigma$')
-    ax.set_ylabel('Metric Value')
-    ax.set_title(f'ARI / AMI at K={K_EVAL} vs Noise Level', fontweight='bold')
-    ax.set_ylim(-0.05, 1.05)
-    ax.set_xticks(sigmas)
-    ax.set_xticklabels([str(s) for s in sigmas])
-    ax.legend(frameon=False, fontsize=7, ncol=2)
-    fig.tight_layout()
-    return fig
-
-
 def plot_hdbscan_noise_fraction(results):
     """Figure C: HDBSCAN noise fraction vs sigma."""
     fig, ax = plt.subplots(figsize=(SINGLE_COL * 1.8, 3.0))
@@ -285,10 +218,6 @@ def main():
     print('\nFigure A: TWCRI vs sigma')
     fig_a = plot_twcri_vs_sigma(results)
     save_fig(fig_a, 'sigma_twcri_curves')
-
-    print('\nFigure B: ARI/AMI vs sigma')
-    fig_b = plot_ari_ami_vs_sigma(results)
-    save_fig(fig_b, 'sigma_ari_ami_curves')
 
     print('\nFigure C: HDBSCAN noise fraction')
     fig_c = plot_hdbscan_noise_fraction(results)

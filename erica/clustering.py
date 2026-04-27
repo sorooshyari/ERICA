@@ -267,8 +267,6 @@ def kmeans_clustering(
     
     unaligned_predictions = np.zeros((n_iterations, test_size))
     iteration_centroids_list = []
-    all_predicted_labels = []
-    all_true_labels = []
 
     for iter_idx in range(n_iterations):
         if verbose and iter_idx % 50 == 0:
@@ -283,13 +281,6 @@ def kmeans_clustering(
         kmeans_iter = KMeans(n_clusters=k, random_state=random_state, n_init="auto")
         kmeans_iter.fit(train_data)
         predictions = kmeans_iter.predict(test_data)
-
-        all_predicted_labels.append(predictions.copy())
-
-        # Fit fresh model on test data for true_labels (Parmigiani method)
-        kmeans_test = KMeans(n_clusters=k, random_state=random_state, n_init="auto")
-        true_labels = kmeans_test.fit_predict(test_data)
-        all_true_labels.append(true_labels)
 
         unaligned_predictions[iter_idx, :] = predictions
         iteration_centroids_list.append(kmeans_iter.cluster_centers_)
@@ -333,10 +324,6 @@ def kmeans_clustering(
         'global_centroids': global_centroids_sorted,
         'aligned_predictions': aligned_predictions,
         'output_folder': output_folder,
-        'iteration_labels': {
-            'predicted': all_predicted_labels,
-            'true': all_true_labels,
-        },
     }
 
 
@@ -432,8 +419,6 @@ def agglomerative_clustering(
     
     unaligned_predictions = np.zeros((n_iterations, test_size))
     iteration_centroids_list = []
-    all_predicted_labels = []
-    all_true_labels = []
 
     for iter_idx in range(n_iterations):
         if verbose and iter_idx % 50 == 0:
@@ -447,26 +432,6 @@ def agglomerative_clustering(
         # Fit/predict on test data
         agg_iter = AgglomerativeClustering(n_clusters=k, linkage=linkage)
         predictions = agg_iter.fit_predict(test_data)
-
-        # true_labels = test-fitted predictions (already computed above)
-        all_true_labels.append(predictions.copy())
-
-        # predicted_labels = train-fitted centroids applied to test data
-        agg_train = AgglomerativeClustering(n_clusters=k, linkage=linkage)
-        train_labels = agg_train.fit_predict(train_data)
-        train_centroids_pred = np.zeros((k, train_data.shape[1]))
-        for cidx in range(k):
-            mask = train_labels == cidx
-            if mask.any():
-                train_centroids_pred[cidx] = train_data[mask].mean(axis=0)
-            else:
-                train_centroids_pred[cidx] = train_data.mean(axis=0)
-        dists = np.linalg.norm(
-            test_data[:, np.newaxis, :] - train_centroids_pred[np.newaxis, :, :],
-            axis=2
-        )
-        pred_labels = np.argmin(dists, axis=1)
-        all_predicted_labels.append(pred_labels)
 
         unaligned_predictions[iter_idx, :] = predictions
         
@@ -520,10 +485,6 @@ def agglomerative_clustering(
         'global_centroids': global_centroids_sorted,
         'aligned_predictions': aligned_predictions,
         'output_folder': output_folder,
-        'iteration_labels': {
-            'predicted': all_predicted_labels,
-            'true': all_true_labels,
-        },
     }
 
 
@@ -538,8 +499,8 @@ def hdbscan_clustering(
     """Perform HDBSCAN auto-K clustering with ERICA analysis.
 
     HDBSCAN discovers the number of clusters automatically. Runs HDBSCAN on
-    each train/test split, tracks discovered K values, computes a CLAM matrix
-    from iterations where K matches the mode, and returns label pairs for ARI/AMI.
+    each train/test split, tracks discovered K values, and computes a CLAM
+    matrix from iterations where K matches the mode.
 
     Parameters
     ----------
@@ -560,8 +521,7 @@ def hdbscan_clustering(
     -------
     dict
         Results with keys: k_distribution, modal_k, k_agreement_rate,
-        clam_matrix, n_iterations_used, iteration_labels, noise_counts,
-        output_folder
+        clam_matrix, n_iterations_used, noise_counts, output_folder
     """
     from collections import Counter
 
@@ -577,85 +537,46 @@ def hdbscan_clustering(
         os.path.join(indices_folder, 'all_train_indices.npy'),
         allow_pickle=True
     )
-    test_indices = np.load(
-        os.path.join(indices_folder, 'all_test_indices.npy'),
-        allow_pickle=True
-    )
-
     discovered_ks = []
-    all_predicted_labels = []
-    all_true_labels = []
     noise_counts = []
-    # Store (iter_idx, reassigned_labels) for CLAM building
+    # Store (iter_idx, reassigned_train_labels) for CLAM building
     iter_label_pairs = []
 
     for iter_idx in range(n_iterations):
         if verbose and iter_idx % 50 == 0:
             print(f"  Iteration {iter_idx + 1}/{n_iterations}")
 
-        train_data, test_data = load_iteration_data(
+        train_data, _ = load_iteration_data(
             iter_idx, samples_array, indices_folder
         )
 
         # Fit HDBSCAN on train set
         hdb_train = HDBSCAN(**params)
-        train_labels = hdb_train.fit_predict(train_data)
+        train_labels_raw = hdb_train.fit_predict(train_data)
 
-        unique_train = set(train_labels)
+        n_noise = int(np.sum(train_labels_raw == -1))
+        noise_counts.append(n_noise)
+
+        unique_train = set(train_labels_raw)
         unique_train.discard(-1)
         if len(unique_train) == 0:
             discovered_ks.append(0)
-            all_predicted_labels.append(np.array([]))
-            all_true_labels.append(np.array([]))
-            noise_counts.append(len(test_data))
             continue
 
         n_clusters_train = max(unique_train) + 1
         train_centroids = np.zeros((n_clusters_train, train_data.shape[1]))
         for c in range(n_clusters_train):
-            mask = train_labels == c
+            mask = train_labels_raw == c
             if mask.any():
                 train_centroids[c] = train_data[mask].mean(axis=0)
 
-        # Predict test labels via nearest train centroid
-        distances = np.linalg.norm(
-            test_data[:, np.newaxis, :] - train_centroids[np.newaxis, :, :],
-            axis=2
+        # Reassign noise points to nearest cluster for CLAM construction
+        train_labels = _assign_noise_to_nearest(
+            train_labels_raw, train_data, train_centroids
         )
-        predicted_labels = np.argmin(distances, axis=1)
 
-        # Fit fresh HDBSCAN on test set
-        hdb_test = HDBSCAN(**params)
-        test_labels_raw = hdb_test.fit_predict(test_data)
-
-        n_noise = int(np.sum(test_labels_raw == -1))
-        noise_counts.append(n_noise)
-
-        unique_test = set(test_labels_raw)
-        unique_test.discard(-1)
-        if len(unique_test) == 0:
-            # All test points are noise — no valid true_labels for ARI/AMI.
-            # Use empty arrays so this iteration is skipped in ARI aggregation.
-            all_predicted_labels.append(np.array([]))
-            all_true_labels.append(np.array([]))
-            discovered_ks.append(n_clusters_train)
-            continue
-        else:
-            n_clusters_test = max(unique_test) + 1
-            test_centroids = np.zeros((n_clusters_test, test_data.shape[1]))
-            for c in range(n_clusters_test):
-                mask = test_labels_raw == c
-                if mask.any():
-                    test_centroids[c] = test_data[mask].mean(axis=0)
-            true_labels = _assign_noise_to_nearest(
-                test_labels_raw, test_data, test_centroids
-            )
-            discovered_k = n_clusters_test
-
-        discovered_ks.append(discovered_k)
-        all_predicted_labels.append(predicted_labels)
-        all_true_labels.append(true_labels)
-        iter_label_pairs.append((iter_idx, true_labels))
+        discovered_ks.append(n_clusters_train)
+        iter_label_pairs.append((iter_idx, train_labels))
 
     # Find modal K
     k_counts = Counter(k for k in discovered_ks if k > 0)
@@ -681,8 +602,8 @@ def hdbscan_clustering(
             if int(labels.max()) >= modal_k:
                 continue
 
-            iter_test_idx = test_indices[iter_idx].astype(int)
-            for i, sample_idx in enumerate(iter_test_idx):
+            iter_train_idx = train_indices[iter_idx].astype(int)
+            for i, sample_idx in enumerate(iter_train_idx):
                 if i < len(labels):
                     cluster_id = int(labels[i])
                     if 0 <= cluster_id < modal_k:
@@ -703,10 +624,6 @@ def hdbscan_clustering(
         'k_agreement_rate': k_agreement_rate,
         'clam_matrix': clam_matrix,
         'n_iterations_used': n_used,
-        'iteration_labels': {
-            'predicted': all_predicted_labels,
-            'true': all_true_labels,
-        },
         'noise_counts': noise_counts,
         'output_folder': output_folder,
     }

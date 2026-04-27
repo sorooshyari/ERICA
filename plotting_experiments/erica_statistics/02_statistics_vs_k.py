@@ -1,10 +1,8 @@
 """
-02_statistics_vs_k.py — ERICA Statistics: All Three Metrics vs K
+02_statistics_vs_k.py - ERICA Statistics: ERICA stat vs K
 
-Plots ERICA statistic, ERICA-ARI, and ERICA-AMI on shared axes as a
-function of K, with ±1 std shaded bands.  The ERICA statistic's std is
-over samples (from the CLAM matrix), while ARI/AMI std is over MC
-iterations.  K* is marked with a vertical dashed line.
+Plots the ERICA statistic vs K with +/-1 std shaded band over samples
+(from the CLAM matrix). K* is marked with a vertical dashed line.
 
 Outputs: ../figures/erica_statistics/stats_vs_k_{dataset}_{method}.{pdf,png}
 """
@@ -13,12 +11,11 @@ import sys
 import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from style import set_publication_style, save_figure, DOUBLE_COL, SINGLE_COL, METRIC_COLORS
+from style import set_publication_style, save_figure, SINGLE_COL, METRIC_COLORS
 
 import numpy as np
 import matplotlib.pyplot as plt
 import joblib
-from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULTS_DIR = os.path.join(SCRIPT_DIR, '..', 'results')
@@ -34,8 +31,6 @@ METHODS = ['kmeans', 'agglomerative_ward']
 
 STAT_COLORS = {
     'ERICA': '#009E73',
-    'ARI': '#E69F00',
-    'AMI': '#CC79A7',
 }
 
 
@@ -43,18 +38,6 @@ def erica_stat_from_clam(clam):
     row_sums = clam.sum(axis=1)
     row_sums[row_sums == 0] = 1
     return clam.max(axis=1) / row_sums
-
-
-def compute_per_iteration_ari_ami(iteration_labels):
-    predicted = iteration_labels["predicted"]
-    true_labels = iteration_labels["true"]
-    n = len(predicted)
-    ari_vals = np.empty(n)
-    ami_vals = np.empty(n)
-    for i in range(n):
-        ari_vals[i] = adjusted_rand_score(true_labels[i], predicted[i])
-        ami_vals[i] = adjusted_mutual_info_score(true_labels[i], predicted[i])
-    return ari_vals, ami_vals
 
 
 def choose_k(config, er, method='kmeans'):
@@ -69,7 +52,6 @@ def choose_k(config, er, method='kmeans'):
 
 def plot_stats_vs_k(er, config, dataset_name, method):
     metrics = er['metrics']
-    results = er.get('results', {})
 
     k_values = sorted(metrics.keys())
     k_arr = np.array(k_values, dtype=float)
@@ -77,10 +59,6 @@ def plot_stats_vs_k(er, config, dataset_name, method):
 
     erica_mean = np.full(n_k, np.nan)
     erica_std = np.full(n_k, np.nan)
-    ari_mean = np.full(n_k, np.nan)
-    ari_std = np.full(n_k, np.nan)
-    ami_mean = np.full(n_k, np.nan)
-    ami_std = np.full(n_k, np.nan)
 
     for i, k in enumerate(k_values):
         clam = er.get('clam_matrices', {}).get((k, method))
@@ -89,37 +67,18 @@ def plot_stats_vs_k(er, config, dataset_name, method):
             erica_mean[i] = np.mean(vals)
             erica_std[i] = np.std(vals)
 
-        res_entry = results.get((k, method), {})
-        il = res_entry.get('iteration_labels')
-        if il is not None:
-            ari_vals, ami_vals = compute_per_iteration_ari_ami(il)
-            ari_mean[i] = np.mean(ari_vals)
-            ari_std[i] = np.std(ari_vals)
-            ami_mean[i] = np.mean(ami_vals)
-            ami_std[i] = np.std(ami_vals)
-        else:
-            m_dict = metrics[k].get(method, {})
-            ari_mean[i] = float(m_dict.get('ARI_mean', np.nan))
-            ari_std[i] = float(m_dict.get('ARI_std', np.nan))
-            ami_mean[i] = float(m_dict.get('AMI_mean', np.nan))
-            ami_std[i] = float(m_dict.get('AMI_std', np.nan))
+    fig, ax = plt.subplots(1, 1, figsize=(SINGLE_COL * 1.4, 3.5))
 
-    fig, ax = plt.subplots(1, 1, figsize=(DOUBLE_COL, 3.5))
-
-    for label, mean_arr, std_arr, color, marker in [
-        ('ERICA stat', erica_mean, erica_std, STAT_COLORS['ERICA'], 'o'),
-        ('ERICA-ARI', ari_mean, ari_std, STAT_COLORS['ARI'], 's'),
-        ('ERICA-AMI', ami_mean, ami_std, STAT_COLORS['AMI'], '^'),
-    ]:
-        valid = ~np.isnan(mean_arr)
-        if not valid.any():
-            continue
+    valid = ~np.isnan(erica_mean)
+    if valid.any():
         kv = k_arr[valid]
-        mv = mean_arr[valid]
-        sv = std_arr[valid]
+        mv = erica_mean[valid]
+        sv = erica_std[valid]
 
+        color = STAT_COLORS['ERICA']
         ax.fill_between(kv, mv - sv, mv + sv, color=color, alpha=0.15, linewidth=0)
-        ax.plot(kv, mv, color=color, marker=marker, markersize=5, label=label, zorder=3)
+        ax.plot(kv, mv, color=color, marker='o', markersize=5,
+                label='ERICA stat', zorder=3)
 
     k_star = choose_k(config, er, method)
     if k_star in k_values:
@@ -129,7 +88,7 @@ def plot_stats_vs_k(er, config, dataset_name, method):
     ax.set_xlabel('K')
     ax.set_ylabel('Statistic value')
     method_label = method.replace('_', ' ').title()
-    ax.set_title(f'{dataset_name} — {method_label}')
+    ax.set_title(f'{dataset_name} - {method_label}')
     ax.set_xticks(k_values)
     ax.legend(frameon=False, fontsize=8)
     fig.tight_layout()

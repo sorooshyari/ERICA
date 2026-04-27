@@ -21,7 +21,7 @@ python 01_basic_usage.py
 | 2 | [02_vdx_analysis.py](02_vdx_analysis.py) | Breast cancer gene expression | Downloads automatically |
 | 3 | [03_k_star_selection.py](03_k_star_selection.py) | K* selection (Algorithm 2) | None (generates data) |
 | 4 | [04_advanced_usage.py](04_advanced_usage.py) | Component-level workflows | None (generates data) |
-| 5 | [05_parmigiani_metrics.py](05_parmigiani_metrics.py) | ARI/AMI partition metrics | None (generates data) |
+| 6 | [06_hdbscan.py](06_hdbscan.py) | HDBSCAN auto-K clustering | None (generates data) |
 
 ---
 
@@ -102,25 +102,20 @@ python 04_advanced_usage.py
 
 ---
 
-## Example 5: Parmigiani Metrics (ARI/AMI)
+## Example 6: HDBSCAN Auto-K Clustering
 
-**File:** `05_parmigiani_metrics.py`
+**File:** `06_hdbscan.py`
 
-Demonstrates the Adjusted Rand Index (ARI) and Adjusted Mutual Information (AMI) metrics from Parmigiani et al. (2023) "Cross-Study Replicability in Cluster Analysis".
+Demonstrates HDBSCAN as an auto-K clustering method alongside K-Means. HDBSCAN discovers the number of clusters automatically, while ERICA evaluates replicability via CRI/WCRI/TWCRI.
 
 **Learning objectives:**
-- Understand the Parmigiani Algorithm 1 methodology
-- Compute ARI and AMI for single iterations
-- Aggregate metrics across Monte Carlo iterations
-- Compare ERICA's CLAM-based metrics vs partition comparison metrics
-
-**Reference:**
-- Paper: Statistical Science, 38(2): 303-316 (2023), DOI: 10.1214/22-STS871
-- Code: https://github.com/lorenzomasoero/clustering_replicability
+- Use HDBSCAN with ERICA
+- Inspect modal K and K agreement rate
+- Read CLAM-based metrics at the modal K
 
 **Execute:**
 ```bash
-python 05_parmigiani_metrics.py
+python 06_hdbscan.py
 ```
 
 ---

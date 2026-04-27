@@ -6,7 +6,7 @@ Generate the complete plot suite for EVERY dataset that has results in results/.
 For each dataset, generates (where applicable):
   - Sorted CLAM heatmap at true_k (or K=3 fallback) for kmeans
   - Stability strips at true_k for kmeans
-  - Metrics curves (ERICA + ARI/AMI) for kmeans and ward
+  - Metrics curves (CRI/WCRI/TWCRI) for kmeans and ward
   - Method comparison (3-panel CRI/WCRI/TWCRI)
   - K* bar chart
   - 3D CLAM surface at true_k for kmeans
@@ -54,7 +54,6 @@ FIGURES_ROOT = os.path.join(SCRIPT_DIR, "figures", "by_dataset")
 
 K_BASED_METHODS = ["kmeans", "agglomerative_ward"]
 ERICA_METRICS = ["CRI", "WCRI", "TWCRI"]
-PARMI_METRICS = ["ARI", "AMI"]
 
 METHOD_LABELS = {
     "kmeans": "K-Means",
@@ -217,18 +216,16 @@ def plot_stability_strips(clam_matrix, title, max_samples=MAX_SAMPLES_STRIP):
 
 
 # ============================================================================
-# 3. Metrics curves (ERICA + ARI/AMI)
+# 3. Metrics curves (CRI/WCRI/TWCRI)
 # ============================================================================
 
 def plot_metrics_curves(er, dataset_label, method):
-    """Two-panel metrics curves for one dataset/method."""
+    """Single-panel metrics curves for one dataset/method."""
     metrics = er["metrics"]
     k_star = er["k_star"]
     k_values = sorted(metrics.keys())
 
     erica_vals = {m: [] for m in ERICA_METRICS}
-    ari_means, ari_stds = [], []
-    ami_means, ami_stds = [], []
 
     for k in k_values:
         m_dict = metrics[k].get(method, {})
@@ -239,60 +236,40 @@ def plot_metrics_curves(er, dataset_label, method):
             except (TypeError, ValueError):
                 val = np.nan
             erica_vals[metric].append(val)
-        ari_means.append(float(m_dict.get("ARI_mean", np.nan)))
-        ari_stds.append(float(m_dict.get("ARI_std", np.nan)))
-        ami_means.append(float(m_dict.get("AMI_mean", np.nan)))
-        ami_stds.append(float(m_dict.get("AMI_std", np.nan)))
 
     k_arr = np.array(k_values, dtype=float)
-    ari_means = np.array(ari_means)
-    ari_stds = np.array(ari_stds)
-    ami_means = np.array(ami_means)
-    ami_stds = np.array(ami_stds)
 
     disq_mask = np.array([
         any(np.isnan(erica_vals[m][i]) for m in ERICA_METRICS)
         for i in range(len(k_values))
     ])
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(DOUBLE_COL, 3.5))
+    fig, ax = plt.subplots(figsize=(SINGLE_COL * 1.4, 3.5))
 
-    # Panel 1: ERICA
     for metric in ERICA_METRICS:
         vals = np.array(erica_vals[metric])
         color = METRIC_COLORS[metric]
         dashes = METRIC_DASHES[metric]
         valid = ~np.isnan(vals)
         if valid.any():
-            ax1.plot(k_arr[valid], vals[valid], color=color, dashes=dashes,
-                     marker="o", label=metric, zorder=3)
+            ax.plot(k_arr[valid], vals[valid], color=color, dashes=dashes,
+                    marker="o", label=metric, zorder=3)
         disq_nan = disq_mask & np.isnan(vals)
         if disq_nan.any():
-            ax1.plot(k_arr[disq_nan], np.zeros(disq_nan.sum()), marker="x",
-                     color=color, linestyle="none", markersize=8,
-                     markeredgewidth=2, zorder=4)
+            ax.plot(k_arr[disq_nan], np.zeros(disq_nan.sum()), marker="x",
+                    color=color, linestyle="none", markersize=8,
+                    markeredgewidth=2, zorder=4)
         k_star_val = k_star.get(metric, {}).get(method)
         if k_star_val is not None:
-            ax1.axvline(x=k_star_val, color=color, dashes=dashes,
-                        linewidth=1.2, alpha=0.7, zorder=2)
+            ax.axvline(x=k_star_val, color=color, dashes=dashes,
+                       linewidth=1.2, alpha=0.7, zorder=2)
 
-    ax1.set_xlabel("K")
-    ax1.set_ylabel("Metric value")
-    ax1.set_title("ERICA metrics")
-    ax1.set_xticks(k_values)
-    ax1.set_ylim(-0.05, 1.05)
-    ax1.legend(frameon=False, fontsize=8)
-
-    # Panel 2: Parmigiani
-    ax2.errorbar(k_arr, ari_means, yerr=ari_stds, color=METRIC_COLORS["ARI"],
-                 marker="o", capsize=3, label="ARI", zorder=3)
-    ax2.errorbar(k_arr, ami_means, yerr=ami_stds, color=METRIC_COLORS["AMI"],
-                 marker="s", capsize=3, label="AMI", zorder=3)
-    ax2.set_xlabel("K")
-    ax2.set_ylabel("Metric value")
-    ax2.set_title("Parmigiani metrics")
-    ax2.set_xticks(k_values)
-    ax2.legend(frameon=False, fontsize=8)
+    ax.set_xlabel("K")
+    ax.set_ylabel("Metric value")
+    ax.set_title("ERICA metrics")
+    ax.set_xticks(k_values)
+    ax.set_ylim(-0.05, 1.05)
+    ax.legend(frameon=False, fontsize=8)
 
     method_label = method.replace("_", " ").title()
     fig.suptitle(f"{dataset_label} - {method_label}", fontsize=11, y=1.01)

@@ -1,18 +1,16 @@
 """
-01_error_bands.py — Literature Comparison: Error Bands on Metric Curves
+01_error_bands.py - Literature Comparison: Error Bands on Metric Curves
 
-Adds confidence bands (±1 std) to the metric-vs-K curves, following the style
+Adds confidence bands (+/-1 std) to the metric-vs-K curves, following the style
 of Parmigiani et al. (2023) and the Gap Statistic paper (Tibshirani et al. 2001).
 
-Two-panel layout per figure:
-  Left  — ERICA metrics (CRI, WCRI, TWCRI) with shaded ±1 std bands.
-           Band width is the std of per-sample assignment consistency
-           (max proportion assigned to modal cluster) across all samples.
-           All three metrics share the same band width because the
-           underlying per-sample distribution is identical; only the
-           aggregate (mean) differs between CRI, WCRI, and TWCRI.
-  Right — Parmigiani metrics (ARI, AMI) with shaded ±1 std bands computed
-           from per-iteration ARI/AMI values (iteration-level variance).
+Single-panel layout per figure:
+  ERICA metrics (CRI, WCRI, TWCRI) with shaded +/-1 std bands.
+  Band width is the std of per-sample assignment consistency (max
+  proportion assigned to modal cluster) across all samples. All three
+  metrics share the same band width because the underlying per-sample
+  distribution is identical; only the aggregate (mean) differs between
+  CRI, WCRI, and TWCRI.
 
 K* is marked with a vertical dashed line per metric.
 
@@ -24,12 +22,11 @@ import os
 
 # Resolve style from parent directory
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from style import set_publication_style, save_figure, DOUBLE_COL, METRIC_COLORS
+from style import set_publication_style, save_figure, SINGLE_COL, METRIC_COLORS
 
 import numpy as np
 import matplotlib.pyplot as plt
 import joblib
-from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -52,7 +49,6 @@ DATASETS = [
 METHODS = ["kmeans", "agglomerative_ward"]
 
 ERICA_METRICS = ["CRI", "WCRI", "TWCRI"]
-PARMI_METRICS = ["ARI", "AMI"]
 
 # Dash patterns for ERICA metric lines
 METRIC_DASHES = {
@@ -87,52 +83,12 @@ def per_sample_cri_from_clam(clam_matrix):
     return clam_norm.max(axis=1)
 
 
-def per_sample_wcri_from_clam(clam_matrix):
-    """Compute per-sample WCRI proxy from CLAM.
-
-    WCRI is the within-cluster average of per-sample CRI, weighted by cluster
-    size.  For the band we use the full per-sample distribution (no grouping),
-    so the std reflects variability across all samples.
-
-    Returns
-    -------
-    per_sample_wcri : ndarray, shape (n_samples,)
-        Per-sample assignment consistency (same as per-sample CRI numerically).
-    """
-    return per_sample_cri_from_clam(clam_matrix)
-
-
-def compute_per_iteration_ari_ami(iteration_labels):
-    """Compute ARI and AMI for each iteration from stored predicted/true arrays.
-
-    Parameters
-    ----------
-    iteration_labels : dict with keys 'predicted' and 'true'
-        Each is a list of length n_iterations with ndarray label vectors.
-
-    Returns
-    -------
-    ari_vals : ndarray, shape (n_iterations,)
-    ami_vals : ndarray, shape (n_iterations,)
-    """
-    predicted = iteration_labels["predicted"]
-    true_labels = iteration_labels["true"]
-    n = len(predicted)
-
-    ari_vals = np.empty(n)
-    ami_vals = np.empty(n)
-    for i in range(n):
-        ari_vals[i] = adjusted_rand_score(true_labels[i], predicted[i])
-        ami_vals[i] = adjusted_mutual_info_score(true_labels[i], predicted[i])
-    return ari_vals, ami_vals
-
-
 # ---------------------------------------------------------------------------
 # Core plotting
 # ---------------------------------------------------------------------------
 
 def plot_error_bands(er, dataset_name, method):
-    """Generate a two-panel figure with ±1 std shaded bands.
+    """Generate a single-panel figure with +/-1 std shaded bands.
 
     Parameters
     ----------
@@ -156,7 +112,7 @@ def plot_error_bands(er, dataset_name, method):
     n_k = len(k_values)
 
     # ------------------------------------------------------------------
-    # Collect ERICA band data (mean ± std over samples from CLAM)
+    # Collect ERICA band data (mean +/- std over samples from CLAM)
     #
     # NOTE: The band width (std) is derived from the per-sample
     # assignment consistency distribution, which is the same for all
@@ -203,36 +159,11 @@ def plot_error_bands(er, dataset_name, method):
         erica_std["TWCRI"][i] = float(np.std(per_sample))
 
     # ------------------------------------------------------------------
-    # Collect Parmigiani band data (mean ± std per iteration from labels)
-    # ------------------------------------------------------------------
-    ari_mean = np.full(n_k, np.nan)
-    ari_std = np.full(n_k, np.nan)
-    ami_mean = np.full(n_k, np.nan)
-    ami_std = np.full(n_k, np.nan)
-
-    for i, k in enumerate(k_values):
-        res_entry = results.get((k, method), {})
-        il = res_entry.get("iteration_labels")
-        if il is None:
-            # Fall back to stored aggregates
-            m_dict = metrics[k].get(method, {})
-            ari_mean[i] = float(m_dict.get("ARI_mean", np.nan))
-            ari_std[i] = float(m_dict.get("ARI_std", np.nan))
-            ami_mean[i] = float(m_dict.get("AMI_mean", np.nan))
-            ami_std[i] = float(m_dict.get("AMI_std", np.nan))
-        else:
-            ari_vals, ami_vals = compute_per_iteration_ari_ami(il)
-            ari_mean[i] = float(np.mean(ari_vals))
-            ari_std[i] = float(np.std(ari_vals))
-            ami_mean[i] = float(np.mean(ami_vals))
-            ami_std[i] = float(np.std(ami_vals))
-
-    # ------------------------------------------------------------------
     # Build figure
     # ------------------------------------------------------------------
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(DOUBLE_COL, 3.5))
+    fig, ax = plt.subplots(figsize=(SINGLE_COL * 1.4, 3.5))
 
-    # ---- Panel 1: ERICA metrics with bands ----------------------------
+    # ---- ERICA metrics with bands ------------------------------------
     for metric in ERICA_METRICS:
         color = METRIC_COLORS[metric]
         dashes = METRIC_DASHES[metric]
@@ -248,7 +179,7 @@ def plot_error_bands(er, dataset_name, method):
         sv = std_vals[valid]
 
         # Shaded band
-        ax1.fill_between(
+        ax.fill_between(
             kv,
             np.clip(mv - sv, 0, 1),
             np.clip(mv + sv, 0, 1),
@@ -257,7 +188,7 @@ def plot_error_bands(er, dataset_name, method):
             linewidth=0,
         )
         # Line + markers
-        ax1.plot(
+        ax.plot(
             kv,
             mv,
             color=color,
@@ -271,7 +202,7 @@ def plot_error_bands(er, dataset_name, method):
         # Vertical K* line
         k_star_val = k_star.get(metric, {}).get(method)
         if k_star_val is not None and k_star_val in k_values:
-            ax1.axvline(
+            ax.axvline(
                 x=k_star_val,
                 color=color,
                 linestyle="--",
@@ -280,56 +211,18 @@ def plot_error_bands(er, dataset_name, method):
                 zorder=2,
             )
 
-    ax1.set_xlabel("K")
-    ax1.set_ylabel("Metric value")
-    ax1.set_title("ERICA metrics (\u00b11 std)")
-    ax1.set_xticks(k_values)
-    ax1.set_ylim(-0.05, 1.05)
-    ax1.legend(frameon=False, fontsize=8)
-
-    # ---- Panel 2: Parmigiani metrics with bands ----------------------
-    for metric_name, mean_arr, std_arr, marker in [
-        ("ARI", ari_mean, ari_std, "o"),
-        ("AMI", ami_mean, ami_std, "s"),
-    ]:
-        color = METRIC_COLORS[metric_name]
-        valid = ~np.isnan(mean_arr)
-        if not valid.any():
-            continue
-
-        kv = k_arr[valid]
-        mv = mean_arr[valid]
-        sv = std_arr[valid]
-
-        ax2.fill_between(
-            kv,
-            mv - sv,
-            mv + sv,
-            color=color,
-            alpha=0.15,
-            linewidth=0,
-        )
-        ax2.plot(
-            kv,
-            mv,
-            color=color,
-            marker=marker,
-            markersize=5,
-            label=metric_name,
-            zorder=3,
-        )
-
-    ax2.set_xlabel("K")
-    ax2.set_ylabel("Metric value")
-    ax2.set_title("Parmigiani metrics (\u00b11 std)")
-    ax2.set_xticks(k_values)
-    ax2.legend(frameon=False, fontsize=8)
+    ax.set_xlabel("K")
+    ax.set_ylabel("Metric value")
+    ax.set_title("ERICA metrics (±1 std)")
+    ax.set_xticks(k_values)
+    ax.set_ylim(-0.05, 1.05)
+    ax.legend(frameon=False, fontsize=8)
 
     # ------------------------------------------------------------------
     # Title and layout
     # ------------------------------------------------------------------
     method_label = method.replace("_", " ").title()
-    fig.suptitle(f"{dataset_name} — {method_label}", fontsize=11, y=1.01)
+    fig.suptitle(f"{dataset_name} - {method_label}", fontsize=11, y=1.01)
     fig.tight_layout()
 
     return fig

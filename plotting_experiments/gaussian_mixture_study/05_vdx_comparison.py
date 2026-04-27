@@ -1,10 +1,8 @@
 """VDX vs Gaussian comparison figures.
 
-Side-by-side metric curves: VDX (3-gene) on the left, sigma=1.0 Gaussian
-on the right.
-  - Top row: TWCRI vs K for each method
-  - Bottom row: ARI vs K for each method
-Shared y-axis scale so the two datasets are directly comparable.
+Side-by-side TWCRI curves: VDX (3-gene) on the left, sigma=1.0 Gaussian
+on the right. Shared y-axis scale so the two datasets are directly
+comparable.
 
 Note: Uses joblib to load locally-generated ERICA results from 02_run_erica.py.
 The VDX file may require a numpy compatibility shim (numpy._core -> numpy.core).
@@ -63,9 +61,9 @@ def extract_metric_curves(er, metric_key, stat_key=None):
     er : dict
         erica_results dict.
     metric_key : str
-        e.g. 'TWCRI' or 'ARI_mean'.
+        e.g. 'TWCRI'.
     stat_key : str or None
-        If provided, also extract this (e.g. 'ARI_std' for error bars).
+        If provided, also extract this for error bars.
 
     Returns
     -------
@@ -103,100 +101,67 @@ def extract_metric_curves(er, metric_key, stat_key=None):
 
 
 def plot_comparison(er_vdx, er_gauss):
-    """Create 2x2 comparison figure.
-
-    Top row: TWCRI vs K (VDX left, Gauss right)
-    Bottom row: ARI vs K (VDX left, Gauss right)
-    """
-    fig, axes = plt.subplots(2, 2, figsize=(DOUBLE_COL, 5.5), sharey='row')
+    """Create 1x2 comparison figure: TWCRI vs K (VDX left, Gauss right)."""
+    fig, axes = plt.subplots(1, 2, figsize=(DOUBLE_COL, 3.0), sharey=True)
 
     datasets = [
         ('VDX 3-Gene', er_vdx),
         (r'Gaussian ($\sigma$=1.0)', er_gauss),
     ]
-    metric_rows = [
-        ('TWCRI', 'TWCRI', None),
-        ('ARI', 'ARI_mean', 'ARI_std'),
-    ]
+    metric_label = 'TWCRI'
+    metric_key = 'TWCRI'
 
     for col, (ds_label, er) in enumerate(datasets):
-        for row, (metric_label, metric_key, std_key) in enumerate(metric_rows):
-            ax = axes[row, col]
-            k_values, curves, errors = extract_metric_curves(er, metric_key, std_key)
-            k_arr = np.array(k_values, dtype=float)
+        ax = axes[col]
+        k_values, curves, _ = extract_metric_curves(er, metric_key)
+        k_arr = np.array(k_values, dtype=float)
 
-            for method in METHODS:
-                vals = curves[method]
-                color = METHOD_COLORS[method]
-                marker = MARKERS[method]
-                valid = ~np.isnan(vals)
+        for method in METHODS:
+            vals = curves[method]
+            color = METHOD_COLORS[method]
+            marker = MARKERS[method]
+            valid = ~np.isnan(vals)
 
-                if std_key and errors[method] is not None:
-                    err = errors[method]
-                    valid_err = valid & ~np.isnan(err)
-                    if valid_err.any():
-                        ax.errorbar(
-                            k_arr[valid_err], vals[valid_err],
-                            yerr=err[valid_err],
-                            color=color, marker=marker, capsize=3,
-                            label=METHOD_LABELS[method] if col == 0 else None,
-                            markersize=6, linewidth=1.5,
-                        )
-                    # Plot any valid points without error bars
-                    no_err = valid & np.isnan(err)
-                    if no_err.any():
-                        ax.plot(k_arr[no_err], vals[no_err], marker=marker,
-                                color=color, linestyle='-', markersize=6)
-                else:
-                    if valid.any():
-                        ax.plot(k_arr[valid], vals[valid], marker=marker,
-                                color=color, linestyle='-',
-                                label=METHOD_LABELS[method] if col == 0 else None,
-                                markersize=6, linewidth=1.5)
+            if valid.any():
+                ax.plot(k_arr[valid], vals[valid], marker=marker,
+                        color=color, linestyle='-',
+                        label=METHOD_LABELS[method] if col == 0 else None,
+                        markersize=6, linewidth=1.5)
 
-            # HDBSCAN marker: place at its modal_k
-            hdb = er.get('auto_k', {}).get('hdbscan', {})
-            modal_k = hdb.get('modal_k', None)
-            if modal_k is not None:
-                modal_k = int(modal_k)
-                if metric_key == 'TWCRI':
-                    hdb_metrics = hdb.get('metrics_at_modal_k', {})
-                    hdb_val = hdb_metrics.get('TWCRI', np.nan)
-                elif metric_key == 'ARI_mean':
-                    hdb_val = float(hdb.get('ARI_mean', np.nan))
-                else:
-                    hdb_val = np.nan
+        # HDBSCAN marker: place at its modal_k
+        hdb = er.get('auto_k', {}).get('hdbscan', {})
+        modal_k = hdb.get('modal_k', None)
+        if modal_k is not None:
+            modal_k = int(modal_k)
+            hdb_metrics = hdb.get('metrics_at_modal_k', {})
+            hdb_val = hdb_metrics.get('TWCRI', np.nan)
 
-                if not np.isnan(hdb_val):
-                    ax.plot(modal_k, hdb_val, 'D',
-                            color=METHOD_COLORS['hdbscan'],
-                            markersize=9, markeredgecolor='black',
-                            markeredgewidth=0.5,
-                            label='HDBSCAN' if col == 0 else None,
-                            zorder=5)
+            if not np.isnan(hdb_val):
+                ax.plot(modal_k, hdb_val, 'D',
+                        color=METHOD_COLORS['hdbscan'],
+                        markersize=9, markeredgecolor='black',
+                        markeredgewidth=0.5,
+                        label='HDBSCAN' if col == 0 else None,
+                        zorder=5)
 
-            ax.set_xticks(k_values)
-            ax.set_xlim(min(k_values) - 0.3, max(k_values) + 0.3)
+        ax.set_xticks(k_values)
+        ax.set_xlim(min(k_values) - 0.3, max(k_values) + 0.3)
+        ax.set_xlabel('K')
+        if col == 0:
+            ax.set_ylabel(metric_label)
+        ax.set_title(ds_label, fontsize=11, fontweight='bold')
 
-            if row == 1:
-                ax.set_xlabel('K')
-            if col == 0:
-                ax.set_ylabel(metric_label)
-            if row == 0:
-                ax.set_title(ds_label, fontsize=11, fontweight='bold')
+    # Shared y limits across the two panels
+    ymin = min(ax.get_ylim()[0] for ax in axes)
+    ymax = max(ax.get_ylim()[1] for ax in axes)
+    margin = (ymax - ymin) * 0.05
+    for ax in axes:
+        ax.set_ylim(max(-0.05, ymin - margin), min(1.05, ymax + margin))
 
-    # Shared y limits
-    for row in range(2):
-        ymin = min(ax.get_ylim()[0] for ax in axes[row, :])
-        ymax = max(ax.get_ylim()[1] for ax in axes[row, :])
-        margin = (ymax - ymin) * 0.05
-        for ax in axes[row, :]:
-            ax.set_ylim(max(-0.05, ymin - margin), min(1.05, ymax + margin))
+    # Legend in left panel
+    axes[0].legend(frameon=False, fontsize=8, loc='best')
 
-    # Legend in top-left panel
-    axes[0, 0].legend(frameon=False, fontsize=8, loc='best')
-
-    fig.suptitle('VDX vs Gaussian Comparison', fontsize=13, fontweight='bold')
+    fig.suptitle('VDX vs Gaussian TWCRI Comparison', fontsize=13, fontweight='bold')
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     return fig
 

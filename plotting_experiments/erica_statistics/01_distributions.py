@@ -1,16 +1,10 @@
 """
-01_distributions.py — ERICA Statistics: Per-Dataset Distribution Panels
+01_distributions.py - ERICA Statistics: Per-Dataset Distribution Panels
 
-Exploratory analysis extending Parmigiani et al.'s use of ARI/AMI as
-partition-comparison measures to the Monte Carlo subsampling framework of
-ERICA.  For each dataset (at K*), plots three side-by-side distributions:
+For each dataset (at K*), plots the per-sample ERICA statistic distribution
+(max/sum of CLAM row), N = n_samples.
 
-  Left   — ERICA statistic (per-sample max/sum of CLAM row), N = n_samples.
-  Center — ERICA-ARI (per-iteration Adjusted Rand Index), N = n_iterations.
-  Right  — ERICA-AMI (per-iteration Adjusted Mutual Information), N = n_iterations.
-
-Each panel shows a density histogram with a vertical dashed line at the mean.
-The difference in N (samples vs. iterations) is noted in the subplot subtitles.
+Density histogram with a vertical dashed line at the mean.
 
 Outputs: ../figures/erica_statistics/dist_{dataset}.{pdf,png}
 """
@@ -19,12 +13,11 @@ import sys
 import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from style import set_publication_style, save_figure, DOUBLE_COL, SINGLE_COL, METRIC_COLORS
+from style import set_publication_style, save_figure, SINGLE_COL, METRIC_COLORS
 
 import numpy as np
 import matplotlib.pyplot as plt
 import joblib
-from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULTS_DIR = os.path.join(SCRIPT_DIR, '..', 'results')
@@ -38,8 +31,6 @@ DATASETS = [
 
 STAT_COLORS = {
     'ERICA': '#009E73',
-    'ARI': '#E69F00',
-    'AMI': '#CC79A7',
 }
 
 
@@ -47,18 +38,6 @@ def erica_stat_from_clam(clam):
     row_sums = clam.sum(axis=1)
     row_sums[row_sums == 0] = 1
     return clam.max(axis=1) / row_sums
-
-
-def compute_per_iteration_ari_ami(iteration_labels):
-    predicted = iteration_labels["predicted"]
-    true_labels = iteration_labels["true"]
-    n = len(predicted)
-    ari_vals = np.empty(n)
-    ami_vals = np.empty(n)
-    for i in range(n):
-        ari_vals[i] = adjusted_rand_score(true_labels[i], predicted[i])
-        ami_vals[i] = adjusted_mutual_info_score(true_labels[i], predicted[i])
-    return ari_vals, ami_vals
 
 
 def choose_k(config, er, method='kmeans'):
@@ -74,8 +53,6 @@ def choose_k(config, er, method='kmeans'):
 def plot_distributions(er, config, dataset_name, method='kmeans'):
     k = choose_k(config, er, method)
     clam = er.get('clam_matrices', {}).get((k, method))
-    res_entry = er.get('results', {}).get((k, method), {})
-    il = res_entry.get('iteration_labels')
 
     if clam is None:
         print(f"    No CLAM matrix for K={k}, method={method}")
@@ -83,45 +60,15 @@ def plot_distributions(er, config, dataset_name, method='kmeans'):
 
     erica_vals = erica_stat_from_clam(clam)
 
-    ari_vals = ami_vals = None
-    if il is not None:
-        ari_vals, ami_vals = compute_per_iteration_ari_ami(il)
+    fig, ax = plt.subplots(1, 1, figsize=(SINGLE_COL * 1.2, 3.0))
 
-    fig, axes = plt.subplots(1, 3, figsize=(DOUBLE_COL, 3.0))
-
-    axes[0].hist(erica_vals, bins=30, density=True, alpha=0.7,
-                 color=STAT_COLORS['ERICA'], edgecolor='white', linewidth=0.5)
-    axes[0].axvline(np.mean(erica_vals), color=STAT_COLORS['ERICA'],
-                    linestyle='--', linewidth=1.5)
-    axes[0].set_xlabel('ERICA statistic')
-    axes[0].set_ylabel('Density')
-    axes[0].set_title(f'ERICA stat (N={len(erica_vals)} samples)', fontsize=9)
-
-    if ari_vals is not None:
-        axes[1].hist(ari_vals, bins=30, density=True, alpha=0.7,
-                     color=STAT_COLORS['ARI'], edgecolor='white', linewidth=0.5)
-        axes[1].axvline(np.mean(ari_vals), color=STAT_COLORS['ARI'],
-                        linestyle='--', linewidth=1.5)
-        axes[1].set_title(f'ERICA-ARI (N={len(ari_vals)} iters)', fontsize=9)
-    else:
-        axes[1].text(0.5, 0.5, 'No iteration labels', ha='center', va='center',
-                     transform=axes[1].transAxes, fontsize=9, color='gray')
-        axes[1].set_title('ERICA-ARI', fontsize=9)
-    axes[1].set_xlabel('ARI')
-    axes[1].set_ylabel('Density')
-
-    if ami_vals is not None:
-        axes[2].hist(ami_vals, bins=30, density=True, alpha=0.7,
-                     color=STAT_COLORS['AMI'], edgecolor='white', linewidth=0.5)
-        axes[2].axvline(np.mean(ami_vals), color=STAT_COLORS['AMI'],
-                        linestyle='--', linewidth=1.5)
-        axes[2].set_title(f'ERICA-AMI (N={len(ami_vals)} iters)', fontsize=9)
-    else:
-        axes[2].text(0.5, 0.5, 'No iteration labels', ha='center', va='center',
-                     transform=axes[2].transAxes, fontsize=9, color='gray')
-        axes[2].set_title('ERICA-AMI', fontsize=9)
-    axes[2].set_xlabel('AMI')
-    axes[2].set_ylabel('Density')
+    ax.hist(erica_vals, bins=30, density=True, alpha=0.7,
+            color=STAT_COLORS['ERICA'], edgecolor='white', linewidth=0.5)
+    ax.axvline(np.mean(erica_vals), color=STAT_COLORS['ERICA'],
+               linestyle='--', linewidth=1.5)
+    ax.set_xlabel('ERICA statistic')
+    ax.set_ylabel('Density')
+    ax.set_title(f'ERICA stat (N={len(erica_vals)} samples)', fontsize=9)
 
     fig.suptitle(f'{dataset_name}  (K={k}, {method})', fontsize=11, y=1.02)
     fig.tight_layout()

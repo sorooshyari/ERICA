@@ -89,22 +89,11 @@ def validate_results(erica_obj, name):
     has_hdbscan_key = "hdbscan" in results.get("auto_k", {})
     checks.append(("auto_k has 'hdbscan'", has_hdbscan_key))
 
-    # Check 2: metrics contain ARI_mean for at least one (k, method) combo
-    has_ari = False
-    for k, methods in results.get("metrics", {}).items():
-        for method, metric_dict in methods.items():
-            if "ARI_mean" in metric_dict:
-                has_ari = True
-                break
-        if has_ari:
-            break
-    checks.append(("metrics contain ARI_mean", has_ari))
-
-    # Check 3: get_auto_k_results('hdbscan') returns non-None
+    # Check 2: get_auto_k_results('hdbscan') returns non-None
     auto_k_hdbscan = erica_obj.get_auto_k_results("hdbscan")
     checks.append(("get_auto_k_results('hdbscan') non-None", auto_k_hdbscan is not None))
 
-    # Check 4: config method is a list
+    # Check 3: config method is a list
     config_method = results.get("config", {}).get("method")
     checks.append(("config['method'] is list", isinstance(config_method, list)))
 

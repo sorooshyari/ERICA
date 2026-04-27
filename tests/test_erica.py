@@ -604,9 +604,6 @@ def test_hdbscan_clustering_basic():
     assert 'k_agreement_rate' in result
     assert 'clam_matrix' in result
     assert 'n_iterations_used' in result
-    assert 'iteration_labels' in result
-    assert 'predicted' in result['iteration_labels']
-    assert 'true' in result['iteration_labels']
     assert 'noise_counts' in result
     assert result['modal_k'] >= 1
     assert 0 <= result['k_agreement_rate'] <= 1
@@ -644,44 +641,6 @@ def test_hdbscan_clustering_noise_handling():
         )
 
     assert all(n >= 0 for n in result['noise_counts'])
-
-
-def test_kmeans_returns_iteration_labels():
-    data = np.random.rand(30, 5)
-    with tempfile.TemporaryDirectory() as tmpdir:
-        from erica.clustering import iterative_clustering_subsampling, kmeans_clustering
-        _, indices_folder = iterative_clustering_subsampling(
-            data, 30, 5, 24, tmpdir, verbose=False
-        )
-        result = kmeans_clustering(
-            data, k=2, n_iterations=5,
-            indices_folder=indices_folder,
-            output_dir=tmpdir, verbose=False
-        )
-    assert 'iteration_labels' in result
-    assert 'predicted' in result['iteration_labels']
-    assert 'true' in result['iteration_labels']
-    assert len(result['iteration_labels']['predicted']) == 5
-    assert len(result['iteration_labels']['true']) == 5
-
-
-def test_agglomerative_returns_iteration_labels():
-    data = np.random.rand(30, 5)
-    with tempfile.TemporaryDirectory() as tmpdir:
-        from erica.clustering import iterative_clustering_subsampling, agglomerative_clustering
-        _, indices_folder = iterative_clustering_subsampling(
-            data, 30, 5, 24, tmpdir, verbose=False
-        )
-        result = agglomerative_clustering(
-            data, k=2, linkage='ward', n_iterations=5,
-            indices_folder=indices_folder,
-            output_dir=tmpdir, verbose=False
-        )
-    assert 'iteration_labels' in result
-    assert 'predicted' in result['iteration_labels']
-    assert 'true' in result['iteration_labels']
-    assert len(result['iteration_labels']['predicted']) == 5
-    assert len(result['iteration_labels']['true']) == 5
 
 
 def test_erica_init_list_method():
@@ -746,26 +705,6 @@ def test_erica_init_hdbscan_params():
         hdbscan_params={'min_cluster_size': 10, 'min_samples': 3},
     )
     assert erica.hdbscan_params == {'min_cluster_size': 10, 'min_samples': 3}
-
-
-def test_erica_run_kbased_ari_ami():
-    data = np.random.rand(30, 5)
-    erica = ERICA(
-        data=data, k_range=[2, 3], n_iterations=5,
-        method='kmeans', verbose=False,
-    )
-    results = erica.run()
-    metrics = results['metrics']
-    for k in [2, 3]:
-        assert k in metrics
-        assert 'kmeans' in metrics[k]
-        m = metrics[k]['kmeans']
-        assert 'ARI_mean' in m
-        assert 'ARI_std' in m
-        assert 'AMI_mean' in m
-        assert 'AMI_std' in m
-        assert -1 <= m['ARI_mean'] <= 1
-        assert -1 <= m['AMI_mean'] <= 1
 
 
 def test_erica_run_agglomerative_list():
@@ -837,8 +776,6 @@ def test_erica_full_integration_all_methods():
             m = results['metrics'][k][method]
             assert 'CRI' in m
             assert 'TWCRI' in m
-            assert 'ARI_mean' in m
-            assert 'AMI_mean' in m
 
     assert 'TWCRI' in results['k_star']
     assert 'kmeans' in results['k_star']['TWCRI']

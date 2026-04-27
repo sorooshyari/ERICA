@@ -5,7 +5,12 @@
 This folder contains scripts for generating publication-quality visualizations of ERICA clustering replicability results. The experiments serve dual purposes:
 
 1. **Visualization**: Publication-ready matplotlib figures for papers and presentations
-2. **Validation**: End-to-end testing of ERICA's flattened method API, HDBSCAN auto-K support, and ARI/AMI metrics
+2. **Validation**: End-to-end testing of ERICA's flattened method API and HDBSCAN auto-K support
+
+> **Metric scope (2026-04-26):** ERICA focuses on CRI/WCRI/TWCRI only.
+> ARI/AMI (Parmigiani-style partition comparison) was dropped from the
+> library and from these scripts. See
+> [2026-04-26-metric-scope-decision.md](2026-04-26-metric-scope-decision.md).
 
 ## ERICA API Functions Used
 
@@ -37,7 +42,6 @@ results = erica.get_results()
 | CLAM matrix (K-based) | `results['clam_matrices'][(k, method)]` | `np.ndarray` (n_samples x k) |
 | CLAM matrix (HDBSCAN) | `results['auto_k']['hdbscan']['clam_matrix']` | `np.ndarray` (n_samples x modal_k) |
 | ERICA metrics | `results['metrics'][k][method]['CRI']` | float |
-| Parmigiani metrics | `results['metrics'][k][method]['ARI_mean']` | float |
 | Optimal K* | `results['k_star']['TWCRI'][method]` | int |
 | HDBSCAN modal K | `results['auto_k']['hdbscan']['modal_k']` | int |
 | HDBSCAN agreement | `results['auto_k']['hdbscan']['k_agreement_rate']` | float (0-1) |
@@ -101,7 +105,7 @@ results = erica.get_results()
 |--------|------|--------------------------|
 | `03_clam_heatmaps.py` | Raw + sorted CLAM heatmaps | `clam_matrices[(k, method)]`, `auto_k['hdbscan']['clam_matrix']` |
 | `04_stability_strips.py` | Per-sample stacked bars | `clam_matrices[(k, method)]` (normalized to proportions) |
-| `05_metrics_curves.py` | CRI/WCRI/TWCRI + ARI/AMI vs K | `metrics[k][method]`, `k_star['TWCRI'][method]` |
+| `05_metrics_curves.py` | CRI/WCRI/TWCRI vs K (single panel) | `metrics[k][method]`, `k_star['TWCRI'][method]` |
 | `06_method_comparison.py` | Side-by-side method panels | `metrics[k][method]`, `auto_k['hdbscan']['metrics_at_modal_k']` |
 | `07_surfaces.py` | 3D + 2D surface plots | `clam_matrices`, `metrics`, HDBSCAN sweep results |
 | `08_cluster_scatter.py` | 2D scatter with cluster colors | `clam_matrices[(k, method)]` (argmax for color) |

@@ -1,6 +1,6 @@
 """Cross-dataset replicability summary heatmap.
 
-Rows: datasets, Columns: ERICA stat / ERICA-ARI / ERICA-AMI at K* for K-Means.
+Rows: datasets, Column: ERICA stat at K* for K-Means.
 """
 
 import sys
@@ -8,7 +8,6 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import joblib
-from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from style import set_publication_style, DOUBLE_COL, SINGLE_COL, METRIC_COLORS
@@ -21,18 +20,6 @@ DATASETS = [
     'vdx_3gene', 'gauss4c_sigma0p01', 'gauss4c_sigma0p1', 'gauss4c_sigma1p0', 'gauss4c_sigma10p0',
     'well_separated', 'high_dim', 'overlapping', 'moons_2d', 'blobs_2d',
 ]
-
-
-def compute_per_iteration_ari_ami(iteration_labels):
-    predicted = iteration_labels["predicted"]
-    true_labels = iteration_labels["true"]
-    n = len(predicted)
-    ari_vals = np.empty(n)
-    ami_vals = np.empty(n)
-    for i in range(n):
-        ari_vals[i] = adjusted_rand_score(true_labels[i], predicted[i])
-        ami_vals[i] = adjusted_mutual_info_score(true_labels[i], predicted[i])
-    return ari_vals, ami_vals
 
 
 def erica_stat_from_clam(clam):
@@ -56,7 +43,7 @@ def main():
     os.makedirs(FIGURES_DIR, exist_ok=True)
 
     method = 'kmeans'
-    col_labels = ['ERICA stat', 'ERICA-ARI', 'ERICA-AMI']
+    col_labels = ['ERICA stat']
 
     valid_rows = []
     row_labels = []
@@ -83,19 +70,9 @@ def main():
 
         erica_stat_mean = float(np.mean(erica_stat_from_clam(clam)))
 
-        il = res_entry.get('iteration_labels')
-        if il is not None:
-            ari_vals, ami_vals = compute_per_iteration_ari_ami(il)
-            ari_mean = float(np.mean(ari_vals))
-            ami_mean = float(np.mean(ami_vals))
-        else:
-            m_dict = er.get('metrics', {}).get(k, {}).get(method, {})
-            ari_mean = float(m_dict.get('ARI_mean', np.nan))
-            ami_mean = float(m_dict.get('AMI_mean', np.nan))
-
-        valid_rows.append([erica_stat_mean, ari_mean, ami_mean])
+        valid_rows.append([erica_stat_mean])
         row_labels.append(dataset.replace('_', ' '))
-        print(f'  {dataset}: ERICA={erica_stat_mean:.3f}  ARI={ari_mean:.3f}  AMI={ami_mean:.3f}  (K={k})')
+        print(f'  {dataset}: ERICA={erica_stat_mean:.3f}  (K={k})')
 
     if not valid_rows:
         print('No valid data found. Exiting.')
@@ -107,7 +84,7 @@ def main():
     data = np.array(valid_rows)
     n_rows, n_cols = data.shape
 
-    fig, ax = plt.subplots(figsize=(SINGLE_COL * 1.8, max(2.5, n_rows * 0.55)))
+    fig, ax = plt.subplots(figsize=(SINGLE_COL * 1.4, max(2.5, n_rows * 0.55)))
     im = ax.imshow(data, cmap='RdYlGn', vmin=0, vmax=1, aspect='auto')
 
     for i in range(n_rows):

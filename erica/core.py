@@ -226,31 +226,11 @@ class ERICA:
 
 
     def _compute_all_metrics(self) -> Dict:
-        """Compute CRI, WCRI, TWCRI, and Parmigiani metrics for all results."""
-        from erica.metrics import (
-            compute_parmigiani_metrics, aggregate_parmigiani_metrics
-        )
-
+        """Compute CRI, WCRI, TWCRI for all results."""
         metrics_by_k = {}
         for (k, method_name), result in self.results_.items():
             clam_matrix = result['clam_matrix']
             metrics = compute_metrics_for_clam(clam_matrix, k)
-
-            # Compute ARI/AMI from iteration label pairs
-            if 'iteration_labels' in result:
-                predicted_list = result['iteration_labels']['predicted']
-                true_list = result['iteration_labels']['true']
-                ari_scores = []
-                ami_scores = []
-                for pred, true in zip(predicted_list, true_list):
-                    pm = compute_parmigiani_metrics(pred, true)
-                    ari_scores.append(pm['ARI'])
-                    ami_scores.append(pm['AMI'])
-                agg = aggregate_parmigiani_metrics(ari_scores, ami_scores)
-                metrics['ARI_mean'] = agg['ARI_mean']
-                metrics['ARI_std'] = agg['ARI_std']
-                metrics['AMI_mean'] = agg['AMI_mean']
-                metrics['AMI_std'] = agg['AMI_std']
 
             if k not in metrics_by_k:
                 metrics_by_k[k] = {}
@@ -267,23 +247,6 @@ class ERICA:
 
         # Auto-K metrics
         for method_name, result in self.auto_k_results_.items():
-            if 'iteration_labels' in result:
-                predicted_list = result['iteration_labels']['predicted']
-                true_list = result['iteration_labels']['true']
-                ari_scores = []
-                ami_scores = []
-                for pred, true in zip(predicted_list, true_list):
-                    if len(pred) > 0 and len(true) > 0:
-                        pm = compute_parmigiani_metrics(pred, true)
-                        ari_scores.append(pm['ARI'])
-                        ami_scores.append(pm['AMI'])
-                if ari_scores:
-                    agg = aggregate_parmigiani_metrics(ari_scores, ami_scores)
-                    result['ARI_mean'] = agg['ARI_mean']
-                    result['ARI_std'] = agg['ARI_std']
-                    result['AMI_mean'] = agg['AMI_mean']
-                    result['AMI_std'] = agg['AMI_std']
-
             if result.get('modal_k', 0) > 0:
                 clam_metrics = compute_metrics_for_clam(
                     result['clam_matrix'], result['modal_k']
