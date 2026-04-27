@@ -65,6 +65,13 @@ METRIC_DASHES: Dict[str, Tuple[int, int]] = {
     "TWCRI": (8, 2),
 }
 
+# Per-cluster colour cycle (Tol bright palette) for stability strips and any
+# other plot that needs to map cluster index -> colour.
+CLUSTER_COLORS: List[str] = [
+    "#4477AA", "#EE6677", "#228833", "#CCBB44",
+    "#66CCEE", "#AA3377", "#BBBBBB", "#332288",
+]
+
 
 def set_publication_style() -> None:
     """Configure matplotlib rcParams for publication-quality figures."""
@@ -585,6 +592,202 @@ def plot_replicability_metrics(
         ylabel="Replicability metric",
     )
     ax.set_title("Replicability Metrics")
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Bar charts: K* by method/metric and per-sample stability strips
+# ---------------------------------------------------------------------------
+
+def plot_k_star_bars(
+    k_star: Dict[str, Dict[str, Optional[int]]],
+    metrics: Sequence[str] = ("CRI", "WCRI", "TWCRI"),
+    methods: Optional[Sequence[str]] = None,
+    ax: Optional[plt.Axes] = None,
+    annotate: bool = True,
+) -> Tuple[plt.Figure, plt.Axes]:
+    """Grouped bar chart: K* per (metric x method).
+
+    Parameters
+    ----------
+    k_star : dict
+        Nested mapping ``{metric: {method: K*}}`` as produced by
+        ``ERICA.get_k_star`` for all metrics, e.g.::
+
+            {'CRI': {'kmeans': 3, 'agglomerative_ward': 4},
+             'WCRI': {...}, 'TWCRI': {...}}
+    metrics : sequence of str
+        Metric order along the x-axis.
+    methods : sequence of str, optional
+        Method order within each metric group. If ``None``, methods are
+        inferred from the union of methods present in ``k_star``.
+    ax : matplotlib Axes, optional
+        Axes to draw into. A new figure is created if ``None``.
+    annotate : bool
+        Annotate bar tops with the K* value.
+    """
+    if methods is None:
+        seen: List[str] = []
+        for m in metrics:
+            for method in k_star.get(m, {}):
+                if method not in seen:
+                    seen.append(method)
+        methods = seen
+
+    if not methods:
+        raise ValueError("plot_k_star_bars: no methods found in k_star")
+
+    n_metrics = len(metrics)
+    n_methods = len(methods)
+    bar_width = 0.25
+    group_gap = 0.1
+    group_width = n_methods * bar_width + group_gap
+    group_centers = np.arange(n_metrics) * group_width
+    offsets = np.linspace(
+        -(n_methods - 1) * bar_width / 2,
+        (n_methods - 1) * bar_width / 2,
+        n_methods,
+    )
+
+    fig, ax = _ensure_ax(ax, figsize=(DOUBLE_COL * 0.8, 3.5))
+
+    all_kstar: List[float] = []
+    for j, method in enumerate(methods):
+        kstar_vals = []
+        for m in metrics:
+            kv = k_star.get(m, {}).get(method)
+            kstar_vals.append(float(kv) if kv is not None else 0.0)
+        all_kstar.extend(v for v in kstar_vals if v > 0)
+
+        x = group_centers + offsets[j]
+        color = METHOD_COLORS.get(method, "#888888")
+        bars = ax.bar(
+            x, kstar_vals,
+            width=bar_width, color=color,
+            label=method, edgecolor="white", linewidth=0.5, zorder=3,
+        )
+        if annotate:
+            for bar, kv in zip(bars, kstar_vals):
+                if kv > 0:
+                    ax.text(
+                        bar.get_x() + bar.get_width() / 2,
+                        bar.get_height() + 0.05,
+                        f"{int(kv)}",
+                        ha="center", va="bottom",
+                        fontsize=8, fontweight="bold", color=color,
+                    )
+
+    ax.set_xticks(group_centers)
+    ax.set_xticklabels(list(metrics))
+    ax.set_xlabel("Metric")
+    ax.set_ylabel("K*")
+    if all_kstar:
+        ax.set_ylim(0, max(all_kstar) + 1.5)
+    ax.grid(axis="y", linestyle="--", alpha=0.4, zorder=0)
+    ax.legend(frameon=False, fontsize=8, loc="upper right")
+    ax.set_title("K* by Method and Metric")
+    return fig, ax
+
+
+def _normalize_clam_rows(clam: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Row-normalise a CLAM to per-sample assignment proportions.
+
+    Rows whose sum is zero are left as zeros and flagged invalid.
+    """
+    arr = np.asarray(clam, dtype=float)
+    row_sums = arr.sum(axis=1)
+    valid = row_sums > 0
+    out = np.zeros_like(arr)
+    out[valid] = arr[valid] / row_sums[valid, np.newaxis]
+    return out, valid
+
+
+def _shannon_entropy(proportions: np.ndarray) -> np.ndarray:
+    """Per-row Shannon entropy in bits (0*log0 := 0)."""
+    with np.errstate(divide="ignore", invalid="ignore"):
+        log_p = np.where(proportions > 0, np.log2(proportions), 0.0)
+    return -np.sum(proportions * log_p, axis=1)
+
+
+def plot_stability_strips(
+    clam: np.ndarray,
+    max_samples: int = 100,
+    ax: Optional[plt.Axes] = None,
+    title: Optional[str] = None,
+) -> Tuple[plt.Figure, plt.Axes]:
+    """Stacked horizontal bars showing per-sample cluster-assignment stability.
+
+    Each row is one sample. Bar segments are the proportion of iterations the
+    sample was assigned to each cluster. Samples are sorted by Shannon entropy
+    (most stable on top). When ``clam`` has more than ``max_samples`` rows,
+    the most-stable ``max_samples`` are shown.
+
+    Parameters
+    ----------
+    clam : np.ndarray, shape (n_samples, k)
+        CLAM matrix (raw counts; rows are normalised internally).
+    max_samples : int
+        Maximum number of rows to render.
+    ax : matplotlib Axes, optional
+    title : str, optional
+
+    Returns
+    -------
+    fig, ax : matplotlib Figure, Axes
+    """
+    proportions, _ = _normalize_clam_rows(clam)
+    n_samples, k = proportions.shape
+    if n_samples == 0 or k == 0:
+        raise ValueError("plot_stability_strips: empty CLAM matrix")
+
+    entropy = _shannon_entropy(proportions)
+    order = np.argsort(entropy)
+    if n_samples > max_samples:
+        order = order[:max_samples]
+    props_sorted = proportions[order]
+    ent_sorted = entropy[order]
+    n_display = len(order)
+
+    bar_height = 0.6
+    fig_height = max(2.0, min(8.0, n_display * 0.12 + 1.5))
+    fig_width = SINGLE_COL + 0.5
+
+    fig, ax = _ensure_ax(ax, figsize=(fig_width, fig_height))
+
+    y = np.arange(n_display)
+    lefts = np.zeros(n_display)
+    for c in range(k):
+        widths = props_sorted[:, c]
+        ax.barh(
+            y, widths, left=lefts, height=bar_height,
+            color=CLUSTER_COLORS[c % len(CLUSTER_COLORS)],
+            label=f"Cluster {c + 1}", linewidth=0,
+        )
+        lefts += widths
+
+    ax.set_xlim(0, 1)
+    ax.set_xlabel("Proportion of iterations")
+    ax.set_ylabel("Sample (sorted by entropy)")
+    ax.set_yticks([0, n_display - 1])
+    ax.set_yticklabels(["most stable", "least stable"])
+
+    ax_right = ax.twinx()
+    ax_right.set_ylim(ax.get_ylim())
+    ax_right.set_yticks([0, n_display - 1])
+    ax_right.set_yticklabels(
+        [f"H={ent_sorted[0]:.2f}", f"H={ent_sorted[-1]:.2f}"], fontsize=7
+    )
+    ax_right.set_ylabel("Shannon entropy (bits)", fontsize=8)
+    ax_right.spines["top"].set_visible(False)
+
+    ax.legend(
+        loc="upper center", bbox_to_anchor=(0.5, -0.18),
+        ncol=min(k, 4), fontsize=7, frameon=False,
+    )
+
+    if title is None:
+        title = f"Stability strips ({n_display}/{n_samples} samples)"
+    ax.set_title(title, fontsize=10)
     return fig, ax
 
 

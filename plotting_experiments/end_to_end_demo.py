@@ -24,6 +24,8 @@ from erica import (
     plot_cluster_sizes_mpl,
     plot_icah,
     plot_pcsp,
+    plot_k_star_bars,
+    plot_stability_strips,
     extract_metric_curves,
     plot_metrics_vs_k,
 )
@@ -107,6 +109,14 @@ def main():
 
     fig = plot_pcsp(clam, k=k, title=f"Per-Cluster Scatter Plots — K={k}")
     save(fig, "07_pcsp")
+
+    k_star_all = {m: er.get_k_star(m) for m in ["CRI", "WCRI", "TWCRI"]}
+    fig, _ = plot_k_star_bars(k_star_all)
+    save(fig, "08_k_star_bars")
+
+    fig, _ = plot_stability_strips(clam, max_samples=80,
+                                   title=f"Stability strips — K={k}")
+    save(fig, "09_stability_strips")
 
     print(f"\nDone. Figures in {OUT_DIR}")
 
