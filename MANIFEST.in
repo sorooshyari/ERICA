@@ -5,6 +5,19 @@ recursive-include erica *.py
 recursive-exclude tests *
 recursive-exclude docs *
 recursive-exclude examples *
+prune plotting_experiments
+prune scripts
+prune .github
+prune dist
+prune build
+prune notebooks
 global-exclude __pycache__
 global-exclude *.py[co]
+global-exclude *.npz
+global-exclude *.npy
+global-exclude *.joblib
+global-exclude *.png
+global-exclude *.pdf
+global-exclude *.html
+global-exclude .DS_Store
 
