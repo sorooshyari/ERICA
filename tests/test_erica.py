@@ -612,6 +612,102 @@ def test_hdbscan_clustering_basic():
     assert result['clam_matrix'].shape[1] == result['modal_k']
 
 
+def test_hdbscan_clam_uses_test_set_semantics():
+    """HDBSCAN CLAM rows must accumulate at test_indices, not train_indices.
+
+    Semantic parity with K-Means / Agglomerative: each iteration fits on
+    train, predicts on test, and accumulates predictions at test_indices.
+
+    For modal-K iterations, every test point is assigned to exactly one
+    train centroid -> aligned cluster (no -1s in test_predicted_labels),
+    so each row's CLAM mass should equal the number of modal-K iterations
+    in which that sample appeared in the TEST set. Under the broken
+    train-fit-at-train-indices behavior, that equality would not hold and
+    samples-mostly-in-train would have HIGHER CLAM mass than samples-mostly-
+    in-test (the opposite of correct semantics).
+    """
+    from sklearn.datasets import make_blobs
+    rng = np.random.RandomState(0)
+    data, _ = make_blobs(
+        n_samples=120, n_features=4, centers=3, cluster_std=0.5,
+        random_state=42,
+    )
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        indices_folder = os.path.join(tmpdir, 'indices')
+        os.makedirs(indices_folder)
+        n_iterations = 8
+        n_samples = len(data)
+        train_size = int(n_samples * 0.8)
+        all_train = []
+        all_test = []
+        for _ in range(n_iterations):
+            perm = rng.permutation(n_samples)
+            all_train.append(perm[:train_size])
+            all_test.append(perm[train_size:])
+        np.save(os.path.join(indices_folder, 'all_train_indices.npy'),
+                np.array(all_train, dtype=object))
+        np.save(os.path.join(indices_folder, 'all_test_indices.npy'),
+                np.array(all_test, dtype=object))
+
+        result = hdbscan_clustering(
+            samples_array=data, n_iterations=n_iterations,
+            indices_folder=indices_folder, output_dir=tmpdir,
+            hdbscan_params={'min_cluster_size': 5}, verbose=False,
+        )
+
+        clam = result['clam_matrix']
+        modal_k = result['modal_k']
+
+        # Determine which iterations participated in CLAM accumulation
+        # (their discovered K equals modal_k). We re-derive participation
+        # from the recorded train sets: a sample's CLAM row sum should
+        # equal the number of participating iterations in which it was
+        # in the TEST set.
+        #
+        # We don't have direct access to discovered_ks here; instead we
+        # use n_iterations_used as the count of participating iterations
+        # and compute test-membership counts across ALL iterations as an
+        # upper bound. The strict invariant we test:
+        #   row_sum[i] <= (number of iterations where i was in test set)
+        # plus the aggregate equality:
+        #   sum(row_sums) == n_iterations_used * test_size
+        # The aggregate equality is the load-bearing test-vs-train check.
+        n_used = result['n_iterations_used']
+        test_size = len(all_test[0])
+
+        # Aggregate: total CLAM mass = n_used * test_size (test-set semantics).
+        # If the bug were present (accumulation at train_indices), the total
+        # would be n_used * train_size instead, which is much larger.
+        total_mass = clam.sum()
+        assert total_mass == n_used * test_size, (
+            f"Total CLAM mass {total_mass} != n_used * test_size "
+            f"{n_used * test_size}; train-set accumulation would give "
+            f"{n_used * train_size}"
+        )
+
+        # Per-sample upper bound: row sum cannot exceed times-in-test count
+        # (each in-test appearance contributes at most 1 across modal-K iters).
+        times_in_test = np.zeros(n_samples, dtype=int)
+        for test_arr in all_test:
+            times_in_test[np.asarray(test_arr, dtype=int)] += 1
+        row_sums = clam.sum(axis=1)
+        assert np.all(row_sums <= times_in_test), (
+            "Some samples have CLAM mass > times-in-test count, indicating "
+            "accumulation at the wrong index set"
+        )
+
+        # And complementary: row sum cannot exceed times-in-test, but if the
+        # bug were present, row_sums would correlate with times-in-TRAIN.
+        # Concretely, a sample mostly in train would have row sum > times-in-test.
+        times_in_train = n_iterations - times_in_test
+        # Expect no sample to have CLAM mass exceeding its train-membership count
+        # only weakly under the bug; the strong check is the aggregate above.
+        # Here we just sanity check shapes.
+        assert clam.shape == (n_samples, modal_k)
+        assert times_in_train.sum() + times_in_test.sum() == n_samples * n_iterations
+
+
 def test_hdbscan_clustering_noise_handling():
     from sklearn.datasets import make_blobs
     data, _ = make_blobs(n_samples=80, n_features=3, centers=2,

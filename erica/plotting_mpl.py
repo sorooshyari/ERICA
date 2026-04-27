@@ -56,8 +56,6 @@ METRIC_COLORS: Dict[str, str] = {
     "CRI": "#0072B2",
     "WCRI": "#D55E00",
     "TWCRI": "#009E73",
-    "ARI": "#E69F00",
-    "AMI": "#CC79A7",
 }
 
 # Metric-specific dash patterns for K* lines
@@ -109,11 +107,13 @@ def save_figure(
         File formats to write, e.g. ``("pdf", "png")``.
     """
     os.makedirs(output_dir, exist_ok=True)
-    for fmt in formats:
-        path = os.path.join(output_dir, f"{name}.{fmt}")
-        fig.savefig(path, format=fmt)
-        print(f"  Saved: {path}")
-    plt.close(fig)
+    try:
+        for fmt in formats:
+            path = os.path.join(output_dir, f"{name}.{fmt}")
+            fig.savefig(path, format=fmt)
+            print(f"  Saved: {path}")
+    finally:
+        plt.close(fig)
 
 
 # ---------------------------------------------------------------------------
@@ -192,8 +192,8 @@ def plot_metric_vs_k(
 
     ax.set_xlabel("K")
     ax.set_ylabel("Metric value")
-    if len(k_arr):
-        ax.set_xticks(np.asarray(k_values))
+    if k_arr.size:
+        ax.set_xticks(k_arr)
     return fig, ax
 
 
@@ -247,8 +247,8 @@ def plot_metrics_vs_k(
 
     ax.set_xlabel("K")
     ax.set_ylabel(ylabel)
-    if len(k_arr):
-        ax.set_xticks(np.asarray(k_values))
+    if k_arr.size:
+        ax.set_xticks(k_arr)
     ax.legend(frameon=False, fontsize=8)
     return fig, ax
 
@@ -381,25 +381,25 @@ def plot_icah(
     """Plot the Inter-Cluster Assignment Heatmap.
 
     Accepts either a raw CLAM matrix (computes ICAH internally) or a
-    precomputed ICAH matrix.
-
-    Auto-detection: when ``precomputed`` is False, the input is treated as a
-    precomputed ICAH iff it is square and small (``<= 20`` per side).
-    Otherwise it is treated as CLAM.
+    precomputed ICAH matrix. The ``precomputed`` kwarg is the sole switch
+    between the two interpretations — there is no auto-detection.
 
     Parameters
     ----------
     clam_or_icah : np.ndarray
-        Either CLAM ``(n_samples, K)`` or ICAH ``(K, K)``.
+        Either CLAM ``(n_samples, K)`` (when ``precomputed=False``) or ICAH
+        ``(K, K)`` (when ``precomputed=True``).
     k : int, optional
-        Number of clusters. Required when computing ICAH from CLAM and the
-        caller wants a specific K. If None, uses the second dim of the CLAM
-        input.
+        Number of clusters. When computing ICAH from CLAM and the caller wants
+        a specific K, pass it here; otherwise the second dim of the CLAM input
+        is used. When ``precomputed=True`` and ``k`` is None, uses
+        ``icah.shape[0]``.
     ax : matplotlib.axes.Axes, optional
     title : str, optional
     precomputed : bool, optional
-        If True, force interpretation as a precomputed ICAH and skip
-        auto-detection.
+        If True, ``clam_or_icah`` is treated as a precomputed ICAH matrix.
+        If False (default), it is treated as a CLAM matrix and ICAH is
+        computed from it.
 
     Returns
     -------
@@ -409,17 +409,13 @@ def plot_icah(
 
     if precomputed:
         icah = arr
+        if k is None:
+            k = icah.shape[0]
     else:
-        # Auto-detect: small square matrix => assume precomputed ICAH.
-        if (
-            arr.ndim == 2
-            and arr.shape[0] == arr.shape[1]
-            and arr.shape[0] <= 20
-        ):
-            icah = arr
-        else:
-            k_eff = k if k is not None else arr.shape[1]
-            icah = compute_icah(arr, k_eff)
+        # arr is a CLAM matrix
+        if k is None:
+            k = arr.shape[1]
+        icah = compute_icah(arr, k)
 
     k_val = icah.shape[0]
 
@@ -630,7 +626,7 @@ def extract_metric_curves(
         was not provided)
     """
     metrics = er.get("metrics", {})
-    k_values = sorted(metrics.keys())
+    k_values = sorted(int(k) for k in metrics.keys())
 
     metric_keys = list(metric_keys)
     if std_keys is not None:

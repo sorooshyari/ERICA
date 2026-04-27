@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 from typing import Tuple, List, Optional, Dict
 from sklearn.cluster import KMeans, AgglomerativeClustering, HDBSCAN
+from scipy.optimize import linear_sum_assignment
 
 
 def iterative_clustering_subsampling(
@@ -522,6 +523,21 @@ def hdbscan_clustering(
     dict
         Results with keys: k_distribution, modal_k, k_agreement_rate,
         clam_matrix, n_iterations_used, noise_counts, output_folder
+
+    Notes
+    -----
+    Semantic parity with K-Means / Agglomerative: per iteration we fit
+    HDBSCAN on the train set, compute train cluster centroids (excluding
+    noise samples), assign each TEST point to its nearest train centroid,
+    and accumulate those test predictions into the CLAM matrix at
+    ``test_indices`` (out-of-sample stability semantics).
+
+    Cluster-label alignment across iterations uses Hungarian matching
+    against a single reference centroid set obtained by running HDBSCAN
+    once on the full ``samples_array``. Only iterations whose discovered
+    K equals the modal K participate in CLAM accumulation; those whose
+    train K does not match the reference K_full are aligned by greedy
+    fallback (extra clusters are dropped).
     """
     from collections import Counter
 
@@ -537,20 +553,47 @@ def hdbscan_clustering(
         os.path.join(indices_folder, 'all_train_indices.npy'),
         allow_pickle=True
     )
-    discovered_ks = []
-    noise_counts = []
-    # Store (iter_idx, reassigned_train_labels) for CLAM building
-    iter_label_pairs = []
+    test_indices = np.load(
+        os.path.join(indices_folder, 'all_test_indices.npy'),
+        allow_pickle=True
+    )
+
+    # Reference clustering on full data (for cross-iteration label alignment).
+    # If full-data fit yields no clusters, alignment falls back to identity.
+    ref_centroids: Optional[np.ndarray] = None
+    if verbose:
+        print("  Computing reference HDBSCAN clustering on full data...")
+    hdb_full = HDBSCAN(**params)
+    full_labels = hdb_full.fit_predict(samples_array)
+    unique_full = set(full_labels)
+    unique_full.discard(-1)
+    if len(unique_full) > 0:
+        n_full = max(unique_full) + 1
+        ref_centroids = np.zeros((n_full, samples_array.shape[1]))
+        for c in range(n_full):
+            mask = full_labels == c
+            if mask.any():
+                ref_centroids[c] = samples_array[mask].mean(axis=0)
+            else:
+                # placeholder for an absent label id (shouldn't occur, but
+                # keeps the array contiguous if HDBSCAN ever skips an id)
+                ref_centroids[c] = samples_array.mean(axis=0)
+
+    discovered_ks: List[int] = []
+    noise_counts: List[int] = []
+    # Per-iteration storage of test-fit predictions (already aligned to ref).
+    # Each entry: (iter_idx, aligned_test_labels) or None for skipped iters.
+    iter_test_labels: List[Optional[np.ndarray]] = [None] * n_iterations
 
     for iter_idx in range(n_iterations):
         if verbose and iter_idx % 50 == 0:
             print(f"  Iteration {iter_idx + 1}/{n_iterations}")
 
-        train_data, _ = load_iteration_data(
+        train_data, test_data = load_iteration_data(
             iter_idx, samples_array, indices_folder
         )
 
-        # Fit HDBSCAN on train set
+        # Fit HDBSCAN on the train set
         hdb_train = HDBSCAN(**params)
         train_labels_raw = hdb_train.fit_predict(train_data)
 
@@ -560,23 +603,77 @@ def hdbscan_clustering(
         unique_train = set(train_labels_raw)
         unique_train.discard(-1)
         if len(unique_train) == 0:
+            # No non-noise clusters; no centroids to assign test points to.
+            # Skip this iteration entirely — it cannot contribute to CLAM.
             discovered_ks.append(0)
             continue
 
         n_clusters_train = max(unique_train) + 1
+
+        # Compute train centroids using ONLY non-noise samples.
         train_centroids = np.zeros((n_clusters_train, train_data.shape[1]))
+        valid_centroid = np.zeros(n_clusters_train, dtype=bool)
         for c in range(n_clusters_train):
             mask = train_labels_raw == c
             if mask.any():
                 train_centroids[c] = train_data[mask].mean(axis=0)
+                valid_centroid[c] = True
+        # If any cluster id has no members (shouldn't normally happen), drop
+        # it from the centroid set used for nearest-centroid assignment.
+        if not valid_centroid.all():
+            keep = np.where(valid_centroid)[0]
+            if len(keep) == 0:
+                discovered_ks.append(0)
+                continue
+            train_centroids_valid = train_centroids[keep]
+            keep_to_orig = keep  # mapping: row j in valid -> original cluster id
+        else:
+            train_centroids_valid = train_centroids
+            keep_to_orig = np.arange(n_clusters_train)
 
-        # Reassign noise points to nearest cluster for CLAM construction
-        train_labels = _assign_noise_to_nearest(
-            train_labels_raw, train_data, train_centroids
-        )
+        # Assign each test point to nearest train centroid -> test_predicted_labels.
+        # Distance to a defined centroid is always defined, so no -1s here.
+        diffs = test_data[:, np.newaxis, :] - train_centroids_valid[np.newaxis, :, :]
+        dists = np.linalg.norm(diffs, axis=2)
+        nearest_valid = np.argmin(dists, axis=1)
+        test_predicted_labels = keep_to_orig[nearest_valid]  # back to orig ids
+
+        # Hungarian alignment of train clusters -> reference clusters.
+        # Build a (k_iter, k_ref) cost matrix of pairwise centroid distances.
+        if ref_centroids is not None:
+            k_ref = ref_centroids.shape[0]
+            # Use full train_centroids (with possibly invalid rows) so that
+            # cluster ids in test_predicted_labels still index correctly.
+            cost = np.linalg.norm(
+                train_centroids[:, np.newaxis, :] - ref_centroids[np.newaxis, :, :],
+                axis=2,
+            )
+            # Mask out invalid centroids by setting their cost very high so
+            # they aren't preferred; they may still be matched if k_iter > k_ref.
+            if not valid_centroid.all():
+                cost[~valid_centroid, :] = cost.max() + 1.0
+
+            # linear_sum_assignment requires a rectangular cost; it returns
+            # min(k_iter, k_ref) matches. Cluster ids in train_centroids that
+            # aren't matched (when k_iter > k_ref) get dropped — those test
+            # points won't contribute to CLAM (set to -1 sentinel).
+            row_ind, col_ind = linear_sum_assignment(cost)
+            mapping = -np.ones(n_clusters_train, dtype=int)
+            for r, c in zip(row_ind, col_ind):
+                mapping[r] = c
+
+            aligned = np.full(test_predicted_labels.shape, -1, dtype=int)
+            for i, orig_id in enumerate(test_predicted_labels):
+                m = mapping[orig_id]
+                if m >= 0:
+                    aligned[i] = m
+            test_predicted_labels_aligned = aligned
+        else:
+            # No reference clustering available; keep original train-cluster ids.
+            test_predicted_labels_aligned = test_predicted_labels.astype(int)
 
         discovered_ks.append(n_clusters_train)
-        iter_label_pairs.append((iter_idx, train_labels))
+        iter_test_labels[iter_idx] = test_predicted_labels_aligned
 
     # Find modal K
     k_counts = Counter(k for k in discovered_ks if k > 0)
@@ -594,20 +691,20 @@ def hdbscan_clustering(
 
         clam_matrix = np.zeros((n_samples, modal_k))
         n_used = 0
-        for iter_idx, labels in iter_label_pairs:
+        for iter_idx in range(n_iterations):
             if discovered_ks[iter_idx] != modal_k:
                 continue
-            if len(labels) == 0:
-                continue
-            if int(labels.max()) >= modal_k:
+            labels = iter_test_labels[iter_idx]
+            if labels is None or len(labels) == 0:
                 continue
 
-            iter_train_idx = train_indices[iter_idx].astype(int)
-            for i, sample_idx in enumerate(iter_train_idx):
-                if i < len(labels):
-                    cluster_id = int(labels[i])
-                    if 0 <= cluster_id < modal_k:
-                        clam_matrix[sample_idx, cluster_id] += 1
+            iter_test_idx = test_indices[iter_idx].astype(int)
+            for i, sample_idx in enumerate(iter_test_idx):
+                if i >= len(labels):
+                    break
+                cluster_id = int(labels[i])
+                if 0 <= cluster_id < modal_k:
+                    clam_matrix[sample_idx, cluster_id] += 1
             n_used += 1
 
     output_folder = os.path.join(output_dir, 'hdbscan')

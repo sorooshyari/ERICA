@@ -1,10 +1,8 @@
 # ERICA Metrics Guide
 
-This document explains the clustering replicability metrics implemented in ERICA: the **CLAM-based metrics** (CRI, WCRI, TWCRI) and the **Parmigiani metrics** (ARI, AMI). If you've ever wondered whether your clusters are real or just statistical hallucinations, these metrics provide quantitative answers.
+This document explains the clustering replicability metrics implemented in ERICA: the **CLAM-based metrics** CRI, WCRI, and TWCRI. If you've ever wondered whether your clusters are real or just statistical hallucinations, these metrics provide quantitative answers.
 
 ## Overview
-
-### ERICA Metrics (CLAM-based)
 
 | Metric | Full Name | Relationship | Purpose |
 |--------|-----------|--------------|---------|
@@ -12,14 +10,7 @@ This document explains the clustering replicability metrics implemented in ERICA
 | **WCRI** | Weighted CRI | Derived from CRI | Size-weighted CRI for imbalanced clusters |
 | **TWCRI** | Total Weighted CRI | Sum of WCRI | Aggregate score for K* selection |
 
-### Parmigiani Metrics (Partition Comparison)
-
-| Metric | Full Name | Range | Purpose |
-|--------|-----------|-------|---------|
-| **ARI** | Adjusted Rand Index | [-1, 1] | Partition similarity adjusted for chance |
-| **AMI** | Adjusted Mutual Information | [0, 1] | Information-theoretic partition comparison |
-
-All metrics have **higher values indicating better replicability** (except ARI can be negative for worse-than-random).
+All metrics have **higher values indicating better replicability**.
 
 ---
 
@@ -227,93 +218,9 @@ $$\text{TWCRI} = \sum_{c=1}^{k} \text{WCRI}_c$$
 
 ---
 
-## Parmigiani Metrics (ARI and AMI)
-
-In addition to CLAM-based metrics, ERICA implements the partition comparison metrics from Parmigiani et al. (2023) "Cross-Study Replicability in Cluster Analysis" (Statistical Science, 38(2): 303-316).
-
-### Overview
-
-| Metric | Full Name | Range | Perfect Score |
-|--------|-----------|-------|---------------|
-| **ARI** | Adjusted Rand Index | [-1, 1] | 1.0 |
-| **AMI** | Adjusted Mutual Information | [0, 1] | 1.0 |
-
-### How They Work
-
-The Parmigiani methodology (Algorithm 1) compares two clusterings of the test set:
-
-1. **predicted_labels**: Cluster assignments from a model trained on the training set, applied to test samples
-2. **true_labels**: Cluster assignments from a fresh model fitted directly on test samples
-
-```
-Train Set ──► Fit Model ──► Predict on Test ──► predicted_labels
-                                                      │
-Test Set  ──► Fit Fresh Model ──────────────► true_labels
-                                                      │
-                                              Compare with ARI/AMI
-```
-
-### Interpretation
-
-| Value | ARI Interpretation | AMI Interpretation |
-|-------|-------------------|-------------------|
-| 1.0 | Perfect agreement | Perfect mutual information |
-| 0.8+ | High replicability | High replicability |
-| 0.5-0.8 | Moderate agreement | Moderate agreement |
-| ~0 | Random (no better than chance) | Independent clusterings |
-| <0 | Worse than random (ARI only) | N/A |
-
-### Usage Example
-
-```python
-from sklearn.cluster import KMeans
-from sklearn.model_selection import train_test_split
-from erica.metrics import compute_ari, compute_ami, aggregate_parmigiani_metrics
-
-# Single iteration
-train_data, test_data = train_test_split(data, train_size=0.8)
-
-# Fit on train, predict on test
-kmeans_train = KMeans(n_clusters=3).fit(train_data)
-predicted_labels = kmeans_train.predict(test_data)
-
-# Fit fresh on test
-true_labels = KMeans(n_clusters=3).fit_predict(test_data)
-
-# Compute metrics
-ari = compute_ari(predicted_labels, true_labels)
-ami = compute_ami(predicted_labels, true_labels)
-print(f"ARI: {ari:.3f}, AMI: {ami:.3f}")
-
-# Multiple iterations
-ari_scores, ami_scores = [], []
-for i in range(100):
-    # ... compute for each iteration ...
-    ari_scores.append(ari)
-    ami_scores.append(ami)
-
-summary = aggregate_parmigiani_metrics(ari_scores, ami_scores)
-print(f"Mean ARI: {summary['ARI_mean']:.3f} +/- {summary['ARI_std']:.3f}")
-```
-
-### ERICA vs Parmigiani Metrics
-
-| Aspect | ERICA (CRI/WCRI/TWCRI) | Parmigiani (ARI/AMI) |
-|--------|------------------------|----------------------|
-| **Based on** | CLAM matrix (aggregated assignments) | Pairwise partition comparison |
-| **Computed** | Once after all iterations | Per iteration, then aggregated |
-| **Measures** | Per-sample assignment consistency | Overall partition similarity |
-| **Best for** | Identifying unstable samples/clusters | Overall replicability score |
-
-Both approaches are complementary. Use CRI to diagnose which clusters are problematic; use ARI/AMI for a quick overall replicability assessment.
-
----
-
 ## Code Reference
 
 The metrics are implemented in `erica/metrics.py`:
-
-### ERICA Metrics (CLAM-based)
 
 | Function | Description |
 |----------|-------------|
@@ -322,15 +229,6 @@ The metrics are implemented in `erica/metrics.py`:
 | `compute_twcri()` | Compute TWCRI (total weighted CRI) |
 | `compute_metrics_for_clam()` | Compute all metrics from a CLAM matrix |
 | `select_optimal_k()` | Select K* using Algorithm 2 |
-
-### Parmigiani Metrics (Partition Comparison)
-
-| Function | Description |
-|----------|-------------|
-| `compute_ari()` | Adjusted Rand Index between two clusterings |
-| `compute_ami()` | Adjusted Mutual Information between two clusterings |
-| `compute_parmigiani_metrics()` | Compute both ARI and AMI |
-| `aggregate_parmigiani_metrics()` | Aggregate scores across iterations |
 
 ---
 
