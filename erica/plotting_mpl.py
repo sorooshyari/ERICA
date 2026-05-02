@@ -520,50 +520,75 @@ def plot_pcsp(
     for src_k in range(k):
         ax = axes_flat[src_k]
         mask = primary == src_k
+        n_src = int(mask.sum())
         if not mask.any():
-            ax.set_title(f"C{src_k+1} (empty)", fontsize=10)
+            ax.set_title(f"Cluster {src_k + 1} assignments: 0 points",
+                         fontsize=10)
             ax.set_ylim(-0.05, 1.05)
             continue
 
+        u_self = float(clam_norm[mask, src_k].mean())
+
         segments: List[np.ndarray] = []
         boundaries = [0]
-        target_labels: List[str] = []
+        target_idx: List[int] = []
+        target_means: List[float] = []
         for tgt_k in range(k):
             if tgt_k == src_k:
                 continue
             vals = clam_norm[mask, tgt_k]
             segments.append(vals)
             boundaries.append(boundaries[-1] + len(vals))
-            target_labels.append(f"C{tgt_k+1}")
+            target_idx.append(tgt_k)
+            target_means.append(float(vals.mean()))
 
         if not segments:
-            ax.set_title(f"C{src_k+1} (n={int(mask.sum())})", fontsize=10)
+            ax.set_title(
+                f"Cluster {src_k + 1} assignments: {n_src} points "
+                f"($U_{{{src_k + 1}\\to{src_k + 1}}}$: {u_self:.3f})",
+                fontsize=10,
+            )
             ax.set_ylim(-0.05, 1.05)
             continue
 
         all_vals = np.concatenate(segments)
         x = np.arange(len(all_vals))
-        ax.scatter(x, all_vals, s=8, alpha=0.6, c="#4477AA")
+        ax.scatter(
+            x, all_vals,
+            s=18, facecolors="none", edgecolors="#4477AA", linewidths=0.8,
+        )
 
         for b in boundaries[1:-1]:
-            ax.axvline(b, linestyle=":", color="#888", linewidth=0.8)
+            ax.axvline(b, linestyle=":", color="#C44", linewidth=0.8)
 
         mid_points = [
             (boundaries[i] + boundaries[i + 1]) / 2
-            for i in range(len(target_labels))
+            for i in range(len(target_idx))
         ]
-        for mid, label in zip(mid_points, target_labels):
+        ymax = max(0.5, float(all_vals.max()) * 1.05)
+        ax.set_ylim(0, ymax)
+
+        for mid, tgt_k, mean_val in zip(mid_points, target_idx, target_means):
             ax.text(
-                mid, -0.12, label,
-                ha="center", va="top", fontsize=7, color="#555",
+                mid, ymax * 0.94,
+                f"$U_{{{src_k + 1}\\to{tgt_k + 1}}}$: {mean_val:.3f}",
+                ha="center", va="top", fontsize=8, color="#222",
             )
 
-        ax.set_title(f"C{src_k+1} (n={int(mask.sum())})", fontsize=10)
-        ax.set_xlabel("Index", fontsize=8)
+        ax.set_xticks(mid_points)
+        ax.set_xticklabels(
+            [f"$U_{{{tgt_k + 1}}}$" for tgt_k in target_idx], fontsize=9,
+        )
+        ax.set_title(
+            f"Cluster {src_k + 1} assignments: {n_src} points "
+            f"($U_{{{src_k + 1}\\to{src_k + 1}}}$: {u_self:.3f})",
+            fontsize=10,
+        )
         if src_k % ncols == 0:
-            ax.set_ylabel("Assignment to other clusters", fontsize=8)
-        ax.set_ylim(-0.05, 1.05)
-        ax.tick_params(labelsize=7)
+            ax.set_ylabel("Frequency assigned to cluster", fontsize=9)
+        ax.tick_params(axis="y", labelsize=8)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
     if title is None:
         title = f"Per-Cluster Scatter Plots (K={k})"
