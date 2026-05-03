@@ -621,6 +621,181 @@ def plot_replicability_metrics(
 
 
 # ---------------------------------------------------------------------------
+# MATLAB-recap plots: 1xK gap-padded scatter and percent-scale heatmap
+# ---------------------------------------------------------------------------
+#
+# Direct ports of the original MATLAB clam_matrix_sort_18a.m visualisations:
+#  - plot_assignment_scatter: 1xK scatter, percent y-axis, "Cluster N"
+#    tick labels at the centre of each gap-padded target section.
+#  - plot_assignment_heatmap: KxK mean cross-assignment in percent
+#    (diagonal = self-fidelity, off-diagonal = leakage).
+#
+# These are spartan recapitulations of the MATLAB output. For the enriched
+# image-style PCSP with U-notation annotations, see :func:`plot_pcsp`.
+
+def plot_assignment_scatter(
+    clam: np.ndarray,
+    method: Optional[str] = None,
+    k: Optional[int] = None,
+    gap_frac: float = 0.25,
+    ax_array: Optional[np.ndarray] = None,
+    fig: Optional[plt.Figure] = None,
+    title: Optional[str] = None,
+) -> plt.Figure:
+    """1xK MATLAB-style assignment scatter (percent y-axis, gap-padded targets).
+
+    Parameters
+    ----------
+    clam : np.ndarray, shape (n_samples, K)
+    method : str, optional
+        Method label included in the suptitle.
+    k : int, optional
+        Cluster count. Defaults to ``clam.shape[1]``.
+    gap_frac : float
+        Gap between target sections as a fraction of section length.
+    ax_array : np.ndarray of Axes, optional
+        Pre-built axes array of length K. If None and ``fig`` also None,
+        a new 1xK figure is created.
+    fig : matplotlib.figure.Figure, optional
+        Existing figure to draw into (subplots are created if no ax_array).
+    title : str, optional
+        Suptitle override.
+    """
+    clam_arr = np.asarray(clam, dtype=float)
+    if k is None:
+        k = clam_arr.shape[1]
+    row_sums = clam_arr.sum(axis=1, keepdims=True)
+    safe = np.where(row_sums == 0, 1, row_sums)
+    norm = clam_arr / safe
+    primary = np.argmax(clam_arr, axis=1)
+
+    if ax_array is None:
+        if fig is None:
+            fig, axes = plt.subplots(
+                1, k,
+                figsize=(min(DOUBLE_COL * 1.8, 14), 2.8),
+                squeeze=False, sharey=True,
+            )
+        else:
+            axes = fig.subplots(1, k, squeeze=False, sharey=True)
+        axes = axes[0]
+    else:
+        axes = ax_array
+        fig = axes[0].figure
+
+    for c in range(k):
+        ax = axes[c]
+        mask = primary == c
+        n = int(mask.sum())
+        if n == 0:
+            ax.set_title(f"Cluster {c + 1}\n(empty)", fontsize=9)
+            ax.set_visible(False)
+            continue
+
+        prof = norm[mask]
+        other = [j for j in range(k) if j != c]
+        gap = max(int(n * gap_frac), 8)
+
+        tick_pos: List[int] = []
+        tick_lbl: List[str] = []
+        offset = 0
+        for oc in other:
+            x = np.arange(offset, offset + n)
+            y = 100.0 * prof[:, oc]
+            ax.scatter(
+                x, y, s=1.5, alpha=0.4,
+                color=f"C{oc}", rasterized=True,
+            )
+            tick_pos.append(offset + n // 2)
+            tick_lbl.append(f"Cluster {oc + 1}")
+            offset += n + gap
+
+        ax.set_title(f"Cluster {c + 1}\n(n={n})", fontsize=9)
+        ax.set_xlim(-gap, offset)
+        ax.set_xticks(tick_pos)
+        ax.set_xticklabels(tick_lbl, fontsize=7, rotation=30, ha="right")
+        if c == 0:
+            ax.set_ylabel("% assigned to cluster", fontsize=9)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+    axes[0].set_ylim(-0.5, 55)
+
+    if title is None:
+        suffix = f", {method}" if method else ""
+        title = f"Per-cluster assignment profiles (K={k}{suffix})"
+    fig.suptitle(title, fontsize=11, y=1.02)
+    fig.tight_layout()
+    return fig
+
+
+def plot_assignment_heatmap(
+    clam: np.ndarray,
+    k: Optional[int] = None,
+    ax: Optional[plt.Axes] = None,
+    title: Optional[str] = None,
+    cmap: str = "YlOrRd",
+) -> Tuple[plt.Figure, plt.Axes]:
+    """KxK mean cross-assignment heatmap in percent (MATLAB style).
+
+    Cell ``[i, j]`` = mean percent assignment of cluster-i samples (primary)
+    to cluster j. Diagonal = self-fidelity; off-diagonal = leakage.
+
+    Parameters
+    ----------
+    clam : np.ndarray, shape (n_samples, K)
+    k : int, optional
+    ax : matplotlib.axes.Axes, optional
+    title : str, optional
+    cmap : str
+        Heatmap colormap. MATLAB original uses "YlOrRd"; pass another name for
+        a different look.
+    """
+    clam_arr = np.asarray(clam, dtype=float)
+    if k is None:
+        k = clam_arr.shape[1]
+    row_sums = clam_arr.sum(axis=1, keepdims=True)
+    safe = np.where(row_sums == 0, 1, row_sums)
+    norm = clam_arr / safe
+    primary = np.argmax(clam_arr, axis=1)
+
+    M = np.full((k, k), np.nan)
+    for c in range(k):
+        mask = primary == c
+        if mask.any():
+            M[c] = 100.0 * norm[mask].mean(axis=0)
+
+    fig, ax = _ensure_ax(ax, figsize=(3.5, 3.2))
+
+    vmax = max(100.0, float(np.nanmax(M)))
+    im = ax.imshow(M, cmap=cmap, aspect="auto", vmin=0, vmax=vmax)
+
+    for i in range(k):
+        for j in range(k):
+            if np.isnan(M[i, j]):
+                continue
+            color = "white" if M[i, j] > 50 else "black"
+            ax.text(
+                j, i, f"{M[i, j]:.1f}",
+                ha="center", va="center", fontsize=8, color=color,
+            )
+
+    ax.set_xticks(range(k))
+    ax.set_yticks(range(k))
+    ax.set_xticklabels([f"C{i + 1}" for i in range(k)])
+    ax.set_yticklabels([f"C{i + 1}" for i in range(k)])
+    ax.set_xlabel("Assigned to cluster")
+    ax.set_ylabel("Primary cluster")
+
+    if title is None:
+        title = f"Cross-assignment (%) — K={k}"
+    ax.set_title(title, fontsize=10)
+    fig.colorbar(im, ax=ax, label="Mean %", shrink=0.8)
+    fig.tight_layout()
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
 # Bar charts: K* by method/metric and per-sample stability strips
 # ---------------------------------------------------------------------------
 

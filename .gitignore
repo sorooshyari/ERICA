@@ -172,3 +172,6 @@ docs/superpowers/
 plotting_experiments/data/
 plotting_experiments/results/
 plotting_experiments/figures/**/*.pdf
+# Large raw datasets (downloaded on demand, not committed)
+plotting_experiments/data/vdx_dict.npy
+plotting_experiments/data/vdx_full*.csv

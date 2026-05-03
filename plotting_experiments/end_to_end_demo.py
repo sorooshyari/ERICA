@@ -9,10 +9,11 @@ Outputs: figures/end_to_end_demo/*.png
 
 Run from the repo root:
     python plotting_experiments/end_to_end_demo.py
+
+First written: 2026-04-26
 """
 
 import os
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -66,17 +67,20 @@ def main():
     print(f"  K* (TWCRI): {k_star_twcri}")
 
     method = "kmeans"
-    k = k_star_twcri.get(method) or 3
+    k_star = k_star_twcri.get(method) or 3
+    K_RANGE = [2, 3, 4, 5, 6]
 
-    print(f"\nGenerating figures for {method} at K={k} ...")
+    print(f"\nGenerating aggregate figures over K={K_RANGE} ...")
 
+    # --- 01-02: aggregate across K ---
     k_values, curves, _ = extract_metric_curves(
         results, method, ["CRI", "WCRI", "TWCRI"]
     )
     fig, ax = plot_replicability_metrics(
         k_values, curves["CRI"], curves["WCRI"], curves["TWCRI"]
     )
-    ax.axvline(k, color="gray", linestyle="--", linewidth=0.8, label=f"K*={k}")
+    ax.axvline(k_star, color="gray", linestyle="--", linewidth=0.8,
+               label=f"K*={k_star}")
     ax.legend()
     ax.set_title(f"VDX 3-gene — {method} replicability metrics")
     save(fig, "01_replicability_metrics")
@@ -90,33 +94,41 @@ def main():
     fig.tight_layout()
     save(fig, "02_method_comparison")
 
-    clam = results["clam_matrices"][(k, method)]
-
-    fig, _ = plot_clam_heatmap_mpl(clam, sort=True,
-                                   title=f"CLAM heatmap (sorted) — K={k}")
-    save(fig, "03_clam_heatmap_sorted")
-
-    fig, _ = plot_clam_heatmap_mpl(clam, sort=False,
-                                   title=f"CLAM heatmap (unsorted) — K={k}")
-    save(fig, "04_clam_heatmap_unsorted")
-
-    fig, _ = plot_cluster_sizes_mpl(clam)
-    save(fig, "05_cluster_sizes")
-
-    fig, _ = plot_icah(clam, k=k,
-                       title=f"Inter-Cluster Assignment Heatmap — K={k}")
-    save(fig, "06_icah")
-
-    fig = plot_pcsp(clam, k=k, title=f"Per-Cluster Scatter Plots — K={k}")
-    save(fig, "07_pcsp")
-
     k_star_all = {m: er.get_k_star(m) for m in ["CRI", "WCRI", "TWCRI"]}
     fig, _ = plot_k_star_bars(k_star_all)
-    save(fig, "08_k_star_bars")
+    save(fig, "03_k_star_bars")
 
-    fig, _ = plot_stability_strips(clam, max_samples=80,
-                                   title=f"Stability strips — K={k}")
-    save(fig, "09_stability_strips")
+    # --- 04-08: per-K, one figure per K with " (K*)" annotation when matched ---
+    for k in K_RANGE:
+        clam = results["clam_matrices"].get((k, method))
+        if clam is None:
+            print(f"  [SKIP] no CLAM at K={k}")
+            continue
+        suffix = " — K*" if k == k_star else ""
+        print(f"\n  K={k}{suffix}")
+
+        fig, _ = plot_clam_heatmap_mpl(
+            clam, sort=True,
+            title=f"CLAM heatmap (sorted) — K={k}{suffix}",
+        )
+        save(fig, f"04_clam_heatmap_sorted_K{k}")
+
+        fig, _ = plot_cluster_sizes_mpl(clam)
+        save(fig, f"05_cluster_sizes_K{k}")
+
+        fig, _ = plot_icah(clam, k=k,
+                           title=f"Inter-Cluster Assignment Heatmap — K={k}{suffix}")
+        save(fig, f"06_icah_K{k}")
+
+        fig = plot_pcsp(clam, k=k,
+                        title=f"Per-Cluster Scatter Plots — K={k}{suffix}")
+        save(fig, f"07_pcsp_K{k}")
+
+        fig, _ = plot_stability_strips(
+            clam, max_samples=80,
+            title=f"Stability strips — K={k}{suffix}",
+        )
+        save(fig, f"08_stability_strips_K{k}")
 
     print(f"\nDone. Figures in {OUT_DIR}")
 

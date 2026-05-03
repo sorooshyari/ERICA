@@ -34,7 +34,7 @@ Advanced Usage:
     >>> metrics = compute_cri(results['clam_matrix'])
 """
 
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __author__ = "Siamak Sorooshyari, Shawn Shirazi"
 __license__ = "MIT"
 
@@ -88,6 +88,8 @@ try:
         compute_icah,
         plot_icah,
         plot_pcsp,
+        plot_assignment_scatter,
+        plot_assignment_heatmap,
         plot_replicability_metrics,
         plot_k_star_bars,
         plot_stability_strips,
@@ -155,6 +157,8 @@ __all__ = [
     'compute_icah',
     'plot_icah',
     'plot_pcsp',
+    'plot_assignment_scatter',
+    'plot_assignment_heatmap',
     'plot_replicability_metrics',
     'plot_k_star_bars',
     'plot_stability_strips',
