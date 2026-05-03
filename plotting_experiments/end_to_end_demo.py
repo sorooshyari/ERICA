@@ -55,10 +55,10 @@ def main():
     er = ERICA(
         data=X,
         k_range=[2, 3, 4, 5, 6],
-        n_iterations=50,
+        n_iterations=200,
         method=["kmeans", "agglomerative_ward"],
         transpose=False,
-        random_state=42,
+        random_state=123,
         verbose=False,
     )
     results = er.run()

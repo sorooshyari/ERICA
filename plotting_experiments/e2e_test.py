@@ -56,8 +56,8 @@ VDX_3GENE_CSV = os.path.join(REPO_ROOT, "examples", "data", "VDX_3_SV.csv")
 VDX_FULL_NPZ = os.path.join(DATA_DIR, "vdx_full.npz")
 
 K = 4
-N_ITERATIONS_3GENE = 50
-N_ITERATIONS_FULL = 30   # 22k features -> keep iterations modest
+N_ITERATIONS_3GENE = 200
+N_ITERATIONS_FULL = 200
 METHODS = ["kmeans", "agglomerative_ward"]
 
 
@@ -93,7 +93,7 @@ def run_dataset(X, label, n_iterations):
         n_iterations=n_iterations,
         method=METHODS,
         transpose=False,
-        random_state=42,
+        random_state=123,
         verbose=False,
     )
     results = er.run()
