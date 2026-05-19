@@ -40,6 +40,8 @@ class ERICA:
         transpose: bool = True,
         verbose: bool = True,
         hdbscan_params: Optional[Dict] = None,
+        reseed_rng: bool = True,
+        kmeans_n_init: Union[int, str] = 10,
         **kwargs,
     ):
         """Initialize ERICA analysis.
@@ -73,6 +75,19 @@ class ERICA:
         hdbscan_params : dict, optional
             Parameters for HDBSCAN (min_cluster_size, min_samples).
             Only used when 'hdbscan' is in the method list.
+        reseed_rng : bool, optional
+            If True (default), seed ``random`` and ``numpy.random`` to
+            ``random_seed`` during construction. Set to False to preserve the
+            RNG state set by the caller (for example after the caller already
+            seeded and generated synthetic data); this is required to match
+            the canonical paper pipeline, which uses the post-data-generation
+            RNG state for Monte Carlo subsampling.
+        kmeans_n_init : int or str, optional
+            Forwarded to ``sklearn.cluster.KMeans(n_init=...)`` for both the
+            global and per-iteration K-Means fits. Default 10 to match the
+            canonical paper pipeline (and the legacy sklearn default before
+            1.4). Use ``"auto"`` to defer to sklearn's modern default
+            (which is 1 for ``init='k-means++'`` in sklearn >= 1.4).
         """
         # Reject removed parameters
         if 'linkages' in kwargs:
@@ -91,6 +106,8 @@ class ERICA:
         self.transpose = transpose
         self.verbose = verbose
         self.hdbscan_params = hdbscan_params
+        self.reseed_rng = reseed_rng
+        self.kmeans_n_init = kmeans_n_init
 
         # Normalize and classify methods
         self.method_list = normalize_method(method)
@@ -98,8 +115,12 @@ class ERICA:
         self.k_based_methods = [m for m in self.method_list if m in K_BASED_METHODS]
         self.auto_k_methods = [m for m in self.method_list if m in AUTO_K_METHODS]
 
-        # Deterministic reproducibility
-        set_deterministic_mode(random_seed)
+        # Deterministic reproducibility. Re-seeding here destroys any RNG
+        # state the caller set up before instantiation (e.g. the state left
+        # over after synthetic data generation). Set reseed_rng=False to
+        # preserve the caller's RNG state and match the canonical pipeline.
+        if reseed_rng:
+            set_deterministic_mode(random_seed)
 
         # Prepare and validate data
         self.samples_array = prepare_samples_array(data, transpose=transpose)
@@ -163,7 +184,8 @@ class ERICA:
                         n_iterations=self.n_iterations,
                         indices_folder=indices_folder,
                         output_dir=run_dir,
-                        verbose=self.verbose
+                        verbose=self.verbose,
+                        n_init=self.kmeans_n_init,
                     )
                     self.clam_matrices_[(k, 'kmeans')] = result['clam_matrix']
                     self.results_[(k, 'kmeans')] = result

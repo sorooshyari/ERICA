@@ -1,0 +1,4 @@
+L2 K* (CRI) = 4
+L2 K* (WCRI) = 2
+L2 K* (TWCRI) = 4
+L2 disqualified k: {'kmeans': [5, 6]}
