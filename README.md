@@ -91,7 +91,7 @@ ERICA implements two families of replicability metrics:
 
 ### Parmigiani Metrics (Partition Comparison)
 
-Based on Parmigiani et al. (2023) "Cross-Study Replicability in Cluster Analysis":
+Based on Masoero et al. (2023) "Cross-Study Replicability in Cluster Analysis" (Parmigiani is the senior author, hence use of his name):
 
 | Metric | Definition |
 |--------|------------|
@@ -112,7 +112,7 @@ See the [Metrics Guide](docs/METRICS_GUIDE.md) for detailed explanations.
 
 | Dataset | Description | Source |
 |---------|-------------|--------|
-| VDX | Breast cancer gene expression (22,283 genes × 344 samples) | [Parmigiani et al.](https://github.com/lorenzomasoero/clustering_replicability) |
+| VDX | Breast cancer gene expression (22,283 genes × 344 samples) | [Masoero et al.](https://github.com/lorenzomasoero/clustering_replicability) |
 | VDX_3_SV | Reduced 3-gene subset (344 samples) | Included in `examples/data/` |
 
 ## Requirements
