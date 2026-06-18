@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/erica.svg)](https://badge.fury.io/py/erica)
 
-**ERICA** is a Python implementation for assessing clustering replicability using Monte Carlo subsampling (MCSS). Because finding clusters is easy—finding clusters that *actually exist* is the hard part.
+**ERICA** is a Python implementation for assessing clustering replicability using Monte Carlo subsampling (MCSS). Declaring clusters is not difficult, but finding clusters that can be quantitatively shown to exist in a *replicable* manner is difficult.
 
 The method evaluates whether cluster structures identified in a dataset are stable and reproducible across random subsamples, providing quantitative metrics for clustering validity assessment.
 
@@ -91,7 +91,7 @@ ERICA implements two families of replicability metrics:
 
 ### Parmigiani Metrics (Partition Comparison)
 
-Based on Masoero et al. (2023) "Cross-Study Replicability in Cluster Analysis" (Parmigiani is the senior author, hence use of his name):
+Based on Masoero et al. (2023) "Cross-Study Replicability in Cluster Analysis" (Parmigiani is a senior author, hence use of his name):
 
 | Metric | Definition |
 |--------|------------|
