@@ -34,7 +34,7 @@ Advanced Usage:
     >>> metrics = compute_cri(results['clam_matrix'])
 """
 
-__version__ = "0.2.4"
+__version__ = "0.2.5"
 __author__ = "Siamak Sorooshyari, Shawn Shirazi"
 __license__ = "MIT"
 

@@ -10,7 +10,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='erica',
-    version='0.2.4',
+    version='0.2.5',
     author='Siamak Sorooshyari, Shawn Shirazi',
     author_email='shawn.shirazi@example.com',
     description='ERICA - A robust clustering replicability analysis tool using iterative clustering assignments',
