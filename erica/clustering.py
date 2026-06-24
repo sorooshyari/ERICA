@@ -11,7 +11,7 @@ import os
 import random
 import numpy as np
 import pandas as pd
-from typing import Tuple, List, Optional, Dict
+from typing import Tuple, List, Optional, Dict, Union
 from sklearn.cluster import KMeans, AgglomerativeClustering, HDBSCAN
 from scipy.optimize import linear_sum_assignment
 
@@ -186,7 +186,8 @@ def kmeans_clustering(
     indices_folder: str,
     output_dir: str,
     random_state: int = 0,
-    verbose: bool = False
+    verbose: bool = False,
+    n_init: Union[int, str] = 10,
 ) -> Dict:
     """Perform K-Means clustering with ERICA analysis.
     
@@ -212,7 +213,12 @@ def kmeans_clustering(
         Random state for K-Means, default 0
     verbose : bool, optional
         Whether to print progress, default False
-        
+    n_init : int or str, optional
+        Forwarded to sklearn.cluster.KMeans(n_init=...). Default 10 matches
+        the canonical paper pipeline (and the legacy sklearn default
+        pre-1.4). Use "auto" for sklearn's modern default (which is 1 for
+        init='k-means++' on sklearn >= 1.4).
+
     Returns
     -------
     dict
@@ -253,7 +259,7 @@ def kmeans_clustering(
     if verbose:
         print("  Calculating global centroids...")
     
-    kmeans_global = KMeans(n_clusters=k, random_state=random_state, n_init="auto")
+    kmeans_global = KMeans(n_clusters=k, random_state=random_state, n_init=n_init)
     kmeans_global.fit(samples_array)
     global_centroids = kmeans_global.cluster_centers_
     
@@ -279,7 +285,7 @@ def kmeans_clustering(
         )
 
         # Fit on train, predict on test
-        kmeans_iter = KMeans(n_clusters=k, random_state=random_state, n_init="auto")
+        kmeans_iter = KMeans(n_clusters=k, random_state=random_state, n_init=n_init)
         kmeans_iter.fit(train_data)
         predictions = kmeans_iter.predict(test_data)
 

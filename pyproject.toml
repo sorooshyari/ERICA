@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "erica"
-version = "0.2.4"
+version = "0.2.5"
 description = "ERICA - Evaluating Replicability via Iterative Clustering Assignments"
 readme = "README.md"
 requires-python = ">=3.8"
