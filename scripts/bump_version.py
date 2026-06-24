@@ -56,6 +56,22 @@ def update_setup_py(version):
     print(f"Updated setup.py to version {version}")
 
 
+def update_init_py(version):
+    """Update version in erica/__init__.py."""
+    init_path = Path("erica/__init__.py")
+    content = init_path.read_text()
+
+    # Replace the __version__ assignment
+    content = re.sub(
+        r'__version__ = "[^"]*"',
+        f'__version__ = "{version}"',
+        content
+    )
+
+    init_path.write_text(content)
+    print(f"Updated erica/__init__.py to version {version}")
+
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python bump_version.py <major|minor|patch>")
@@ -84,6 +100,7 @@ def main():
     # Update files
     update_pyproject_toml(new_version)
     update_setup_py(new_version)
+    update_init_py(new_version)
     
     print(f"\nVersion bumped to {new_version}")
     print("Next steps:")
